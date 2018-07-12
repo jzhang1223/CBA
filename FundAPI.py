@@ -1,4 +1,4 @@
-class Fund(object):
+class FundAPI(object):
 
     def getID(self):
         return NotImplementedError("Abstract Class")
