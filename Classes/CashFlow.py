@@ -29,7 +29,7 @@ class CashFlow(CashFlowAPI):
         return self.currency
 
     def getTypeID(self):
-      return self.fundID
+        return self.fundID
 
     def getCurrency(self):
         return self.currency
