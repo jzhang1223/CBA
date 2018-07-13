@@ -1,10 +1,21 @@
 from APIs import CashFlowTypeAPI
 
-class CashFlowType(object):
+class CashFlowType(CashFlowTypeAPI.CashFlowTypeAPI):
 
-    cfID = None
-    fundID = None
-    date = None
-    value = None
-    typeID = None
-    notes = None
+    cftID = None
+    result = None
+    use = None
+
+    def __init__(self, cftID, result, use):
+        self.cftID = cftID
+        self.result = result
+        self.use = use
+
+    def getID(self):
+        return self.cftID
+
+    def getResult(self):
+        return self.result
+
+    def getUse(self):
+        return self.use
