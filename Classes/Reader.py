@@ -1,6 +1,6 @@
 from APIs import ReaderAPI
 import csv
-import Processor
+
 
 class Reader(ReaderAPI.ReaderAPI):
     fileName = None
@@ -9,7 +9,7 @@ class Reader(ReaderAPI.ReaderAPI):
     def __init__(self, fileName, limit):
         self.fileName = fileName
         self.limit = limit
-        self.__process()
+        self._read()
 
     def getFileName(self):
         return self.fileName
@@ -17,18 +17,21 @@ class Reader(ReaderAPI.ReaderAPI):
     def getLimit(self):
         return self.limit
 
-    def __process(self):
+    def _read(self):
 
         with open(self.getFileName()) as file:
             sheet = csv.reader(file, delimiter=',')
-            self.__skipHeader(sheet)
+            self._skipHeader(sheet)
             for row in sheet:
-                #Processor(row)
+                self._process(row)
                 print(row)
 
     # Skips the first row of the given csv
-    def __skipHeader(self, sheet):
+    def _skipHeader(self, sheet):
         next(sheet)
+
+    def _process(self, row):
+        print 3#
 
 reader1 = Reader("../TestingWorkbook.csv", 5);
 
