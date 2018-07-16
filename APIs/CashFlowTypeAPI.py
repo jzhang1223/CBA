@@ -7,5 +7,5 @@ class CashFlowTypeAPI(object):
     def getResult(self):
         return NotImplementedError("Abstract Class")
 
-    def getUse(self):
+    def getUseCase(self):
         return NotImplementedError("Abstract Class")
