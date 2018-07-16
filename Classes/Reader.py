@@ -1,5 +1,8 @@
 from APIs import ReaderAPI
+from Classes import CashFlowType
 import csv
+
+
 
 
 class Reader(ReaderAPI.ReaderAPI):
@@ -35,7 +38,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def _process(self, row):
         if self._simpleRow(row):
-            print # todo
+            result = CashFlowType
         else: #ignore the base cash flow
             print # todo
 

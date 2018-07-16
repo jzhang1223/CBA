@@ -1,15 +1,19 @@
-use test;
+use cbaDB;
 drop table if exists cashFlow, fund, cashFlowType;
 
-create table Fund(fundID varchar(255), primary key (fundID));
+create table Fund(
+	fundID varchar(255), 
+    primary key (fundID));
 
-create table CashFlowType(typeID int, 
+create table CashFlowType(
+	typeID int, 
 	result enum('Distribution', 'Contribution'), 
 	useCase varchar(255),
     primary key auto_increment (typeID)
     );
     
-create table CashFlow(cfID int, 
+create table CashFlow(
+	cfID int, 
 	fundID varchar(255), 
 	cfDate date, 
 	cashValue int, 
@@ -21,4 +25,10 @@ create table CashFlow(cfID int,
     );
     
 insert into fund values('a1'),('python1');
+insert into CashFlowType (result, useCase) values ('Contribution', 'Expenses'),
+								('Contribution', 'Investment'),
+                                ('Distribution', 'Standard'),
+                                ('Distribution', 'Subject to Recall'),
+                                ('Distribution', 'Return of Capital');
 select * from fund;
+select * from CashFlowType;
