@@ -1,11 +1,18 @@
 from APIs import CashFlowAPI
 
 class CashFlow(CashFlowAPI):
+
+    # int
     cfID = None
+    # String
     fundID = None
+    # String ('YYYY-MM-DD')
     date = None
+    # int
     value = None
+    # int
     typeID = None
+    # String
     notes = None
 
     def __init__(self, cfID, fundID, date, value, typeID, notes):
@@ -17,19 +24,19 @@ class CashFlow(CashFlowAPI):
         self.notes = notes
 
     def getID(self):
-        return self.fundID
+        return self.cfID
 
     def getFundID(self):
-        return self.currency
+        return self.fundID
 
     def getDate(self):
-        return self.fundID
+        return self.date
 
-    def getCurrency(self):
-        return self.currency
+    def getValue(self):
+        return self.value
 
     def getTypeID(self):
-        return self.fundID
+        return self.typeID
 
-    def getCurrency(self):
-        return self.currency
+    def getNotes(self):
+        return self.notes

@@ -2,9 +2,12 @@ from APIs import CashFlowTypeAPI
 
 class CashFlowType(CashFlowTypeAPI.CashFlowTypeAPI):
 
+    # Int
     cftID = None
+    # 'Distribution' or 'Contribution'
     result = None
-    use = None
+    # String
+    useCase = None
 
     def __init__(self, cftID, result, use):
         self.cftID = cftID
@@ -17,5 +20,5 @@ class CashFlowType(CashFlowTypeAPI.CashFlowTypeAPI):
     def getResult(self):
         return self.result
 
-    def getUse(self):
-        return self.use
+    def getUseCase(self):
+        return self.useCase

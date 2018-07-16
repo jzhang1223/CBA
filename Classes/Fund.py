@@ -1,7 +1,10 @@
 from APIs import FundAPI
 
 class Fund(FundAPI.FundAPI):
+
+    # String
     fundID = None
+    # tbd
     currency = None
 
     def __init__(self, fundID, currency):
