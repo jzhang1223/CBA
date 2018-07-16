@@ -1,5 +1,7 @@
 from APIs import ReaderAPI
 from Classes import CashFlowType
+from Classes import CashFlow
+from datetime import datetime
 import csv
 
 import pymysql.cursors
@@ -45,7 +47,7 @@ class Reader(ReaderAPI.ReaderAPI):
     def _processRow(self, row):
         self._processFund(row)
         if self._simpleRow(row):
-            result = CashFlowType #todo
+            result = CashFlow(..., row[0], datetime.strptime(row[1], '%m/%d/%y'), row[2], ..., row[12]) #todo
         else: #ignore the base cash flow
             print # todo
 
