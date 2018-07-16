@@ -2,8 +2,13 @@ from APIs import ReaderAPI
 from Classes import CashFlowType
 import csv
 
+import pymysql.cursors
 
 
+connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='cba71118',
+                             db='cbaDB')
 
 class Reader(ReaderAPI.ReaderAPI):
     fileName = None
@@ -13,6 +18,7 @@ class Reader(ReaderAPI.ReaderAPI):
         self.fileName = fileName
         self.limit = limit
         self._read()
+        connection.close()
 
     def getFileName(self):
         return self.fileName
@@ -27,7 +33,7 @@ class Reader(ReaderAPI.ReaderAPI):
             i = 0
             for row in sheet:
                 i += 1
-                self._process(row)
+                self._processRow(row)
                 print(row)
                 if i >= self.getLimit():
                     break
@@ -36,16 +42,31 @@ class Reader(ReaderAPI.ReaderAPI):
     def _skipHeader(self, sheet):
         next(sheet)
 
-    def _process(self, row):
+    def _processRow(self, row):
+        self._processFund(row)
         if self._simpleRow(row):
-            result = CashFlowType
+            result = CashFlowType #todo
         else: #ignore the base cash flow
             print # todo
 
+    def _processFund(self, row):
+        fundID = row[0]
+        # try to send an insert query
+        try:
+            with connection.cursor() as cursor:
+                # Insert the fundID
+                query = "INSERT INTO fund VALUES (\"" + fundID + "\")"
+                cursor.execute(query)
+                connection.commit()
+                print "done!"
+        except Exception as e:
+            print e
+
+
     def _simpleRow(self, row):
         # If row[2] is has no value or if the other columns(Expenses, ROC, Dist. Sub. to Recall, Income) are all empty
-        if (row[2] == '$-' or row[2] == "" or (row[3] == "" and row[4] == "" and row[5] == "" and row[6] == "")):
-            return True
+        return (row[2] == '$-' or row[2] == "" or (row[3] == "" and row[4] == "" and row[5] == "" and row[6] == ""))
+
 
 
 
