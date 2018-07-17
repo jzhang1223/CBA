@@ -2,8 +2,6 @@ from APIs import CashFlowAPI
 
 class CashFlow(CashFlowAPI):
 
-    # int
-    cfID = None
     # String
     fundID = None
     # String ('YYYY-MM-DD')
@@ -15,16 +13,12 @@ class CashFlow(CashFlowAPI):
     # String
     notes = None
 
-    def __init__(self, cfID, fundID, date, value, typeID, notes):
-        self.cfID = cfID
+    def __init__(self, fundID, date, value, typeID, notes):
         self.fundID = fundID
         self.date = date
         self.value = value
         self.typeID = typeID
         self.notes = notes
-
-    def getID(self):
-        return self.cfID
 
     def getFundID(self):
         return self.fundID

@@ -45,9 +45,12 @@ class Reader(ReaderAPI.ReaderAPI):
         next(sheet)
 
     def _processRow(self, row):
+        # Qtr Evaluation
+        if row[11] != "":
+            return
         self._processFund(row)
         if self._simpleRow(row):
-            result = CashFlow(..., row[0], datetime.strptime(row[1], '%m/%d/%y'), row[2], ..., row[12]) #todo
+            self._makeSimpleRow(row)
         else: #ignore the base cash flow
             print # todo
 
@@ -68,6 +71,18 @@ class Reader(ReaderAPI.ReaderAPI):
     def _simpleRow(self, row):
         # If row[2] is has no value or if the other columns(Expenses, ROC, Dist. Sub. to Recall, Income) are all empty
         return (row[2] == '$-' or row[2] == "" or (row[3] == "" and row[4] == "" and row[5] == "" and row[6] == ""))
+
+    def _makeSimpleRow(self, row):
+        fundID = row[0]
+        date = datetime.strptime(row[1], '%m/%d/%y')
+        value = row[2]
+        typeID =  1# todo
+        notes = row[12]
+        result = CashFlow(fundID, date, value, typeID, notes)
+
+    def _findtypeID(self, row):
+        print
+
 
 
 
