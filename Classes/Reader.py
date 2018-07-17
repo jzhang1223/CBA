@@ -67,6 +67,17 @@ class Reader(ReaderAPI.ReaderAPI):
         except Exception as e:
             print e
 
+    # Send a given cashFlow to the database
+    def _processCashFlow(self, cashflow):
+        try:
+            with connection.cursor() as cursor:
+                query = "INSERT INTO fund (fundID, date, value, typeID, notes) " + \
+                        "VALUES (\'" + cashflow.getFundID() + "\', " + cashflow.getDate() + "\, " + cashflow.getValue() \
+                        + "\, " + cashflow.getTypeID() + "\, \'" + cashflow.getNotes() + "\'"
+                cursor.execute(query)
+                connection.commit()
+        except Exception as e:
+            print e
 
     def _simpleRow(self, row):
         # If row[2] is has no value or if the other columns(Expenses, ROC, Dist. Sub. to Recall, Income) are all empty
@@ -76,12 +87,39 @@ class Reader(ReaderAPI.ReaderAPI):
         fundID = row[0]
         date = datetime.strptime(row[1], '%m/%d/%y')
         value = row[2]
-        typeID =  1# todo
+        typeID =  self._findSimpleTypeID(row)
         notes = row[12]
         result = CashFlow(fundID, date, value, typeID, notes)
+        self._processCashFlow(result)
 
-    def _findtypeID(self, row):
-        print
+    def _findSimpleTypeID(self, row):
+            try:
+                with connection.cursor() as cursor:
+                    query = ""
+                    if "fee" in row[13]:
+                        query = "SELECT typeID FROM CashFlowType " \
+                                "WHERE result = \'Distribution\' AND useCase = \'Expenses\'"
+
+                    elif "contribution" in row[13] or "investment" in row[13] or row[2] < 0:
+                        query = "SELECT typeID FROM CashFlowType " \
+                                "WHERE result = \'Contribution\' AND useCase = \'Investment\'"
+
+                    elif "return of capital" in row [13]:
+                        query = "SELECT typeID FROM CashFlowType " \
+                                "WHERE result = \'Distribution\' AND useCase = \'Return of Capital\'"
+
+                    elif "distribution" in row[13] or row[2] > 0:
+                        query = "SELECT typeID FROM CashFlowType " \
+                                "WHERE result = \'Distribution\' AND useCase = \'Standard\'"
+
+                    else:
+                        Exception
+
+                    cursor.execute(query)
+                    return cursor.fetchone()
+
+            except Exception as e:
+                print e
 
 
 

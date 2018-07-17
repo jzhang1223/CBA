@@ -1,34 +1,35 @@
-use cbaDB;
-drop table if exists cashFlow, fund, cashFlowType;
+USE cbaDB;
+DROP TABLE IF EXISTS cashFlow, fund, cashFlowType;
 
-create table Fund(
-	fundID varchar(255), 
-    primary key (fundID));
+CREATE TABLE Fund(
+	fundID VARCHAR(255), 
+    PRIMARY KEY(fundID));
 
-create table CashFlowType(
-	typeID int, 
-	result enum('Distribution', 'Contribution'), 
-	useCase varchar(255),
-    primary key auto_increment (typeID)
+CREATE TABLE CashFlowType(
+	typeID INT, 
+	result ENUM('Distribution', 'Contribution'), 
+	useCase VARCHAR(255),
+    PRIMARY KEY AUTO_INCREMENT(typeID)
     );
     
-create table CashFlow(
-	cfID int, 
-	fundID varchar(255), 
-	cfDate date, 
-	cashValue int, 
-	typeID int, 
-    notes varchar(255),
-    primary key auto_increment (cfID),
-    foreign key (fundID) references fund(fundID),
-    foreign key (typeID) references cashFlowType(typeID)
+CREATE TABLE CashFlow(
+	cfID INT, 
+	fundID VARCHAR(255), 
+	cfDate DATE, 
+	cashValue INT, 
+	typeID INT, 
+    notes VARCHAR(255),
+    PRIMARY KEY AUTO_INCREMENT (cfID),
+    FOREIGN KEY (fundID) REFERENCES fund(fundID),
+    FOREIGN KEY (typeID) REFERENCES cashFlowType(typeID)
     );
     
-insert into fund values('a1'),('python1');
-insert into CashFlowType (result, useCase) values ('Contribution', 'Expenses'),
+INSERT INTO fund VALUES('a1'),('python1');
+INSERT INTO CashFlowType (result, useCase) VALUES ('Contribution', 'Expenses'),
 								('Contribution', 'Investment'),
                                 ('Distribution', 'Standard'),
                                 ('Distribution', 'Subject to Recall'),
                                 ('Distribution', 'Return of Capital');
-select * from fund;
-select * from CashFlowType;
+SELECT * FROM fund;
+SELECT * FROM CashFlowType;
+SELECT typeID FROM CashFlowType WHERE result = 'Contribution' AND useCase = 'Investment';
