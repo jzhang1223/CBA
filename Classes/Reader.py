@@ -36,16 +36,17 @@ class Reader(ReaderAPI.ReaderAPI):
                 i += 1
                 self._processRow(row)
                 print(i)
-                if i >= self.getLimit():
-                    return
+                print(row)
+                #if i >= self.getLimit():
+                #    return
 
     # Skips the first row of the given csv
     def _skipHeader(self, sheet):
         next(sheet)
 
     def _processRow(self, row):
-        # Qtr Evaluation
-        if row[11] != "" or "$" in row[2]:
+        # Qtr Evaluation, Initial Commitments, Empty Rows
+        if row[11] != "" or "$" in row[2] or row[0] == "":
             print("Skipped!***")
             return
         self._processFund(row)
