@@ -1,9 +1,5 @@
 class CashFlowAPI(object):
 
-    # Primary key
-    def getID(self):
-        return NotImplementedError("Abstract Class")
-
     # Foreign key
     def getFundID(self):
         return NotImplementedError("Abstract Class")

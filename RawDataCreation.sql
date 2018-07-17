@@ -33,3 +33,4 @@ INSERT INTO CashFlowType (result, useCase) VALUES ('Contribution', 'Expenses'),
 SELECT * FROM fund;
 SELECT * FROM CashFlowType;
 SELECT typeID FROM CashFlowType WHERE result = 'Contribution' AND useCase = 'Investment';
+SELECT * FROM CashFlow;

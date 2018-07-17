@@ -3,7 +3,6 @@ from Classes import CashFlowType
 from Classes import CashFlow
 from datetime import datetime
 import csv
-
 import pymysql.cursors
 
 
@@ -20,7 +19,7 @@ class Reader(ReaderAPI.ReaderAPI):
         self.fileName = fileName
         self.limit = limit
         self._read()
-        connection.close()
+        #connection.close()
 
     def getFileName(self):
         return self.fileName
@@ -52,7 +51,7 @@ class Reader(ReaderAPI.ReaderAPI):
         if self._simpleRow(row):
             self._makeSimpleRow(row)
         else: #ignore the base cash flow
-            print # todo
+            print "not simple" # todo
 
     def _processFund(self, row):
         fundID = row[0]
@@ -72,8 +71,8 @@ class Reader(ReaderAPI.ReaderAPI):
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO fund (fundID, date, value, typeID, notes) " + \
-                        "VALUES (\'" + cashflow.getFundID() + "\', " + cashflow.getDate() + "\, " + cashflow.getValue() \
-                        + "\, " + cashflow.getTypeID() + "\, \'" + cashflow.getNotes() + "\'"
+                        "VALUES (\'" + cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() \
+                        + ", " + cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\'"
                 cursor.execute(query)
                 connection.commit()
         except Exception as e:
@@ -89,7 +88,7 @@ class Reader(ReaderAPI.ReaderAPI):
         value = row[2]
         typeID =  self._findSimpleTypeID(row)
         notes = row[12]
-        result = CashFlow(fundID, date, value, typeID, notes)
+        result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
         self._processCashFlow(result)
 
     def _findSimpleTypeID(self, row):
@@ -116,7 +115,7 @@ class Reader(ReaderAPI.ReaderAPI):
                         Exception
 
                     cursor.execute(query)
-                    return cursor.fetchone()
+                    return str(cursor.fetchone()[0])
 
             except Exception as e:
                 print e

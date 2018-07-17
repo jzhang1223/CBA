@@ -1,10 +1,10 @@
 from APIs import CashFlowAPI
 
-class CashFlow(CashFlowAPI):
+class CashFlow(CashFlowAPI.CashFlowAPI):
 
     # String
     fundID = None
-    # String ('YYYY-MM-DD')
+    # Datetime.Datetime -> String ('YYYY-MM-DD')
     date = None
     # int
     value = None
@@ -23,8 +23,11 @@ class CashFlow(CashFlowAPI):
     def getFundID(self):
         return self.fundID
 
+    # Formats date object into sql's yyyy-mm-dd format
     def getDate(self):
-        return self.date
+        print "*** Trying to get date ***"
+        print str(self.date.year)
+        return str(self.date.year) + "/" + str(self.date.month) + "/" + str(self.date.day)
 
     def getValue(self):
         return self.value
