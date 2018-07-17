@@ -35,9 +35,9 @@ class Reader(ReaderAPI.ReaderAPI):
             for row in sheet:
                 i += 1
                 self._processRow(row)
-                print(row)
+                print(i)
                 if i >= self.getLimit():
-                    break
+                    return
 
     # Skips the first row of the given csv
     def _skipHeader(self, sheet):
@@ -45,14 +45,14 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def _processRow(self, row):
         # Qtr Evaluation
-        if row[2] == "" or row[2] == "$-":
-            print("Skipped!")
+        if row[11] != "" or "$" in row[2]:
+            print("Skipped!***")
             return
         self._processFund(row)
         if self._simpleRow(row):
             self._makeSimpleRow(row)
         else: #ignore the base cash flow
-            print "not simple" # todo
+            print "not simple***" # todo
 
     def _processFund(self, row):
         fundID = row[0]
@@ -125,7 +125,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
 
 
-reader1 = Reader("../cbaCashFlowModel.csv", 5);
+#reader1 = Reader("../cbaCashFlowModel.csv", 5);
 
 
 

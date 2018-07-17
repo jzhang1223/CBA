@@ -23,17 +23,18 @@ DROP TABLE IF EXISTS `CashFlow`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CashFlow` (
-  `cfID` int(11) DEFAULT '0',
+  `cfID` int(11) NOT NULL AUTO_INCREMENT,
   `fundID` varchar(255) DEFAULT NULL,
   `cfDate` date DEFAULT NULL,
   `cashValue` int(11) DEFAULT NULL,
   `typeID` int(11) NOT NULL,
   `notes` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`typeID`),
+  PRIMARY KEY (`cfID`),
   KEY `fundID` (`fundID`),
+  KEY `cashflow_ibfk_2` (`typeID`),
   CONSTRAINT `cashflow_ibfk_1` FOREIGN KEY (`fundID`) REFERENCES `fund` (`fundid`),
   CONSTRAINT `cashflow_ibfk_2` FOREIGN KEY (`typeID`) REFERENCES `cashflowtype` (`typeid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,4 +102,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-17 15:13:31
+-- Dump completed on 2018-07-17 15:34:59
