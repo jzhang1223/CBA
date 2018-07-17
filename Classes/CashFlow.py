@@ -25,8 +25,6 @@ class CashFlow(CashFlowAPI.CashFlowAPI):
 
     # Formats date object into sql's yyyy-mm-dd format
     def getDate(self):
-        print "*** Trying to get date ***"
-        print str(self.date.year)
         return str(self.date.year) + "/" + str(self.date.month) + "/" + str(self.date.day)
 
     def getValue(self):

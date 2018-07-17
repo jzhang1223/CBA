@@ -45,7 +45,8 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def _processRow(self, row):
         # Qtr Evaluation
-        if row[11] != "":
+        if row[2] == "" or row[2] == "$-":
+            print("Skipped!")
             return
         self._processFund(row)
         if self._simpleRow(row):
@@ -62,7 +63,6 @@ class Reader(ReaderAPI.ReaderAPI):
                 query = "INSERT INTO fund VALUES (\"" + fundID + "\")"
                 cursor.execute(query)
                 connection.commit()
-                print "done!"
         except Exception as e:
             print e
 
@@ -70,9 +70,10 @@ class Reader(ReaderAPI.ReaderAPI):
     def _processCashFlow(self, cashflow):
         try:
             with connection.cursor() as cursor:
-                query = "INSERT INTO fund (fundID, date, value, typeID, notes) " + \
-                        "VALUES (\'" + cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() \
-                        + ", " + cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\'"
+                query = "INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) " + "VALUES (\'" + cashflow.getFundID() \
+                        + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() + ", " + cashflow.getTypeID() \
+                        + ", \'" + cashflow.getNotes() + "\')"
+                print query
                 cursor.execute(query)
                 connection.commit()
         except Exception as e:

@@ -6,20 +6,20 @@ CREATE TABLE Fund(
     PRIMARY KEY(fundID));
 
 CREATE TABLE CashFlowType(
-	typeID INT, 
+	typeID INT DEFAULT 0, 
 	result ENUM('Distribution', 'Contribution'), 
 	useCase VARCHAR(255),
     PRIMARY KEY AUTO_INCREMENT(typeID)
     );
     
 CREATE TABLE CashFlow(
-	cfID INT, 
+	cfID INT DEFAULT 0, 
 	fundID VARCHAR(255), 
 	cfDate DATE, 
 	cashValue INT, 
 	typeID INT, 
     notes VARCHAR(255),
-    PRIMARY KEY AUTO_INCREMENT (cfID),
+    PRIMARY KEY AUTO_INCREMENT(typeID),
     FOREIGN KEY (fundID) REFERENCES fund(fundID),
     FOREIGN KEY (typeID) REFERENCES cashFlowType(typeID)
     );
@@ -34,3 +34,4 @@ SELECT * FROM fund;
 SELECT * FROM CashFlowType;
 SELECT typeID FROM CashFlowType WHERE result = 'Contribution' AND useCase = 'Investment';
 SELECT * FROM CashFlow;
+
