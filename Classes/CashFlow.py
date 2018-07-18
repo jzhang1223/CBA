@@ -35,3 +35,13 @@ class CashFlow(CashFlowAPI.CashFlowAPI):
 
     def getNotes(self):
         return self.notes
+
+    # Should be the same if all non-PK ids are the same
+    def sameCashFlow(self, other):
+        return (self.getFundID() == other.getFundID() and
+                self.getDate() == other.getDate() and
+                # Previously needed to be converted to a string for ?concatenation?
+                int(self.getValue()) == other.getValue() and
+                # Previously needed to be converted to a string for ?concatenation?
+                int(self.getTypeID()) == other.getTypeID() and
+                self.getNotes() == other.getNotes())
