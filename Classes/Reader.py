@@ -31,14 +31,13 @@ class Reader(ReaderAPI.ReaderAPI):
         with open(self.getFileName()) as file:
             sheet = csv.reader(file, delimiter=',')
             self._skipHeader(sheet)
-            i = 0
+            i = 1
             for row in sheet:
                 i += 1
                 self._processRow(row)
-                print(i)
-                print(row)
-                if i >= self.getLimit():
-                    return
+                print(str(i) + ":" + str(row))
+                #if i >= self.getLimit():
+                #    return
 
     # Skips the first row of the given csv
     def _skipHeader(self, sheet):
@@ -93,12 +92,10 @@ class Reader(ReaderAPI.ReaderAPI):
                 cursor.execute(check)
                 rowHolder = cursor.fetchone()
                 if (rowHolder is None):
-                    print "RowHolder is none? " + str(rowHolder is None)
                     query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) " + "VALUES (\'" +
                              cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() + ", " +
                              cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\')")
                     print '** Adding new CashFlow **'
-                    # print query
                     cursor.execute(query)
                     connection.commit()
                 else:
@@ -112,19 +109,23 @@ class Reader(ReaderAPI.ReaderAPI):
             try:
                 with connection.cursor() as cursor:
                     query = ""
-                    if "fee" in row[13]:
+                    excelType = row[13].lower()
+                    cash = int(row[2])
+                    if "fee" in excelType:
                         query = ("SELECT typeID FROM CashFlowType " 
                                 "WHERE result = \'Contribution\' AND useCase = \'Expenses\'")
-                    elif "contribution" in row[13] or "investment" in row[13] or row[2] < 0:
+                    elif "contribution" in excelType or "investment" in excelType or cash < 0:
+                        print "Contribution detected! ~ Investment"
                         query = ("SELECT typeID FROM CashFlowType " 
                                 "WHERE result = \'Contribution\' AND useCase = \'Investment\'")
-                    elif "income" in row[13]:
+                    elif "income" in excelType:
                         query = ("SELECT typeID FROM CashFlowType " 
                                 "WHERE result = \'Distribution\' AND useCase = \'Income\'")
-                    elif "return of capital" in row [13]:
+                    elif "return of capital" in excelType:
                         query = ("SELECT typeID FROM CashFlowType " 
                                 "WHERE result = \'Distribution\' AND useCase = \'Return of Capital\'")
-                    elif "distribution" in row[13] or row[2] > 0:
+                    elif "distribution" in excelType or cash > 0:
+                        print "Distributin Detected! ~ Standard"
                         query = ("SELECT typeID FROM CashFlowType " 
                                 "WHERE result = \'Distribution\' AND useCase = \'Standard\'")
                     else:
@@ -136,11 +137,6 @@ class Reader(ReaderAPI.ReaderAPI):
             except Exception as e:
                 print e
 
-
-
-
-
-#reader1 = Reader("../cbaCashFlowModel.csv", 5);
 
 
 
