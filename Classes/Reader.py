@@ -45,11 +45,13 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def _processRow(self, row):
         # Qtr Evaluation, Initial Commitments, Empty Rows
-        if row[11] != "" or "$" in row[2] or row[0] == "":
+        if row[0] == "":
             print("Skipped!*** QTR, Commit, Empty Row")
             return
         self._processFund(row)
-        if self._simpleRow(row):
+        if self._isQtr(row):
+            self._makeQtr(row)
+        elif self._simpleRow(row):
             self._makeSimpleRow(row)
         else: #ignore the base cash flow
             print "not simple***" # todo
@@ -68,9 +70,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def _simpleRow(self, row):
         # If row[2] is has no value or if the other columns(Expenses, ROC, Dist. Sub. to Recall, Income) are all empty
-        return (row[2] == '$-' or
-                row[2] == "" or
-                (row[3] == "" and row[4] == "" and row[5] == "" and row[6] == ""))
+        return row[2] != "" and row[3] == "" and row[4] == "" and row[5] == "" and row[6] == ""
 
     def _makeSimpleRow(self, row):
         fundID = row[0]
@@ -81,7 +81,20 @@ class Reader(ReaderAPI.ReaderAPI):
         result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
         self._processCashFlow(result)
 
-    # Send a given cashFlow to the database
+    # Determines if a given row is a Quarter Evaluation
+    def _isQtr(self, row):
+        return row[11] != ""
+
+    def _makeQtr(self, row):
+        fundID = row[0]
+        date = datetime.strptime(row[1], '%m/%d/%y')
+        value = row[11]
+        typeID = self._findQtrType()
+        notes = row[12]
+        result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
+        self._processCashFlow(result)
+
+    # Tries to add a CashFlow object into the CashFlow table in the DB
     def _processCashFlow(self, cashflow):
         try:
             with connection.cursor() as cursor:
@@ -105,37 +118,44 @@ class Reader(ReaderAPI.ReaderAPI):
         except Exception as e:
             print e
 
+    # Looks up the CashFlowType for simple rows
     def _findSimpleTypeID(self, row):
-            try:
-                with connection.cursor() as cursor:
-                    query = ""
-                    excelType = row[13].lower()
-                    cash = int(row[2])
-                    if "fee" in excelType:
-                        query = ("SELECT typeID FROM CashFlowType " 
-                                "WHERE result = \'Contribution\' AND useCase = \'Expenses\'")
-                    elif "contribution" in excelType or "investment" in excelType or cash < 0:
-                        print "Contribution detected! ~ Investment"
-                        query = ("SELECT typeID FROM CashFlowType " 
-                                "WHERE result = \'Contribution\' AND useCase = \'Investment\'")
-                    elif "income" in excelType:
-                        query = ("SELECT typeID FROM CashFlowType " 
-                                "WHERE result = \'Distribution\' AND useCase = \'Income\'")
-                    elif "return of capital" in excelType:
-                        query = ("SELECT typeID FROM CashFlowType " 
-                                "WHERE result = \'Distribution\' AND useCase = \'Return of Capital\'")
-                    elif "distribution" in excelType or cash > 0:
-                        print "Distributin Detected! ~ Standard"
-                        query = ("SELECT typeID FROM CashFlowType " 
-                                "WHERE result = \'Distribution\' AND useCase = \'Standard\'")
-                    else:
-                        Exception
+        try:
+            with connection.cursor() as cursor:
+                query = ""
+                excelType = row[13].lower()
+                cash = int(row[2])
+                if "fee" in excelType:
+                    query = ("SELECT typeID FROM CashFlowType "
+                             "WHERE result = \'Contribution\' AND useCase = \'Expenses\'")
+                elif "contribution" in excelType or "investment" in excelType or cash < 0:
+                    query = ("SELECT typeID FROM CashFlowType "
+                             "WHERE result = \'Contribution\' AND useCase = \'Investment\'")
+                elif "income" in excelType:
+                    query = ("SELECT typeID FROM CashFlowType " 
+                             "WHERE result = \'Distribution\' AND useCase = \'Income\'")
+                elif "return of capital" in excelType:
+                    query = ("SELECT typeID FROM CashFlowType " 
+                             "WHERE result = \'Distribution\' AND useCase = \'Return of Capital\'")
+                elif "distribution" in excelType or cash > 0:
+                    query = ("SELECT typeID FROM CashFlowType " 
+                             "WHERE result = \'Distribution\' AND useCase = \'Standard\'")
+                else:
+                    Exception
+                cursor.execute(query)
+                return str(cursor.fetchone()[0])
+        except Exception as e:
+            print e
 
-                    cursor.execute(query)
-                    return str(cursor.fetchone()[0])
-
-            except Exception as e:
-                print e
+    def _findQtrType(self):
+        try:
+            with connection.cursor() as cursor:
+                query = ("SELECT typeID FROM CashFlowType "
+                         "WHERE result = \'Balance\' AND useCase = \'Quarterly Valuation\'")
+                cursor.execute(query)
+                return str(cursor.fetchone()[0])
+        except Exception as e:
+            print e
 
 
 

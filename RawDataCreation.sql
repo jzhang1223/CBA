@@ -27,5 +27,3 @@ CREATE TABLE CashFlow(
 SELECT * FROM fund;
 SELECT * FROM CashFlowType;
 SELECT * FROM CashFlow;
-
-
