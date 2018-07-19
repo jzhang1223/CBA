@@ -58,6 +58,7 @@ class Reader(ReaderAPI.ReaderAPI):
             self._makeComplexRow(row)
 
     # Insert the FundID before adding the row so it will be in the DB. Note: This could potentially add strange fundIDs.
+    # Also generates the initial commitment value
     def _processFund(self, row):
         fundID = row[0]
         try:
@@ -65,6 +66,7 @@ class Reader(ReaderAPI.ReaderAPI):
                 query = "INSERT INTO fund VALUES (\"" + fundID + "\")"
                 cursor.execute(query)
                 connection.commit()
+                self._makeInitialCommitment(row)
         except Exception as e:
             print e
 
@@ -91,6 +93,17 @@ class Reader(ReaderAPI.ReaderAPI):
         date = datetime.strptime(row[1], '%m/%d/%y')
         value = row[11]
         typeID = self._findNamedType('Balance', 'Quarterly Valuation')
+        notes = row[12]
+        result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
+        self._processCashFlow(result)
+
+    # Makes an initial commitment value, should only occur after the fundID is initially inputted
+    # Assumes that initial commitment is the first value of any fund.
+    def _makeInitialCommitment(self, row):
+        fundID = row[0]
+        date = datetime.strptime(row[1], '%m/%d/%y')
+        value = row[10]
+        typeID = self._findNamedType('Balance', 'Initial Commitment')
         notes = row[12]
         result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
         self._processCashFlow(result)

@@ -58,7 +58,7 @@ CREATE TABLE `CashFlowType` (
   `result` enum('Distribution','Contribution','Balance') DEFAULT NULL,
   `useCase` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +68,7 @@ CREATE TABLE `CashFlowType` (
 LOCK TABLES `CashFlowType` WRITE;
 /*!40000 ALTER TABLE `CashFlowType` DISABLE KEYS */;
 INSERT INTO `CashFlowType` VALUES (1,'Contribution','Expenses'),(2,'Contribution','Investment'),(3,'Contribution','Subject to Recall'),(4,'Contribution','Return of Capital'),
-(5,'Distribution','Standard'),(6,'Distribution','Subject to Recall'),(7,'Distribution','Return of Capital'),(8,'Distribution','Income'),(9,'Balance','Quarterly Valuation');
+(5,'Distribution','Standard'),(6,'Distribution','Subject to Recall'),(7,'Distribution','Return of Capital'),(8,'Distribution','Income'),(9,'Balance','Quarterly Valuation'),(10,'Balance','Initial Commitment');
 /*!40000 ALTER TABLE `CashFlowType` ENABLE KEYS */;
 UNLOCK TABLES;
 
