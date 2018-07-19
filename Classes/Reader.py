@@ -127,33 +127,21 @@ class Reader(ReaderAPI.ReaderAPI):
                 useCase = ""
                 excelType = row[13].lower()
                 cash = int(row[2])
-
-                #self._findNamedType('Balance', 'Quarterly Valuation')
                 if "fee" in excelType:
-                    #query = ("SELECT typeID FROM CashFlowType "
-                    #         "WHERE result = \'Contribution\' AND useCase = \'Expenses\'")
                     result = 'Contribution'
                     useCase = 'Expenses'
                 elif "contribution" in excelType or "investment" in excelType or cash < 0:
-                    #query = ("SELECT typeID FROM CashFlowType "
-                    #         "WHERE result = \'Contribution\' AND useCase = \'Investment\'")
                     result = 'Contribution'
-                    useCase = 'Expenses'
+                    useCase = 'Investment'
                 elif "income" in excelType:
-                    #query = ("SELECT typeID FROM CashFlowType "
-                    #         "WHERE result = \'Distribution\' AND useCase = \'Income\'")
-                    result = 'Contribution'
-                    useCase = 'Expenses'
+                    result = 'Distribution'
+                    useCase = 'Income'
                 elif "return of capital" in excelType:
-                    #query = ("SELECT typeID FROM CashFlowType "
-                    #         "WHERE result = \'Distribution\' AND useCase = \'Return of Capital\'")
-                    result = 'Contribution'
-                    useCase = 'Expenses'
+                    result = 'Distribution'
+                    useCase = 'Return of Capital'
                 elif "distribution" in excelType or cash > 0:
-                    #query = ("SELECT typeID FROM CashFlowType "
-                    #         "WHERE result = \'Distribution\' AND useCase = \'Standard\'")
-                    result = 'Contribution'
-                    useCase = 'Expenses'
+                    result = 'Distribution'
+                    useCase = 'Standard'
                 else:
                     Exception
                 #cursor.execute(query)
@@ -177,14 +165,17 @@ class Reader(ReaderAPI.ReaderAPI):
     def _makeComplexRow(self, row):
         for i in range(3, 7):
             if row[i] != "":
+                print "@@ Making Complex Row @@"
                 fundID = row[0]
                 date = datetime.strptime(row[1], '%m/%d/%y')
                 value = row[i]
-                #typeID = self._findSimpleTypeID(row)
+                temp = self._findResult(row, i)
+                typeID = self._findNamedType(temp, self.useCases[i-3])
                 notes = row[12]
-                #result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
-                #self._processCashFlow(result)
+                result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
+                self._processCashFlow(result)
 
+    # Queries the DB for a CashFlowType with given result, useCase
     def _findNamedType(self, result, useCase):
         try:
             with connection.cursor() as cursor:
@@ -194,3 +185,19 @@ class Reader(ReaderAPI.ReaderAPI):
                 return str(cursor.fetchone()[0])
         except Exception as e:
             print e
+
+    # Determines whether the element in row[i] should be a contribution or distribution
+    def _findResult(self, row, i):
+        excelType = row[13]
+        notes = row[12]
+        if "contribution" in excelType.lower() or "contribution" in notes.lower():
+            return "contribution"
+        elif "distribution" in excelType.lower() or "distribution" in notes.lower():
+            return "distribution"
+        # Split up b/c checking in the notes/excel type is a priority
+        elif i == 3:
+            return "contribution"
+        elif i < 7 and i > 3:
+            return "distribution"
+        else:
+            Exception
