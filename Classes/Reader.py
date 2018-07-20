@@ -14,7 +14,6 @@ connection = pymysql.connect(host='localhost',
 class Reader(ReaderAPI.ReaderAPI):
     fileName = None
     limit = None
-    useCases = ("Expenses", "Return of Capital", "Subject to Recall", "Income")
 
     def __init__(self, fileName, limit):
         self.fileName = fileName
@@ -157,8 +156,6 @@ class Reader(ReaderAPI.ReaderAPI):
                     useCase = 'Standard'
                 else:
                     Exception
-                #cursor.execute(query)
-                #return str(cursor.fetchone()[0])
                 return self._findNamedType(result, useCase)
         except Exception as e:
             print e
@@ -176,6 +173,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
 
     def _makeComplexRow(self, row):
+        useCases = ("Expenses", "Return of Capital", "Subject to Recall", "Income")
         for i in range(3, 7):
             if row[i] != "":
                 print "@@ Making Complex Row @@"
@@ -183,7 +181,7 @@ class Reader(ReaderAPI.ReaderAPI):
                 date = datetime.strptime(row[1], '%m/%d/%y')
                 value = row[i]
                 temp = self._findResult(row, i)
-                typeID = self._findNamedType(temp, self.useCases[i-3])
+                typeID = self._findNamedType(temp, useCases[i-3])
                 notes = row[12]
                 result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
                 self._processCashFlow(result)
