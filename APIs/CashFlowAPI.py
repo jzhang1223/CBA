@@ -16,3 +16,6 @@ class CashFlowAPI(object):
 
     def getNotes(self):
         return NotImplementedError("Abstract Class")
+
+    def sameCashFlow(self, other):
+        return NotImplementedError("Abstract Class")
