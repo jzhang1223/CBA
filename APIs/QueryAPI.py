@@ -1,4 +1,4 @@
-class ControllerAPI(object):
+class QueryAPI(object):
     # Signatures not yet compelete
     # Simple Functions
     def getFundTransactions(self, fund):
