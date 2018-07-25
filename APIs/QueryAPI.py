@@ -12,3 +12,7 @@ class QueryAPI(object):
         return NotImplementedError("Abstract Class")
     def getGrowth(self, fundID):
         return NotImplementedError("Abstract Class")
+
+
+    def queryDB(self, query):
+        return NotImplementedError("Abstract Class")

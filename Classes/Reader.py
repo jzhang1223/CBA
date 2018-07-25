@@ -3,13 +3,10 @@ from Classes import CashFlowType
 from Classes import CashFlow
 from datetime import datetime
 import csv
-import pymysql.cursors
 
 
-connection = pymysql.connect(host='localhost',
-                             user='root',
-                             password='cba71118',
-                             db='cbaDB')
+
+
 
 class Reader(ReaderAPI.ReaderAPI):
     #fileName = None
