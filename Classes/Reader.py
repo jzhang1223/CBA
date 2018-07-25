@@ -12,8 +12,8 @@ connection = pymysql.connect(host='localhost',
                              db='cbaDB')
 
 class Reader(ReaderAPI.ReaderAPI):
-    fileName = None
-    limit = None
+    #fileName = None
+    #limit = None
 
     def __init__(self, fileName, limit):
         self.fileName = fileName

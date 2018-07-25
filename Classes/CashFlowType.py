@@ -3,11 +3,11 @@ from APIs import CashFlowTypeAPI
 class CashFlowType(CashFlowTypeAPI.CashFlowTypeAPI):
 
     # Int
-    cftID = None
+    #cftID = None
     # 'Distribution' or 'Contribution'
-    result = None
+    #result = None
     # String
-    useCase = None
+    #useCase = None
 
     def __init__(self, cftID, result, use):
         self.cftID = cftID

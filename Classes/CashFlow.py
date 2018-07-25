@@ -3,15 +3,15 @@ from APIs import CashFlowAPI
 class CashFlow(CashFlowAPI.CashFlowAPI):
 
     # String
-    fundID = None
+    #fundID = None
     # Datetime.Datetime -> String ('YYYY-MM-DD')
-    date = None
+    #date = None
     # int
-    value = None
+    #value = None
     # int
-    typeID = None
+    #typeID = None
     # String
-    notes = None
+    #notes = None
 
     def __init__(self, fundID, date, value, typeID, notes):
         self.fundID = fundID

@@ -3,8 +3,7 @@ from Classes import Reader
 
 class Query(QueryAPI.QueryAPI):
 
-
-
+    
     def getFundTransactions(self, fundID):
         try:
             with Reader.connection.cursor() as cursor:
@@ -15,9 +14,9 @@ class Query(QueryAPI.QueryAPI):
             print e
 
 
-    def remainingCommitment(self, fundID):
+    def remainingCommitment(self, fundID, endDate):
         return NotImplementedError("Todo")
-    def currentNAV(self, fundID):
+    def currentNAV(self, fundID, endDate):
         return NotImplementedError("Todo")
     def getGrowth(self, fundID):
         return NotImplementedError("Todo")
