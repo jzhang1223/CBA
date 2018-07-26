@@ -2,21 +2,20 @@ from APIs import ReaderAPI
 from Classes import CashFlowType
 from Classes import CashFlow
 from datetime import datetime
+from Classes import Query
 import csv
-
-
-
 
 
 class Reader(ReaderAPI.ReaderAPI):
     #fileName = None
     #limit = None
+    CashFlowDB = Query.Query()
 
     def __init__(self, fileName, limit):
         self.fileName = fileName
         self.limit = limit
         self._read()
-        connection.close()
+        #connection.close()
 
     def getFileName(self):
         return self.fileName
@@ -32,7 +31,7 @@ class Reader(ReaderAPI.ReaderAPI):
             for row in sheet:
                 i += 1
                 self._processRow(row)
-                print(str(i) + ":" + str(row))
+                print("&& Just Processed ... " + str(i) + ":" + str(row))
                 #if i >= self.getLimit():
                 #    return
 
@@ -41,12 +40,18 @@ class Reader(ReaderAPI.ReaderAPI):
         next(sheet)
 
     def _processRow(self, row):
-        # Qtr Evaluation, Initial Commitments, Empty Rows
-        if row[0] == "":
+        # Empty Rows
+        if self._uselessRow(row):
             print("Skipped!*** QTR, Commit, Empty Row")
             return
-        self._processFund(row)
-        if self._isQtr(row):
+        if (not self._fundExists(row)):
+            print "*** FUND DOES NOT EXIST"
+            self._processFund(row)
+            return
+        elif self._isCommitment(row):
+            print "*** THIS IS A COMMITMENT"
+            return
+        elif self._isQtr(row):
             self._makeQtr(row)
         elif self._simpleRow(row):
             self._makeSimpleRow(row)
@@ -57,14 +62,9 @@ class Reader(ReaderAPI.ReaderAPI):
     # Also generates the initial commitment value
     def _processFund(self, row):
         fundID = row[0]
-        try:
-            with connection.cursor() as cursor:
-                query = "INSERT INTO fund VALUES (\"" + fundID + "\")"
-                cursor.execute(query)
-                connection.commit()
-                self._makeInitialCommitment(row)
-        except Exception as e:
-            print e
+        query = "INSERT INTO fund VALUES (\"" + fundID + "\")"
+        self.CashFlowDB.queryDB(query)
+        self._makeInitialCommitment(row)
 
     def _simpleRow(self, row):
         # If row[2] is has no value or if the other columns(Expenses, ROC, Dist. Sub. to Recall, Income) are all empty
@@ -81,7 +81,8 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Determines if a given row is a Quarter Valuation
     def _isQtr(self, row):
-        return row[11] != ""
+        print row[11]
+        return str(row[11]).strip() != ""
 
     # Makes a CashFlow specifically for Quarter Valuations, possibly could be abstracted
     def _makeQtr(self, row):
@@ -106,32 +107,20 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Tries to add a CashFlow object into the CashFlow table in the DB
     def _processCashFlow(self, cashflow):
-        try:
-            with connection.cursor() as cursor:
-                check = ("SELECT * FROM CashFlow WHERE fundID=\'" + cashflow.getFundID() + "\' AND cfDate=\'" +
+        check = ("SELECT * FROM CashFlow WHERE fundID=\'" + cashflow.getFundID() + "\' AND cfDate=\'" +
                          cashflow.getDate() + "\' AND cashValue=" + cashflow.getValue() + " AND typeID=" +
                          cashflow.getTypeID() + " AND notes=\'" + cashflow.getNotes() + "\'")
-                print check
-                cursor.execute(check)
-                rowHolder = cursor.fetchone()
-                if (rowHolder is None):
-                    query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) " + "VALUES (\'" +
-                             cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() + ", " +
-                             cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\')")
-                    print '** Adding new CashFlow **'
-                    cursor.execute(query)
-                    connection.commit()
-                else:
-                    print '***** CashFlow already exists! *****'
-                    return
+        cursor = self.CashFlowDB.queryDB(check)
+        rowHolder = cursor.fetchone()
+        if (rowHolder is None):
+            query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) " + "VALUES (\'" +
+                     cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() + ", " +
+                     cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\')")
+            self.CashFlowDB.queryDB(query)
 
-        except Exception as e:
-            print e
 
     # Looks up the CashFlowType for simple rows
     def _findSimpleTypeID(self, row):
-        try:
-            with connection.cursor() as cursor:
                 result = ""
                 useCase = ""
                 excelType = row[13].lower()
@@ -152,28 +141,21 @@ class Reader(ReaderAPI.ReaderAPI):
                     result = 'Distribution'
                     useCase = 'Standard'
                 else:
-                    Exception
+                    return None
                 return self._findNamedType(result, useCase)
-        except Exception as e:
-            print e
 
     # Looks up the typeID specifically for Quarterly Valuation
     def _findQtrType(self):
-        try:
-            with connection.cursor() as cursor:
-                query = ("SELECT typeID FROM CashFlowType "
-                         "WHERE result = \'Balance\' AND useCase = \'Quarterly Valuation\'")
-                cursor.execute(query)
-                return str(cursor.fetchone()[0])
-        except Exception as e:
-            print e
+        query = ("SELECT typeID FROM CashFlowType "
+                 "WHERE result = \'Balance\' AND useCase = \'Quarterly Valuation\'")
+        cursor = self.CashFlowDB.queryDB(query)
+        return str(cursor.fetchone()[0])
 
 
     def _makeComplexRow(self, row):
         useCases = ("Expenses", "Return of Capital", "Subject to Recall", "Income")
         for i in range(3, 7):
             if row[i] != "":
-                print "@@ Making Complex Row @@"
                 fundID = row[0]
                 date = datetime.strptime(row[1], '%m/%d/%y')
                 value = row[i]
@@ -185,19 +167,18 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Queries the DB for a CashFlowType with given result, useCase
     def _findNamedType(self, result, useCase):
-        try:
-            with connection.cursor() as cursor:
-                query = ("SELECT typeID FROM CashFlowType "
-                         "WHERE result = \'" + result + "\' AND useCase = \'" + useCase + "\'")
-                cursor.execute(query)
-                return str(cursor.fetchone()[0])
-        except Exception as e:
-            print e
+        query = ("SELECT typeID FROM CashFlowType "
+                 "WHERE result = \'" + result + "\' AND useCase = \'" + useCase + "\'")
+        cursor = self.CashFlowDB.queryDB(query)
+        return str(cursor.fetchone()[0])
+
+
 
     # Determines whether the element in row[i] should be a contribution or distribution
     def _findResult(self, row, i):
         excelType = row[13]
         notes = row[12]
+        print(excelType.lower())
         if "contribution" in excelType.lower() or "contribution" in notes.lower():
             return "contribution"
         elif "distribution" in excelType.lower() or "distribution" in notes.lower():
@@ -208,4 +189,44 @@ class Reader(ReaderAPI.ReaderAPI):
         elif i < 7 and i > 3:
             return "distribution"
         else:
-            Exception
+            return None
+
+    def _fundExists(self, row):
+        query = ("SELECT * FROM fund WHERE fundID = \'" + row[0] + "\'")
+        cursor = self.CashFlowDB.queryDB(query)
+        temp = cursor.fetchone()
+        print "***PRINTING FUND LOOKUP"
+        print temp
+        if temp is None:
+            return False
+        else:
+            return True
+
+    def _uselessRow(self, row):
+
+        fundID = row[0].strip()
+        cashFlow = str(row[2].strip())
+        commitment = str(row[10].strip())
+        qtr = str(row[11].strip())
+
+        noFundID = fundID == ""
+        noCashFlow =   (cashFlow == "" or "$-" in cashFlow)
+        noCommitment = (commitment == "" or "$-" in commitment)
+        noQtr =        (qtr == "" or "$-" in qtr)
+        #print "&&& Values: " + row[0] + ":" + row[2] + ":" + row[9] + ":" + row[10]
+        #print "@@@ Useful? " + str(noFundID) + " " + str(noCashFlow) + " " + str(noCommitment) + " " + str(noQtr) + "@@@"
+        return noFundID or (noCashFlow and noQtr and noCommitment)
+
+    def _isCommitment(self, row):
+        cashFlow = str(row[2].strip())
+        commitment = str(row[10].strip())
+        qtr = str(row[11].strip())
+
+        noCashFlow = (cashFlow == "" or "$-" in cashFlow)
+        hasCommitment = commitment != ""
+        noQtr = (qtr == "" or "$-" in qtr)
+        #print "@@@ isCommitment?..."
+        #print noCashFlow
+        #print commitment
+        #print hasCommitment
+        return noCashFlow and hasCommitment and noQtr

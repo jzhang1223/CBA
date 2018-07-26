@@ -13,10 +13,11 @@ class Query(QueryAPI.QueryAPI):
 
     def getFundTransactions(self, fundID):
         try:
-            with connection.cursor() as cursor:
-                query = "SELECT * FROM CashFlow WHERE fundID = '" + fundID + "'"
-                cursor.execute(query)
-                self._printResult(cursor)
+            #with self.connection.cursor() as cursor:
+            query = "SELECT * FROM CashFlow WHERE fundID = '" + fundID + "'"
+            #    cursor.execute(query)
+            #    self._printResult(cursor)
+            self.queryDB(query)
         except Exception as e:
             print e
 
@@ -35,8 +36,11 @@ class Query(QueryAPI.QueryAPI):
 
     def queryDB(self, query):
         try:
-            with connection.cursor() as cursor:
+            with self.connection.cursor() as cursor:
+                print query
                 cursor.execute(query)
+                self.connection.commit()
                 return cursor
         except Exception as e:
             print e
+
