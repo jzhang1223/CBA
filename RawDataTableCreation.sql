@@ -34,7 +34,7 @@ CREATE TABLE `CashFlow` (
   KEY `cashflow_ibfk_2` (`typeID`),
   CONSTRAINT `cashflow_ibfk_1` FOREIGN KEY (`fundID`) REFERENCES `fund` (`fundid`),
   CONSTRAINT `cashflow_ibfk_2` FOREIGN KEY (`typeID`) REFERENCES `cashflowtype` (`typeid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,7 +58,7 @@ CREATE TABLE `CashFlowType` (
   `result` enum('Distribution','Contribution','Balance') DEFAULT NULL,
   `useCase` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,8 +67,7 @@ CREATE TABLE `CashFlowType` (
 
 LOCK TABLES `CashFlowType` WRITE;
 /*!40000 ALTER TABLE `CashFlowType` DISABLE KEYS */;
-INSERT INTO `CashFlowType` VALUES (1,'Contribution','Expenses'),(2,'Contribution','Investment'),(3,'Contribution','Subject to Recall'),(4,'Contribution','Return of Capital'),
-(5,'Distribution','Standard'),(6,'Distribution','Subject to Recall'),(7,'Distribution','Return of Capital'),(8,'Distribution','Income'),(9,'Balance','Quarterly Valuation'),(10,'Balance','Initial Commitment'),(11,'Distribution','Expenses');
+INSERT INTO `CashFlowType` VALUES (1,'Contribution','Expenses'),(2,'Contribution','Investment'),(3,'Contribution','Subject to Recall'),(4,'Contribution','Return of Capital'),(5,'Distribution','Standard'),(6,'Distribution','Subject to Recall'),(7,'Distribution','Return of Capital'),(8,'Distribution','Income'),(9,'Balance','Quarterly Valuation'),(10,'Balance','Initial Commitment'),(11,'Distribution','Expenses');
 /*!40000 ALTER TABLE `CashFlowType` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -103,4 +102,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-17 15:34:59
+-- Dump completed on 2018-07-27 10:42:00
