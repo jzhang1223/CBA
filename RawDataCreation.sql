@@ -22,9 +22,9 @@ CREATE VIEW `CashFlowJoinType` AS SELECT * FROM CashFlow INNER JOIN CashFlowType
 
 
 # INCOMPLETE TODO
-DROP FUNCTION IF EXISTS calculateNAV;
+DROP FUNCTION IF EXISTS calculateGrowth
 DELIMITER //
-CREATE FUNCTION calculateNAV (fund VARCHAR(255), endDate DATE)
+CREATE FUNCTION calculateGrowth (fund VARCHAR(255), startDate DATE, endDate DATE)
 	RETURNS INT
 	BEGIN
 		SELECT -SUM(cashValue) 
@@ -133,9 +133,61 @@ CREATE FUNCTION totalDistributions(fund VARCHAR(255), endDate DATE)
     RETURNS INT
     DETERMINISTIC
     BEGIN
+        RETURN (SELECT SUM(cashValue)
+                FROM `CashFlowJoinType`
+                WHERE fundID = fund AND
+                cfDate <= endDate AND
+                result = 'Distribution');
 END//
 DELIMITER ;
+
+DROP FUNCTION IF EXISTS totalNav;
+DELIMITER //
+CREATE FUNCTION totalNav(fund VARCHAR(255), endDate DATE)
+    RETURNS INT
+    DETERMINISTIC
+    BEGIN
+        RETURN (SELECT SUM(cashValue)
+                FROM `CashFlowJoinType`
+                WHERE fundID = fund AND
+                cfDate <= endDate AND
+                ...) +
+                (SELECT SUM(cashValue)
+                FROM `CashFlowJoinType`
+                WHERE fundID = fund AND
+                cfDate <= endDate AND
+                ...);
+END//
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS partialNav;
+DELIMITER //
+# Returns the nav for previous dates up until the previous qtr
+CREATE FUNCTION partialNav(fund VARCHAR(255), endDate DATE)
+    RETURNS INT
+    DETERMINISTIC
+    BEGIN
+        RETURN (SELECT -SUM(cashValue)
+                FROM `CashFlowJoinType`
+                WHERE fundID = fund AND
+                cfDate <= endDate AND
+                cfDate > (SELECT previousQtr(fund, endDate)) AND
+                (useCase = 'Investment' OR
+                useCase = 'Expenses' OR
+                useCase = 'Standard' OR
+                useCase = 'Return of Capital' OR
+                useCase = 'Income'));
+END//
+DELIMITER ;
+                
+
+
+
 use cbaDB;
 select remainingCommitment('BCPE112014', '15/10/15');
 select capitalCommited('BCPE112014');
 select capitalCalled('BCPE112014', '15/10/15');
+select totalDistributions('BCPE112014', '15/10/15');
+select partialNav('BCPE112014', '15/10/15');
+select previousQtr('BCPE112014', '15/10/15');
+SELECT previousQtr('BCPE112014', '15/10/15');
