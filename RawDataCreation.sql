@@ -43,33 +43,39 @@ END//
 DELIMITER ;
 
 # By default, if you are on the same date as a quarter evaluation, it will go to a more previous date.
+# Finds the value of the previous qtr evaluation
 DROP FUNCTION IF EXISTS previousQtr;
 DELIMITER //
 CREATE FUNCTION previousQtr (fund VARCHAR(255), endDate DATE)
-	RETURNS DATE
+	RETURNS INT
     DETERMINISTIC
 	BEGIN
-		RETURN (SELECT MAX(cfDate) 
+		RETURN (SELECT IFNULL((SELECT cashValue
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
 					cfDate < endDate AND 
-                    useCase = 'Quarterly Valuation');
+                    useCase = 'Quarterly Valuation'
+                ORDER BY cfDate DESC
+                LIMIT 1), 0));
 
 END//
 DELIMITER ;
 
 # By default, if you are on the same date as a quarter evaluation, it will choose the current date
+# Currently does not check for errors!
 DROP FUNCTION IF EXISTS nextQtr;
 DELIMITER //
 CREATE FUNCTION nextQtr (fund VARCHAR(255), endDate DATE)
-	RETURNS DATE
+	RETURNS INT
     DETERMINISTIC
 	BEGIN
-		RETURN (SELECT MAX(cfDate) 
+		RETURN (SELECT cashValue
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
 					cfDate >= endDate AND 
-                    useCase = 'Quarterly Valuation');
+                    useCase = 'Quarterly Valuation'
+                ORDER BY cfDate ASC
+                LIMIT 1);
 END//
 DELIMITER ;
 
@@ -162,7 +168,7 @@ DELIMITER ;
 
 DROP FUNCTION IF EXISTS partialNav;
 DELIMITER //
-# Returns the nav for previous dates up until the previous qtr
+# Returns the nav for previous dates up until the previous qtr, in addition to the previous qtr, if exists
 CREATE FUNCTION partialNav(fund VARCHAR(255), endDate DATE)
     RETURNS INT
     DETERMINISTIC
@@ -176,7 +182,8 @@ CREATE FUNCTION partialNav(fund VARCHAR(255), endDate DATE)
                 useCase = 'Expenses' OR
                 useCase = 'Standard' OR
                 useCase = 'Return of Capital' OR
-                useCase = 'Income'));
+                useCase = 'Income')) +
+                (SELECT previousQtr(fund, endDate));
 END//
 DELIMITER ;
                 
@@ -189,5 +196,6 @@ select capitalCommited('BCPE112014');
 select capitalCalled('BCPE112014', '15/10/15');
 select totalDistributions('BCPE112014', '15/10/15');
 select partialNav('BCPE112014', '15/10/15');
-select previousQtr('BCPE112014', '15/10/15');
-SELECT previousQtr('BCPE112014', '15/10/15');
+select previousQtr('BCPE112014', '11/10/15');
+select ifnull((select previousQtr('BCPE112014', '11/10/15')), 3);
+SELECT nextQtr('BCPE112014', '15/10/15');
