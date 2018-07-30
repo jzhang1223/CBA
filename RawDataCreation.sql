@@ -27,13 +27,7 @@ DELIMITER //
 CREATE FUNCTION calculateGrowth (fund VARCHAR(255), startDate DATE, endDate DATE)
 	RETURNS INT
 	BEGIN
-		SELECT -SUM(cashValue) 
-        FROM `CashFlowJoinType`
-        WHERE fundID = fund AND 
-			cfDate <= endDate AND
-            (... OR
-            ... OR
-            ...;)
+		RETURN (SELECT nextQtrValue(fund, 
 		
 
 
@@ -42,11 +36,12 @@ CREATE FUNCTION calculateGrowth (fund VARCHAR(255), startDate DATE, endDate DATE
 END//
 DELIMITER ;
 
+
 # By default, if you are on the same date as a quarter evaluation, it will go to a more previous date.
 # Finds the value of the previous qtr evaluation
-DROP FUNCTION IF EXISTS previousQtr;
+DROP FUNCTION IF EXISTS previousQtrValue;
 DELIMITER //
-CREATE FUNCTION previousQtr (fund VARCHAR(255), endDate DATE)
+CREATE FUNCTION previousQtrValue (fund VARCHAR(255), endDate DATE)
 	RETURNS INT
     DETERMINISTIC
 	BEGIN
@@ -61,11 +56,26 @@ CREATE FUNCTION previousQtr (fund VARCHAR(255), endDate DATE)
 END//
 DELIMITER ;
 
+DROP FUNCTION IF EXISTS previousQtrDate;
+DELIMITER //
+CREATE FUNCTION previousQtrDate (fund VARCHAR(255), endDate DATE)
+	RETURNS DATE
+    DETERMINISTIC
+	BEGIN
+		RETURN (SELECT IFNULL((SELECT MAX(cfDate)
+				FROM `CashFlowJoinType`
+                WHERE fundID = fund AND 
+					cfDate < endDate AND 
+                    useCase = 'Quarterly Valuation'), '00-00-00'));
+
+END//
+DELIMITER ;
+
 # By default, if you are on the same date as a quarter evaluation, it will choose the current date
 # Currently does not check for errors!
-DROP FUNCTION IF EXISTS nextQtr;
+DROP FUNCTION IF EXISTS nextQtrValue;
 DELIMITER //
-CREATE FUNCTION nextQtr (fund VARCHAR(255), endDate DATE)
+CREATE FUNCTION nextQtrValue (fund VARCHAR(255), endDate DATE)
 	RETURNS INT
     DETERMINISTIC
 	BEGIN
@@ -76,6 +86,22 @@ CREATE FUNCTION nextQtr (fund VARCHAR(255), endDate DATE)
                     useCase = 'Quarterly Valuation'
                 ORDER BY cfDate ASC
                 LIMIT 1);
+END//
+DELIMITER ;
+
+
+#Currently does not check for errors!
+DROP FUNCTION IF EXISTS nextQtrDate;
+DELIMITER //
+CREATE FUNCTION nextQtrDate (fund VARCHAR(255), endDate DATE)
+	RETURNS DATE
+    DETERMINISTIC
+	BEGIN
+		RETURN (SELECT IFNULL((SELECT MIN(cfDate)
+				FROM `CashFlowJoinType`
+                WHERE fundID = fund AND 
+					cfDate >= endDate AND 
+                    useCase = 'Quarterly Valuation'), '9999-12-31')) ;
 END//
 DELIMITER ;
 
@@ -149,27 +175,8 @@ DELIMITER ;
 
 DROP FUNCTION IF EXISTS totalNav;
 DELIMITER //
-CREATE FUNCTION totalNav(fund VARCHAR(255), endDate DATE)
-    RETURNS INT
-    DETERMINISTIC
-    BEGIN
-        RETURN (SELECT SUM(cashValue)
-                FROM `CashFlowJoinType`
-                WHERE fundID = fund AND
-                cfDate <= endDate AND
-                ...) +
-                (SELECT SUM(cashValue)
-                FROM `CashFlowJoinType`
-                WHERE fundID = fund AND
-                cfDate <= endDate AND
-                ...);
-END//
-DELIMITER ;
-
-DROP FUNCTION IF EXISTS partialNav;
-DELIMITER //
 # Returns the nav for previous dates up until the previous qtr, in addition to the previous qtr, if exists
-CREATE FUNCTION partialNav(fund VARCHAR(255), endDate DATE)
+CREATE FUNCTION totalNav(fund VARCHAR(255), endDate DATE)
     RETURNS INT
     DETERMINISTIC
     BEGIN
@@ -177,13 +184,13 @@ CREATE FUNCTION partialNav(fund VARCHAR(255), endDate DATE)
                 FROM `CashFlowJoinType`
                 WHERE fundID = fund AND
                 cfDate <= endDate AND
-                cfDate > (SELECT previousQtr(fund, endDate)) AND
+                cfDate > previousQtrDate(fund, endDate) AND
                 (useCase = 'Investment' OR
                 useCase = 'Expenses' OR
                 useCase = 'Standard' OR
                 useCase = 'Return of Capital' OR
                 useCase = 'Income')) +
-                (SELECT previousQtr(fund, endDate));
+                (SELECT previousQtrValue(fund, endDate));
 END//
 DELIMITER ;
                 
@@ -195,7 +202,8 @@ select remainingCommitment('BCPE112014', '15/10/15');
 select capitalCommited('BCPE112014');
 select capitalCalled('BCPE112014', '15/10/15');
 select totalDistributions('BCPE112014', '15/10/15');
-select partialNav('BCPE112014', '15/10/15');
-select previousQtr('BCPE112014', '11/10/15');
+select totalNav('BCPE112014', '15/10/15');
+select previousQtr('BCPE112014', '15/10/15');
 select ifnull((select previousQtr('BCPE112014', '11/10/15')), 3);
 SELECT nextQtr('BCPE112014', '15/10/15');
+
