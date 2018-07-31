@@ -7,9 +7,9 @@ class TotalValue(CalculationAPI.CalculationAPI):
     def __call__(self, fundID, endDate):
         nav = Nav()
 
-        Distributions = TotalDistributions()
+        distributions = TotalDistributions()
 
-        return nav(fundID, endDate) + Distributions(fundID, endDate)
+        return nav(fundID, endDate) + distributions(fundID, endDate)
 
-    def calculate(self, cursor, endDate):
+    def giveResult(self, result):
         pass

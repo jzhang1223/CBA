@@ -9,6 +9,6 @@ class Nav(CalculationAPI.CalculationAPI):
         print self.CashFlowDB.queryDB(
             "SELECT totalNav(\'" + fundID + "\',\'" + endDate + "\')").fetchone()
 
-    def calculate(self, cursor):
+    def giveResult(self, result):
         # calculate nav from from ROC, income, contributions
         print "TODO"

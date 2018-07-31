@@ -128,7 +128,7 @@ class Reader(ReaderAPI.ReaderAPI):
                 if "fee" in excelType:
                     result = 'Contribution'
                     useCase = 'Expenses'
-                elif "contribution" in excelType or "investment" in excelType or cash < 0:
+                elif "contribution" in excelType or "investment" in excelType:
                     result = 'Contribution'
                     useCase = 'Investment'
                 elif "income" in excelType:
@@ -140,6 +140,9 @@ class Reader(ReaderAPI.ReaderAPI):
                 elif "distribution" in excelType or cash > 0:
                     result = 'Distribution'
                     useCase = 'Standard'
+                elif cash < 0:
+                    result = 'Contribution'
+                    useCase = 'Investment'
                 else:
                     return None
                 return self._findNamedType(result, useCase)

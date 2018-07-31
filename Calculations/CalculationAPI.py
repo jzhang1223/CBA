@@ -5,5 +5,6 @@ class CalculationAPI(object):
     CashFlowDB = Query.Query()
 
     # Generic function to allow for a specific calculation of the data.
-    def calculate(self, cursor, endDate):
-        return NotImplementedError("Abstract Class")
+    def giveResult(self, result):
+        print result
+        return result

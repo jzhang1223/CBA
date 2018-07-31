@@ -3,8 +3,11 @@ import CalculationAPI
 class CapitalCalled(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate):
-        print self.CashFlowDB.queryDB(
+        result = self.CashFlowDB.queryDB(
             "SELECT capitalCalled(\'" + fundID + "\',\'" + endDate + "\')").fetchone()[0]
+        return self.giveResult(result)
 
-    def calculate(self, cursor, endDate):
-        pass
+
+
+a = CapitalCalled()
+a('CCDD062016AF', '18/4/2')
