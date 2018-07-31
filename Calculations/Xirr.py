@@ -5,7 +5,7 @@ from scipy import optimize
 class Xirr(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate):
-        # querry for values
+        # query for values
         return self._xirr(cashflows)
 
     def _xnpv(self, rate, cashflows):
