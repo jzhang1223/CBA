@@ -27,7 +27,7 @@ DELIMITER //
 CREATE FUNCTION calculateGrowth (fund VARCHAR(255), startDate DATE, endDate DATE)
 	RETURNS INT
 	BEGIN
-		RETURN (SELECT nextQtrValue(fund, 
+		RETURN (SELECT nextQtrValue(fund, ))
 		
 
 
@@ -37,7 +37,7 @@ END//
 DELIMITER ;
 
 
-# By default, if you are on the same date as a quarter evaluation, it will go to a more previous date.
+# By default, if you are on the same date as a quarter evaluation, it will choose the CURRENT date.
 # Finds the value of the previous qtr evaluation
 DROP FUNCTION IF EXISTS previousQtrValue;
 DELIMITER //
@@ -48,7 +48,7 @@ CREATE FUNCTION previousQtrValue (fund VARCHAR(255), endDate DATE)
 		RETURN (SELECT IFNULL((SELECT cashValue
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
-					cfDate < endDate AND 
+					cfDate <= endDate AND 
                     useCase = 'Quarterly Valuation'
                 ORDER BY cfDate DESC
                 LIMIT 1), 0));
@@ -65,13 +65,13 @@ CREATE FUNCTION previousQtrDate (fund VARCHAR(255), endDate DATE)
 		RETURN (SELECT IFNULL((SELECT MAX(cfDate)
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
-					cfDate < endDate AND 
+					cfDate <= endDate AND 
                     useCase = 'Quarterly Valuation'), '00-00-00'));
 
 END//
 DELIMITER ;
 
-# By default, if you are on the same date as a quarter evaluation, it will choose the current date
+# By default, if you are on the same date as a quarter evaluation, it will NOT choose the current date
 # Currently does not check for errors!
 DROP FUNCTION IF EXISTS nextQtrValue;
 DELIMITER //
@@ -82,7 +82,7 @@ CREATE FUNCTION nextQtrValue (fund VARCHAR(255), endDate DATE)
 		RETURN (SELECT cashValue
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
-					cfDate >= endDate AND 
+					cfDate > endDate AND 
                     useCase = 'Quarterly Valuation'
                 ORDER BY cfDate ASC
                 LIMIT 1);
@@ -100,7 +100,7 @@ CREATE FUNCTION nextQtrDate (fund VARCHAR(255), endDate DATE)
 		RETURN (SELECT IFNULL((SELECT MIN(cfDate)
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
-					cfDate >= endDate AND 
+					cfDate > endDate AND 
                     useCase = 'Quarterly Valuation'), '9999-12-31')) ;
 END//
 DELIMITER ;
@@ -150,12 +150,15 @@ CREATE FUNCTION capitalCalled(fund VARCHAR(255), endDate DATE)
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
 					cfDate <= endDate AND 
+                    result = 'Contribution' AND
                     (useCase = 'Investment' OR 
 					useCase = 'Subject to Recall' OR
-                    (cashValue < 0 AND 
-						(result = 'Distribution' OR
-						result = 'Contribution')
-                        )));
+                    useCase = 'Expenses'
+                    #(cashValue < 0 AND 
+					#	(result = 'Distribution' OR
+					#	result = 'Contribution')
+                    #    )
+                        ));
 END//
 DELIMITER ;
 
@@ -169,7 +172,10 @@ CREATE FUNCTION totalDistributions(fund VARCHAR(255), endDate DATE)
                 FROM `CashFlowJoinType`
                 WHERE fundID = fund AND
                 cfDate <= endDate AND
-                result = 'Distribution');
+                result = 'Distribution' AND
+                (useCase = 'Standard' OR
+                useCase = 'Return of Capital' OR
+                useCase = 'Expenses'));
 END//
 DELIMITER ;
 
@@ -180,17 +186,18 @@ CREATE FUNCTION totalNav(fund VARCHAR(255), endDate DATE)
     RETURNS INT
     DETERMINISTIC
     BEGIN
-        RETURN (SELECT -SUM(cashValue)
-                FROM `CashFlowJoinType`
-                WHERE fundID = fund AND
-                cfDate <= endDate AND
-                cfDate > previousQtrDate(fund, endDate) AND
-                (useCase = 'Investment' OR
-                useCase = 'Expenses' OR
-                useCase = 'Standard' OR
-                useCase = 'Return of Capital' OR
-                useCase = 'Income')) +
-                (SELECT previousQtrValue(fund, endDate));
+        RETURN (SELECT IFNULL(
+                    (SELECT -SUM(cashValue)
+                    FROM `CashFlowJoinType`
+                    WHERE fundID = fund AND
+                    cfDate <= endDate AND
+                    cfDate > previousQtrDate(fund, endDate) AND
+                    (useCase = 'Investment' OR
+                    useCase = 'Expenses' OR
+                    useCase = 'Standard' OR
+                    useCase = 'Return of Capital' OR
+                    useCase = 'Income')), 0) +
+                    (SELECT previousQtrValue(fund, endDate)));
 END//
 DELIMITER ;
                 
@@ -198,12 +205,31 @@ DELIMITER ;
 
 
 use cbaDB;
-select remainingCommitment('BCPE112014', '15/10/15');
-select capitalCommited('BCPE112014');
-select capitalCalled('BCPE112014', '15/10/15');
-select totalDistributions('BCPE112014', '15/10/15');
-select totalNav('BCPE112014', '15/10/15');
-select previousQtr('BCPE112014', '15/10/15');
-select ifnull((select previousQtr('BCPE112014', '11/10/15')), 3);
-SELECT nextQtr('BCPE112014', '15/10/15');
+select remainingCommitment('CCDD062016AF', '18/4/2');
+select capitalCommited('CCDD062016AF');
+select capitalCalled('CCDD062016AF', '18/4/2');
+select totalDistributions('CCDD062016AF', '18/4/2');
+select totalNav('CCDD062016AF', '18/4/2');
+select totalNav('CCDD062016AF', '18/3/31');
+select previousQtr('CCDD062016AF', '18/4/2');
+SELECT nextQtr('CCDD062016AF', '18/4/2');
+
+SELECT cashValue
+				FROM `CashFlowJoinType`
+                WHERE fundID = 'CCDD062016AF' AND 
+					cfDate <= '18/3/31' AND 
+                    useCase = 'Quarterly Valuation'
+                ORDER BY cfDate DESC
+                LIMIT 1;
+                
+SELECT IFNULL((SELECT -SUM(cashValue)
+                FROM `CashFlowJoinType`
+                WHERE fundID = 'CCDD062016AF' AND
+                cfDate <= '18/3/31' AND
+                cfDate > previousQtrDate('CCDD062016AF', '18/3/31') AND
+                (useCase = 'Investment' OR
+                useCase = 'Expenses' OR
+                useCase = 'Standard' OR
+                useCase = 'Return of Capital' OR
+                useCase = 'Income')), 0)
 
