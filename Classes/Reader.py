@@ -1,5 +1,4 @@
 from APIs import ReaderAPI
-from Classes import CashFlowType
 from Classes import CashFlow
 from datetime import datetime
 from Classes import Query
@@ -44,7 +43,7 @@ class Reader(ReaderAPI.ReaderAPI):
         if self._uselessRow(row):
             print("Skipped!*** QTR, Commit, Empty Row")
             return
-        if (not self._fundExists(row)):
+        if not self._fundExists(row):
             print "*** FUND DOES NOT EXIST"
             self._processFund(row)
             return
@@ -55,7 +54,8 @@ class Reader(ReaderAPI.ReaderAPI):
             self._makeQtr(row)
         elif self._simpleRow(row):
             self._makeSimpleRow(row)
-        else: #ignore the base cash flow
+        else:
+            # ignore the base cash flow
             self._makeComplexRow(row)
 
     # Insert the FundID before adding the row so it will be in the DB. Note: This could potentially add strange fundIDs.
@@ -112,12 +112,11 @@ class Reader(ReaderAPI.ReaderAPI):
                          cashflow.getTypeID() + " AND notes=\'" + cashflow.getNotes() + "\'")
         cursor = self.CashFlowDB.queryDB(check)
         rowHolder = cursor.fetchone()
-        if (rowHolder is None):
+        if rowHolder is None:
             query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) " + "VALUES (\'" +
                      cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() + ", " +
                      cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\')")
             self.CashFlowDB.queryDB(query)
-
 
     # Looks up the CashFlowType for simple rows
     def _findSimpleTypeID(self, row):
@@ -154,7 +153,6 @@ class Reader(ReaderAPI.ReaderAPI):
         cursor = self.CashFlowDB.queryDB(query)
         return str(cursor.fetchone()[0])
 
-
     def _makeComplexRow(self, row):
         useCases = ("Expenses", "Return of Capital", "Subject to Recall", "Income")
         for i in range(3, 7):
@@ -174,8 +172,6 @@ class Reader(ReaderAPI.ReaderAPI):
                  "WHERE result = \'" + result + "\' AND useCase = \'" + useCase + "\'")
         cursor = self.CashFlowDB.queryDB(query)
         return str(cursor.fetchone()[0])
-
-
 
     # Determines whether the element in row[i] should be a contribution or distribution
     def _findResult(self, row, i):
