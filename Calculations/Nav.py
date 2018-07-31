@@ -6,9 +6,10 @@ class Nav(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate, startDate=0):
 
-        print self.CashFlowDB.queryDB(
-            "SELECT totalNav(\'" + fundID + "\',\'" + endDate + "\')").fetchone()
+        result = self.CashFlowDB.queryDB(
+            "SELECT totalNav(\'" + fundID + "\',\'" + endDate + "\')").fetchone()[0]
 
-    def giveResult(self, result):
-        # calculate nav from from ROC, income, contributions
-        print "TODO"
+        return self.giveResult(result)
+
+a = Nav()
+a('CCDD062016AF', '18/4/2')

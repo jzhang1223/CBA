@@ -8,7 +8,7 @@ class RemainingCommitment(CalculationAPI.CalculationAPI):
         result = self.CashFlowDB.queryDB(
             "SELECT remainingCommitment(\'" + fundID + "\',\'" + endDate + "\')").fetchone()[0]
 
-        self.giveResult(result)
+        return self.giveResult(result)
 
 
 

@@ -6,6 +6,7 @@ class CapitalCommited(CalculationAPI.CalculationAPI):
 
         result = self.CashFlowDB.queryDB(
             "SELECT capitalCommited(\'" + fundID + "\')").fetchone()[0]
+
         return self.giveResult(result)
 
 a = CapitalCommited()

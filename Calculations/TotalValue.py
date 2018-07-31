@@ -5,11 +5,12 @@ import Nav
 class TotalValue(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate):
-        nav = Nav()
+        nav = Nav.Nav()
 
-        distributions = TotalDistributions()
+        distributions = TotalDistributions.TotalDistributions()
 
-        return nav(fundID, endDate) + distributions(fundID, endDate)
+        result = nav(fundID, endDate) + distributions(fundID, endDate)
+        return self.giveResult(result)
 
-    def giveResult(self, result):
-        pass
+a = TotalValue()
+a('CCDD062016AF', '18/4/2')
