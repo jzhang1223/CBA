@@ -16,10 +16,21 @@ SELECT * FROM CashFlow INNER JOIN CashFlowType USING (typeID) ORDER BY CFID;
 SELECT * FROM CashFlow INNER JOIN CashFlowType ON(CashFlow.typeID = CashFlowType.typeID);
 
 
-# Creating the view
+# Creating the view of CashFlow joined with CashFlowType
 DROP VIEW IF EXISTS `CashFlowJoinType`;
 CREATE VIEW `CashFlowJoinType` AS SELECT * FROM CashFlow INNER JOIN CashFlowType USING(typeID);
 
+DROP VIEW IF EXISTS `CommitmentJoinDistribution`;
+CREATE VIEW `CommitmentJoinDistribution` AS        
+SELECT * FROM `CashFlowJoinType`
+WHERE   (result = 'Contribution' AND
+        (useCase = 'Investment' OR 
+        useCase = 'Subject to Recall' OR
+        useCase = 'Expenses')) OR
+        (result = 'Distribution' AND
+        (useCase = 'Standard' OR
+        useCase = 'Return of Capital' OR
+        useCase = 'Expenses'));
 
 # INCOMPLETE TODO
 DROP FUNCTION IF EXISTS calculateGrowth
@@ -213,23 +224,21 @@ select totalNav('CCDD062016AF', '18/4/2');
 select totalNav('CCDD062016AF', '18/3/31');
 select previousQtr('CCDD062016AF', '18/4/2');
 SELECT nextQtr('CCDD062016AF', '18/4/2');
-
-SELECT cashValue
-				FROM `CashFlowJoinType`
-                WHERE fundID = 'CCDD062016AF' AND 
-					cfDate <= '18/3/31' AND 
-                    useCase = 'Quarterly Valuation'
-                ORDER BY cfDate DESC
-                LIMIT 1;
                 
-SELECT IFNULL((SELECT -SUM(cashValue)
-                FROM `CashFlowJoinType`
-                WHERE fundID = 'CCDD062016AF' AND
-                cfDate <= '18/3/31' AND
-                cfDate > previousQtrDate('CCDD062016AF', '18/3/31') AND
-                (useCase = 'Investment' OR
-                useCase = 'Expenses' OR
-                useCase = 'Standard' OR
-                useCase = 'Return of Capital' OR
-                useCase = 'Income')), 0)
+                
 
+# here
+SELECT cfDate, cashValue FROM `CommitmentJoinDistribution`
+WHERE fundID = 'CCDD062016AF' AND 
+        cfDate <= '18/4/2'
+UNION
+(SELECT (SELECT cfDate FROM `CommitmentJoinDistribution`
+            WHERE fundID = 'CCDD062016AF' AND cfDate <= '18/4/2' ORDER BY cfDate DESC LIMIT 1) as cfDate,
+        totalNav('CCDD062016AF','18/4/2') as cashValue) order by cfDate ASC;
+
+        
+        
+        
+        
+select cfID from CashFlow as cf union all select fundID from Fund order by cfID;
+        

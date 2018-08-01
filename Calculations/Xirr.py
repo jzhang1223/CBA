@@ -1,12 +1,29 @@
+# https://github.com/peliot/XIRR-and-XNPV/blob/master/financial.py
 import CalculationAPI
 import datetime
 from scipy import optimize
+
+
 
 class Xirr(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate):
         # query for values
-        return self._xirr(cashflows)
+        # endDate = datetime.datetime.strptime('4/2/18', '%m/%d/%y')
+#        cashflows = self.CashFlowDB.queryDB(
+#            """SELECT cfDate, cashValue
+#            FROM CashFlowJoinType
+#            WHERE fundID = '{}' AND cfDate <= '{}' AND (result = '{}' OR result = '{}')""".format(
+#                fundID, endDate, 'Contribution', 'Distribution')).fetchall()
+        cashflows = self.CashFlowDB.queryDB(" SELECT cfDate, cashValue FROM `CommitmentJoinDistribution` "
+                                            "WHERE fundID = '{0}' AND cfDate <= '{1}' UNION "
+                                            "(SELECT (SELECT cfDate FROM `CommitmentJoinDistribution` "
+                                            "WHERE fundID = '{0}' AND cfDate <= '{1}' "
+                                            "ORDER BY cfDate DESC LIMIT 1) as cfDate, "
+                                            "totalNav('{0}','{1}') as cashValue) order by cfDate ASC;".format(fundID, endDate))
+
+        print cashflows
+        return self._xirr(list(cashflows))
 
     def _xnpv(self, rate, cashflows):
         """
@@ -25,6 +42,9 @@ class Xirr(CalculationAPI.CalculationAPI):
         * This function is equivalent to the Microsoft Excel function of the same name.
         """
 
+        print "*** PRINTING RATE ***"
+        print rate
+        print "*** DONE PRINTING RATE ***"
         chron_order = sorted(cashflows, key=lambda x: x[0])
         t0 = chron_order[0][0]  # t0 is the date of the first cash flow
 
@@ -51,3 +71,7 @@ class Xirr(CalculationAPI.CalculationAPI):
 
         result = optimize.newton(lambda r: self._xnpv(r, cashflows), guess)
         return self.giveResult(result)
+
+
+a = Xirr()
+a('CCDD062016AF', '18/4/2')
