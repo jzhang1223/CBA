@@ -86,9 +86,31 @@ CREATE TABLE `CashFlowType` (
 
 LOCK TABLES `CashFlowType` WRITE;
 /*!40000 ALTER TABLE `CashFlowType` DISABLE KEYS */;
-INSERT INTO `CashFlowType` VALUES (1,'Contribution','Expenses'),(2,'Contribution','Investment'),(3,'Contribution','Subject to Recall'),(4,'Contribution','Return of Capital'),(5,'Distribution','Standard'),(6,'Distribution','Subject to Recall'),(7,'Distribution','Return of Capital'),(8,'Distribution','Income'),(9,'Balance','Quarterly Valuation'),(10,'Balance','Initial Commitment'),(11,'Distribution','Expenses');
+INSERT INTO `CashFlowType` VALUES (1,'Contribution','Expenses'),(2,'Contribution','Investment'),
+(3,'Contribution','Subject to Recall'),(4,'Contribution','Return of Capital'),(5,'Distribution','Standard'),
+(6,'Distribution','Subject to Recall'),(7,'Distribution','Return of Capital'),(8,'Distribution','Income'),
+(9,'Balance','Quarterly Valuation'),(10,'Balance','Initial Commitment'),(11,'Distribution','Expenses');
 /*!40000 ALTER TABLE `CashFlowType` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `commitmentjoindistribution`
+--
+
+DROP TABLE IF EXISTS `commitmentjoindistribution`;
+/*!50001 DROP VIEW IF EXISTS `commitmentjoindistribution`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `commitmentjoindistribution` AS SELECT 
+ 1 AS `typeID`,
+ 1 AS `cfID`,
+ 1 AS `fundID`,
+ 1 AS `cfDate`,
+ 1 AS `cashValue`,
+ 1 AS `notes`,
+ 1 AS `result`,
+ 1 AS `useCase`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `Fund`
@@ -123,7 +145,7 @@ UNLOCK TABLES;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `capitalCalled`(fund VARCHAR(255), endDate DATE) RETURNS int(11)
     DETERMINISTIC
@@ -132,12 +154,15 @@ BEGIN
 				FROM `CashFlowJoinType`
                 WHERE fundID = fund AND 
 					cfDate <= endDate AND 
+                    result = 'Contribution' AND
                     (useCase = 'Investment' OR 
 					useCase = 'Subject to Recall' OR
-                    (cashValue < 0 AND 
-						(result = 'Distribution' OR
-						result = 'Contribution')
-                        )));
+                    useCase = 'Expenses'
+                    #(cashValue < 0 AND 
+					#	(result = 'Distribution' OR
+					#	result = 'Contribution')
+                    #    )
+                        ));
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -192,6 +217,56 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `nextQtrDate` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `nextQtrDate`(fund VARCHAR(255), endDate DATE) RETURNS date
+    DETERMINISTIC
+BEGIN
+		RETURN (SELECT IFNULL((SELECT MIN(cfDate)
+				FROM `CashFlowJoinType`
+                WHERE fundID = fund AND 
+					cfDate > endDate AND 
+                    useCase = 'Quarterly Valuation'), '9999-12-31')) ;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `nextQtrValue` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `nextQtrValue`(fund VARCHAR(255), endDate DATE) RETURNS int(11)
+    DETERMINISTIC
+BEGIN
+		RETURN (SELECT cashValue
+				FROM `CashFlowJoinType`
+                WHERE fundID = fund AND 
+					cfDate > endDate AND 
+                    useCase = 'Quarterly Valuation'
+                ORDER BY cfDate ASC
+                LIMIT 1);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP FUNCTION IF EXISTS `previousQtr` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -210,6 +285,58 @@ BEGIN
                 WHERE fundID = fund AND 
 					cfDate < endDate AND 
                     useCase = 'Quarterly Valuation');
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `previousQtrDate` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `previousQtrDate`(fund VARCHAR(255), endDate DATE) RETURNS date
+    DETERMINISTIC
+BEGIN
+		RETURN (SELECT IFNULL((SELECT MAX(cfDate)
+				FROM `CashFlowJoinType`
+                WHERE fundID = fund AND 
+					cfDate <= endDate AND 
+                    useCase = 'Quarterly Valuation'), '00-00-00'));
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `previousQtrValue` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `previousQtrValue`(fund VARCHAR(255), endDate DATE) RETURNS int(11)
+    DETERMINISTIC
+BEGIN
+		RETURN (SELECT IFNULL((SELECT cashValue
+				FROM `CashFlowJoinType`
+                WHERE fundID = fund AND 
+					cfDate <= endDate AND 
+                    useCase = 'Quarterly Valuation'
+                ORDER BY cfDate DESC
+                LIMIT 1), 0));
 
 END ;;
 DELIMITER ;
@@ -248,6 +375,63 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `totalDistributions` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `totalDistributions`(fund VARCHAR(255), endDate DATE) RETURNS int(11)
+    DETERMINISTIC
+BEGIN
+        RETURN (SELECT SUM(cashValue)
+                FROM `CashFlowJoinType`
+                WHERE fundID = fund AND
+                cfDate <= endDate AND
+                result = 'Distribution' AND
+                (useCase = 'Standard' OR
+                useCase = 'Return of Capital' OR
+                useCase = 'Expenses'));
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `totalNav` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `totalNav`(fund VARCHAR(255), endDate DATE) RETURNS int(11)
+    DETERMINISTIC
+BEGIN
+        RETURN (SELECT IFNULL(
+                    (SELECT -SUM(cashValue)
+                    FROM `CashFlowJoinType`
+                    WHERE fundID = fund AND
+                    cfDate <= endDate AND
+                    cfDate > previousQtrDate(fund, endDate) AND
+                    (useCase = 'Investment' OR
+                    useCase = 'Standard' OR
+                    useCase = 'Return of Capital' OR
+                    useCase = 'Income')), 0) +
+                    (SELECT previousQtrValue(fund, endDate)));
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `cashflowjointype`
@@ -266,6 +450,24 @@ DELIMITER ;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `commitmentjoindistribution`
+--
+
+/*!50001 DROP VIEW IF EXISTS `commitmentjoindistribution`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `commitmentjoindistribution` AS select `cashflowjointype`.`typeID` AS `typeID`,`cashflowjointype`.`cfID` AS `cfID`,`cashflowjointype`.`fundID` AS `fundID`,`cashflowjointype`.`cfDate` AS `cfDate`,`cashflowjointype`.`cashValue` AS `cashValue`,`cashflowjointype`.`notes` AS `notes`,`cashflowjointype`.`result` AS `result`,`cashflowjointype`.`useCase` AS `useCase` from `cashflowjointype` where (((`cashflowjointype`.`result` = 'Contribution') and ((`cashflowjointype`.`useCase` = 'Investment') or (`cashflowjointype`.`useCase` = 'Subject to Recall') or (`cashflowjointype`.`useCase` = 'Expenses'))) or ((`cashflowjointype`.`result` = 'Distribution') and ((`cashflowjointype`.`useCase` = 'Standard') or (`cashflowjointype`.`useCase` = 'Return of Capital') or (`cashflowjointype`.`useCase` = 'Expenses')))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -276,4 +478,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-30 11:52:25
+-- Dump completed on 2018-08-02 12:26:56

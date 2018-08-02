@@ -555,15 +555,15 @@ CSPE032015MS,12/19/17,-32937,-32937,,,, $-   , $-   , $-   ,-32937,,,Contributio
 CSPE032015MS,1/25/18,-369231,,,,, $-   ,369231,369231,-369231,,,Contributions Q1 Demers
 CSPE032015MS,1/25/18,-28322,-28322,,,, $-   , $-   , $-   ,-28322,,,Contributions Q1 - net
 NHPE012013BG,7/1/13, $-   ,,,,,,,,1800000,,,
-NHPE012013BG,7/15/13,-17503,-17503,,,, $-   , $-   , $-   ,-17503,,,PF to Account For Transfer to Whit
-NHPE012013BG,9/30/13,,,,,, $-   , $-   , $-   , $-   ,,,PF to Account For Transfer to Whit
-NHPE012013BG,10/1/13,-9000,-9000,,,, $-   , $-   , $-   ,-9000,,,PF to Account For Transfer to Whit
-NHPE012013BG,1/6/14,-9000,-9000,,,, $-   , $-   , $-   ,-9000,,,PF to Account For Transfer to Whit
-NHPE012013BG,4/14/14,-9000,-9000,,,, $-   , $-   , $-   ,-9000,,,PF to Account For Transfer to Whit
-NHPE012013BG,5/20/14,-192417,,,,, $-   ,192417,192417,-192417,,,PF to Account For Transfer to Whit
-NHPE012013BG,7/25/14,-16345,-16345,,,, $-   , $-   , $-   ,-16345,,,PF to Account For Transfer to Whit
-NHPE012013BG,7/25/14,7253,,7253,7253,, $-   ,-7253,-7253,7253,,,PF to Account For Transfer to Whit
-NHPE012013BG,9/30/14,14722,,19892,,, $-   ,-14722,-14722, $-   ,,,Plug to Reconcile 1st CAP Statement After Transfer of $200k commitment to Whit
+NHPE012013BG,7/15/13,-17503,-17503,,,, $-   , $-   , $-   ,-17503,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,9/30/13,,,,,, $-   , $-   , $-   , $-   ,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,10/1/13,-9000,-9000,,,, $-   , $-   , $-   ,-9000,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,1/6/14,-9000,-9000,,,, $-   , $-   , $-   ,-9000,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,4/14/14,-9000,-9000,,,, $-   , $-   , $-   ,-9000,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,5/20/14,-192417,,,,, $-   ,192417,192417,-192417,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,7/25/14,-16345,-16345,,,, $-   , $-   , $-   ,-16345,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,7/25/14,7253,,7253,7253,, $-   ,-7253,-7253,7253,,PF to Account For Transfer to Whit,PF to Account For Transfer to Whit
+NHPE012013BG,9/30/14,14722,,19892,,, $-   ,-14722,-14722, $-   ,,Plug to Reconcile 1st CAP Statement After Transfer of $200k commitment to Whit,Plug to Reconcile 1st CAP Statement After Transfer of $200k commitment to Whit
 NHPE012013BG,9/30/14,,,,,,-6138, $-   ,-6138, $-   ,179026,,NAV
 NHPE012013BG,10/6/14,-10000,-10000,,,, $-   , $-   , $-   ,-10000,,,
 NHPE012013BG,12/31/14,,,,,,13709, $-   ,13709, $-   ,178013,,"241,290"

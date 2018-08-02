@@ -204,7 +204,6 @@ CREATE FUNCTION totalNav(fund VARCHAR(255), endDate DATE)
                     cfDate <= endDate AND
                     cfDate > previousQtrDate(fund, endDate) AND
                     (useCase = 'Investment' OR
-                    useCase = 'Expenses' OR
                     useCase = 'Standard' OR
                     useCase = 'Return of Capital' OR
                     useCase = 'Income')), 0) +
@@ -227,16 +226,23 @@ SELECT nextQtr('CCDD062016AF', '18/4/2');
                 
                 
 
-# here
-SELECT cfDate, cashValue FROM `CommitmentJoinDistribution`
-WHERE fundID = 'CCDD062016AF' AND 
-        cfDate <= '18/4/2'
-UNION
-(SELECT (SELECT cfDate FROM `CommitmentJoinDistribution`
-            WHERE fundID = 'CCDD062016AF' AND cfDate <= '18/4/2' ORDER BY cfDate DESC LIMIT 1) as cfDate,
-        totalNav('CCDD062016AF','18/4/2') as cashValue) order by cfDate ASC;
+# Was and still is dropped b/c can't return a table directly
+DROP PROCEDURE IF EXISTS irrCashFlows;
+DELIMITER //
+CREATE PROCEDURE irrCashFlows(fund VARCHAR(255), endDate DATE)
+BEGIN
+    SELECT cfDate, cashValue FROM `CommitmentJoinDistribution`
+    WHERE fundID = fund AND 
+            cfDate <= endDate
+    UNION
+    (SELECT (SELECT cfDate FROM `CommitmentJoinDistribution`
+                WHERE fundID = fund AND cfDate <= endDate ORDER BY cfDate DESC LIMIT 1) as cfDate,
+            totalNav(fund,endDate) as cashValue) order by cfDate ASC;
+END//
+DELIMITER ;
 
-        
+
+
         
         
         
