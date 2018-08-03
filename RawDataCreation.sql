@@ -244,7 +244,7 @@ DELIMITER ;
 
 
         
-        
+
         
 select cfID from CashFlow as cf union all select fundID from Fund order by cfID;
-        
+INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) VALUES ('MPPE012015GB', '2016/3/15', -26887, 1, 'Interest Due')

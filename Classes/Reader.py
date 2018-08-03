@@ -56,6 +56,7 @@ class Reader(ReaderAPI.ReaderAPI):
             print "*** THIS IS AN INFERRED ROW"
             self.count += 1
             print "@@@ COUNT: " + str(self.count)
+            self._makeInferredRow(row)
         else:
             # ignore the base cash flow
             self._makeComplexRow(row)
@@ -233,33 +234,17 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Determines if a given row has inferred values.
     def _inferredRow(self, row):
+        # Reading in the items and converting them to valid integers
         cashFlow = int(str(row[2].strip()))
         expenses = str(row[3].strip())
         roc = str(row[4].strip())
         income = str(row[6].strip())
-        #if expenses == "":
-        #    expenses = 0
-        #else:
-        #    expenses = int(expenses)
-        #if roc == "":
-        #    roc = 0
-        #else:
-        #    roc = int(roc)
-        #if income == "":
-        #    income = 0
-        #else:
-        #    income = int(income)
+
         expenses = int(expenses or 0)
         roc = int(roc or 0)
         income = int(income or 0)
 
         # Separated for readability
-        print type(roc)
-        print type(income)
-        print type(expenses)
-        print roc
-        print "CashFlow: {}, Expenses: {}, ROC: {}, Income: {}, ROC+Income: {}".format(cashFlow, expenses, roc, income, roc + income)
-
         if expenses != 0 and expenses != cashFlow:
             print "PASSED FIRST"
             return True
@@ -272,7 +257,40 @@ class Reader(ReaderAPI.ReaderAPI):
 
 
     def _makeInferredRow(self, row):
-        pass #todo
+        cashFlow = int(str(row[2].strip()))
+        expenses = str(row[3].strip())
+        roc = str(row[4].strip())
+        income = str(row[6].strip())
+
+        expenses = int(expenses or 0)
+        roc = int(roc or 0)
+        income = int(income or 0)
+        net = cashFlow
+        otherValue = None
+        typeID = None
+
+        if expenses == 0:
+            net -= roc
+            otherValue = roc
+            temp = self._findResult(row, 4)
+            typeID = self._findNamedType(temp, "Return of Capital")
+        elif roc == 0:
+            net -= expenses
+            otherValue = expenses
+            temp = self._findResult(row, 3)
+            typeID = self._findNamedType(temp, "Expenses")
+        else:
+            raise ValueError("Invalid data for inferred row")
+
+        fundID = row[0]
+        date = datetime.strptime(row[1], '%m/%d/%y')
+        net = str(net)
+        otherValue = str(otherValue)
+        notes = row[12]
+        netRow = CashFlow.CashFlow(fundID, date, net, typeID, notes)
+        otherRow = CashFlow.CashFlow(fundID, date, otherValue, typeID, notes)
+        self._processCashFlow(netRow)
+        self._processCashFlow(otherRow)
 
 
 
