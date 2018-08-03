@@ -9,6 +9,7 @@ class Reader(ReaderAPI.ReaderAPI):
     #fileName = None
     #limit = None
     CashFlowDB = Query.Query()
+    count = 0
 
     def __init__(self, fileName, limit):
         self.fileName = fileName
@@ -52,7 +53,9 @@ class Reader(ReaderAPI.ReaderAPI):
         elif self._simpleRow(row):
             self._makeSimpleRow(row)
         elif self._inferredRow(row):
-            self._makeInferredRow(row)
+            print "*** THIS IS AN INFERRED ROW"
+            self.count += 1
+            print "@@@ COUNT: " + str(self.count)
         else:
             # ignore the base cash flow
             self._makeComplexRow(row)
@@ -176,7 +179,6 @@ class Reader(ReaderAPI.ReaderAPI):
     def _findResult(self, row, i):
         excelType = row[13]
         notes = row[12]
-        print(excelType.lower())
         if "contribution" in excelType.lower() or "contribution" in notes.lower():
             return "contribution"
         elif "distribution" in excelType.lower() or "distribution" in notes.lower():
@@ -231,15 +233,40 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Determines if a given row has inferred values.
     def _inferredRow(self, row):
-        cashFlow = str(row[2].strip())
+        cashFlow = int(str(row[2].strip()))
         expenses = str(row[3].strip())
         roc = str(row[4].strip())
         income = str(row[6].strip())
+        #if expenses == "":
+        #    expenses = 0
+        #else:
+        #    expenses = int(expenses)
+        #if roc == "":
+        #    roc = 0
+        #else:
+        #    roc = int(roc)
+        #if income == "":
+        #    income = 0
+        #else:
+        #    income = int(income)
+        expenses = int(expenses or 0)
+        roc = int(roc or 0)
+        income = int(income or 0)
+
         # Separated for readability
-        if expenses != "" and (cashFlow != expenses):
+        print type(roc)
+        print type(income)
+        print type(expenses)
+        print roc
+        print "CashFlow: {}, Expenses: {}, ROC: {}, Income: {}, ROC+Income: {}".format(cashFlow, expenses, roc, income, roc + income)
+
+        if expenses != 0 and expenses != cashFlow:
+            print "PASSED FIRST"
             return True
-        elif roc != "" and income != "" and (roc + income != expenses):
+        if roc != 0 and ((income != 0 and roc + income != cashFlow) or (roc != cashFlow and income == 0)):
+            print "PASSED SECOND"
             return True
+
         else:
             return False
 
