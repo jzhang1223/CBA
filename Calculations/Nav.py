@@ -4,7 +4,7 @@ from Calculations import CalculationAPI
 class Nav(CalculationAPI.CalculationAPI):
 
 
-    def __call__(self, fundID, endDate, startDate=0):
+    def __call__(self, fundID, endDate):
 
         result = self.CashFlowDB.queryDB(
             "SELECT totalNav(\'" + fundID + "\',\'" + endDate + "\')").fetchone()[0]
