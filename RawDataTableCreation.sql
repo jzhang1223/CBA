@@ -388,14 +388,14 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `totalDistributions`(fund VARCHAR(255), endDate DATE) RETURNS int(11)
     DETERMINISTIC
 BEGIN
-        RETURN (SELECT SUM(cashValue)
+        RETURN (SELECT IFNULL((SELECT SUM(cashValue)
                 FROM `CashFlowJoinType`
                 WHERE fundID = fund AND
                 cfDate <= endDate AND
                 result = 'Distribution' AND
                 (useCase = 'Standard' OR
                 useCase = 'Return of Capital' OR
-                useCase = 'Expenses'));
+                useCase = 'Expenses')), 0));
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;

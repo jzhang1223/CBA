@@ -23,6 +23,7 @@ class Query(QueryAPI.QueryAPI):
             print e
 
 
+
     def remainingCommitment(self, fundID, endDate):
         return NotImplementedError("Todo")
     def currentNAV(self, fundID, endDate):
@@ -43,6 +44,7 @@ class Query(QueryAPI.QueryAPI):
                 self.connection.commit()
                 return cursor
         except Exception as e:
+            print "@#$"
             print e
 
 fundID = 'CCDD062016AF'

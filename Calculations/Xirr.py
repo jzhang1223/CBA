@@ -20,10 +20,9 @@ class Xirr(CalculationAPI.CalculationAPI):
                                             "(SELECT (SELECT cfDate FROM `CommitmentJoinDistribution` "
                                             "WHERE fundID = '{0}' AND cfDate <= '{1}' "
                                             "ORDER BY cfDate DESC LIMIT 1) as cfDate, "
-                                            "totalNav('{0}','{1}') as cashValue) order by cfDate ASC;".format(fundID, endDate))
+                                            "totalNav('{0}','{1}') as cashValue) order by cfDate ASC;".format(fundID, endDate)).fetchall()
 
-        print cashflows
-        return self._xirr(list(cashflows))
+        return self._xirr(cashflows)
 
     def _xnpv(self, rate, cashflows):
         """
@@ -42,9 +41,6 @@ class Xirr(CalculationAPI.CalculationAPI):
         * This function is equivalent to the Microsoft Excel function of the same name.
         """
 
-        print "*** PRINTING RATE ***"
-        print rate
-        print "*** DONE PRINTING RATE ***"
         chron_order = sorted(cashflows, key=lambda x: x[0])
         t0 = chron_order[0][0]  # t0 is the date of the first cash flow
 
@@ -68,8 +64,11 @@ class Xirr(CalculationAPI.CalculationAPI):
         * For users that do not have the scipy module installed, there is an alternate version (commented out) that uses the secant_method function defined in the module rather than the scipy.optimize module's numerical solver. Both use the same method of calculation so there should be no difference in performance, but the secant_method function does not fail gracefully in cases where there is no solution, so the scipy.optimize.newton version is preferred.
         """
 
-
-        result = optimize.newton(lambda r: self._xnpv(r, cashflows), guess)
+        try:
+            result = optimize.newton(lambda r: self._xnpv(r, cashflows), guess)
+        except Exception as e:
+            print e
+            result = "ERROR"
         return self.giveResult(result)
 
 
