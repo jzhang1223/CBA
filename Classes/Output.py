@@ -29,6 +29,7 @@ class Output(object):
         for i in range(len(self.fundList)):
             self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
         print self.fundDF
+        self.fundDF.to_csv("../RawDataOutput.csv", index=False)
 
 
     def _getCalledPercentage(self, fundID, date):
