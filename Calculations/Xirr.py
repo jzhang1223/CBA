@@ -17,10 +17,14 @@ class Xirr(CalculationAPI.CalculationAPI):
 #                fundID, endDate, 'Contribution', 'Distribution')).fetchall()
         cashflows = self.CashFlowDB.queryDB(" SELECT cfDate, cashValue FROM `CommitmentJoinDistribution` "
                                             "WHERE fundID = '{0}' AND cfDate <= '{1}' UNION "
-                                            "(SELECT (SELECT cfDate FROM `CommitmentJoinDistribution` "
+                                            "(SELECT (SELECT cfDate FROM CashFlow "
                                             "WHERE fundID = '{0}' AND cfDate <= '{1}' "
                                             "ORDER BY cfDate DESC LIMIT 1) as cfDate, "
                                             "totalNav('{0}','{1}') as cashValue) order by cfDate ASC;".format(fundID, endDate)).fetchall()
+
+        print "*** FUND: " + fundID + " ****"
+        print cashflows
+        print "************"
 
         return self._xirr(cashflows)
 

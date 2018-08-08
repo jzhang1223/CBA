@@ -17,7 +17,7 @@ class Output(object):
     fundList = None
     fundDF = None
 
-    def __init__(self, date, fundList = None):
+    def __init__(self, fileName, date, fundList = None):
         if fundList is None:
             query = Query.Query()
             fundTuples = query.queryDB("SELECT fundID FROM Fund ORDER BY fundID ASC").fetchall()
@@ -29,7 +29,7 @@ class Output(object):
         for i in range(len(self.fundList)):
             self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
         print self.fundDF
-        self.fundDF.to_csv("../RawDataOutput.csv", index=False)
+        self.fundDF.to_csv("../" + fileName, index=False)
 
 
     def _getCalledPercentage(self, fundID, date):
@@ -86,5 +86,4 @@ class Output(object):
         return result
 
 
-a = Output('18/4/2')
-print a.getRow('CCDD062016AF', '18/4/2' )
+a = Output("testOutput", '18/4/2')
