@@ -85,4 +85,10 @@ class Output(object):
         return result
 
 
-#a = Output("testOutputAverages.csv", '18/4/2')
+tempDate = '18/8/9'
+Output("testOutputAverages.csv", tempDate)
+
+Output("testOutput.csv", tempDate)
+
+# Final Output
+#Output("RawDataOutput.csv", tempDate)
