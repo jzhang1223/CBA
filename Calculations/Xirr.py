@@ -2,19 +2,15 @@
 import CalculationAPI
 import datetime
 from scipy import optimize
+import numpy as np
 
 
 
 class Xirr(CalculationAPI.CalculationAPI):
 
-    def __call__(self, fundID, endDate):
+    def __call__(self, fundID, endDate, guess= -0.5):
         # query for values
-        # endDate = datetime.datetime.strptime('4/2/18', '%m/%d/%y')
-#        cashflows = self.CashFlowDB.queryDB(
-#            """SELECT cfDate, cashValue
-#            FROM CashFlowJoinType
-#            WHERE fundID = '{}' AND cfDate <= '{}' AND (result = '{}' OR result = '{}')""".format(
-#                fundID, endDate, 'Contribution', 'Distribution')).fetchall()
+
         cashflows = self.CashFlowDB.queryDB(" SELECT cfDate, cashValue FROM `CommitmentJoinDistribution` "
                                             "WHERE fundID = '{0}' AND cfDate <= '{1}' UNION "
                                             "(SELECT (SELECT cfDate FROM CashFlow "
@@ -24,9 +20,13 @@ class Xirr(CalculationAPI.CalculationAPI):
 
         print "*** FUND: " + fundID + " ****"
         print cashflows
+        #i = -0.5
+        #while i < .5:
+        #    print self._xirr(cashflows, i)
+        #    i += 0.1
         print "************"
 
-        return self._xirr(cashflows)
+        return self._xirr(cashflows, guess)
 
     def _xnpv(self, rate, cashflows):
         """
@@ -48,9 +48,10 @@ class Xirr(CalculationAPI.CalculationAPI):
         chron_order = sorted(cashflows, key=lambda x: x[0])
         t0 = chron_order[0][0]  # t0 is the date of the first cash flow
 
+        print rate
         return sum([cf / (1 + rate) ** ((t - t0).days / 365.0) for (t, cf) in chron_order])
 
-    def _xirr(self, cashflows, guess=0.1):
+    def _xirr(self, cashflows, guess=-0.5):
         """
         Calculate the Internal Rate of Return of a series of cashflows at irregular intervals.
         Arguments
@@ -66,15 +67,30 @@ class Xirr(CalculationAPI.CalculationAPI):
         * The Internal Rate of Return (IRR) is the discount rate at which the Net Present Value (NPV) of a series of cash flows is equal to zero. The NPV of the series of cash flows is determined using the xnpv function in this module. The discount rate at which NPV equals zero is found using the secant method of numerical solution.
         * This function is equivalent to the Microsoft Excel function of the same name.
         * For users that do not have the scipy module installed, there is an alternate version (commented out) that uses the secant_method function defined in the module rather than the scipy.optimize module's numerical solver. Both use the same method of calculation so there should be no difference in performance, but the secant_method function does not fail gracefully in cases where there is no solution, so the scipy.optimize.newton version is preferred.
-        """
 
-        try:
-            result = optimize.newton(lambda r: self._xnpv(r, cashflows), guess)
-        except Exception as e:
-            print e
-            result = "ERROR"
-        return self.giveResult(result)
+        Update
+        -------
+        * Modified to take an average of valid guesses from rates of -0.5 to 0.5
+        """
+        set = []
+        i = -0.5
+        while i < 0.6:
+            try:
+
+                result = optimize.newton(lambda r: self._xnpv(r, cashflows), i)
+                set.append(result)
+            except Exception as e:
+                print e
+
+                print "Terminated"
+                result = "ERROR"
+            print "Finished checking: " + str(i)
+            i += 0.1
+
+        print set
+        print np.mean(set)
+        return self.giveResult(np.mean(set))
 
 
 a = Xirr()
-a('CCDD062016AF', '18/4/2')
+a('SCPE042010AF', '18/4/2')

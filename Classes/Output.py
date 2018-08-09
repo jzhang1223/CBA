@@ -31,7 +31,6 @@ class Output(object):
         print self.fundDF
         self.fundDF.to_csv("../" + fileName, index=False)
 
-
     def _getCalledPercentage(self, fundID, date):
         func = CalledPercentage.CalledPercentage()
         return func(fundID, date)
@@ -86,4 +85,4 @@ class Output(object):
         return result
 
 
-a = Output("testOutput", '18/4/2')
+#a = Output("testOutputAverages.csv", '18/4/2')
