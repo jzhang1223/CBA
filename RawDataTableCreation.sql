@@ -158,10 +158,6 @@ BEGIN
                     (useCase = 'Investment' OR 
 					useCase = 'Subject to Recall' OR
                     useCase = 'Expenses'
-                    #(cashValue < 0 AND 
-					#	(result = 'Distribution' OR
-					#	result = 'Contribution')
-                    #    )
                         ));
 END ;;
 DELIMITER ;

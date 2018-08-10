@@ -86,7 +86,7 @@ class Output(object):
 
 
 tempDate = '18/8/9'
-Output("testOutputAverages.csv", tempDate)
+#Output("testOutputAverages.csv", tempDate)
 
 Output("testOutput.csv", tempDate)
 
