@@ -70,7 +70,7 @@ class Xirr(CalculationAPI.CalculationAPI):
 
         Update
         -------
-        * Modified to take an average of valid guesses from rates of -0.5 to 0.5
+        * Modified to take an average of valid guesses from rates of -0.5 to 0.5 at increments of 0.1
         """
         set = []
         i = -0.5

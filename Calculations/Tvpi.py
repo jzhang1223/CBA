@@ -13,5 +13,6 @@ class Tvpi(CalculationAPI.CalculationAPI):
         result = (.00 + totalValue(fundID, dateInQtr)) / capitalCalled(fundID, dateInQtr)
         return self.giveResult(result)
 
+
 a = Tvpi()
 a('CCDD062016AF', '18/4/2')

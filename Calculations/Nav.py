@@ -11,5 +11,6 @@ class Nav(CalculationAPI.CalculationAPI):
 
         return self.giveResult(result)
 
+
 a = Nav()
 a('CCDD062016AF', '18/4/2')

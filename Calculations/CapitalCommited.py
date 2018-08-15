@@ -9,5 +9,6 @@ class CapitalCommited(CalculationAPI.CalculationAPI):
 
         return self.giveResult(result)
 
+
 a = CapitalCommited()
 a('CCDD062016AF')
