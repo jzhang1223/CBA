@@ -1,5 +1,5 @@
 
-
+# Certain formulas used in the model
 class ModelCalculations(object):
 
     # C(t) = RC(t) (CC - PIC(t))
