@@ -30,11 +30,12 @@ class FundModelTest(unittest.TestCase):
     def test_2_simple(self):
         self.reset()
         self.fundModel.predictContributions(0)
-        self.fundModel.setDistributionsAndNav(1)
+        self.fundModel.setDistributionsAndNav(0)
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
         #  $84,000 	 $185,885 	 $697,308 	 $1,124,725 	 $1,201,367 	 $902,787 	 $450,556 	 $112,907
         self.assertEqual([84000.0, 185885.0, 697308.0, 1124725.0, 1201367.0, 902787.0, 450556.0, 112907.0],
-                         self.fundModel._navList)
+                         self.fundModel._distributionList)
+        #  $1,316,000 	 $2,687,195 	 $2,815,223 	 $2,151,677 	 $1,230,028 	 $487,145 	 $99,918
 
