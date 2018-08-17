@@ -21,7 +21,7 @@ class FundModelTest(unittest.TestCase):
         self.reset()
         # 22 CCDD062016AF	2016	 $3,500,000 	12/31/17	40%	66%	67%	40%	100%    1.50 	13%	6%
         #  $1,400,000 	 $1,386,000 	 $476,000 	 $95,200   ... remaining  141372.0
-        self.assertEqual([1400000.0, 1386000.0, 478380.0, 94248.0], self.fundModel.predictContributions(0))
+        self.assertEqual([1400000.0, 1386000.0, 478380.0, 94248.0], self.fundModel.setValues(0))
 
         self.assertEqual(len(self.fundModel._distributionList), 1)
         self.assertEqual(len(self.fundModel._navList), 1)
@@ -29,8 +29,7 @@ class FundModelTest(unittest.TestCase):
     # Testing distributions and navs
     def test_2_simple(self):
         self.reset()
-        self.fundModel.predictContributions(0)
-        self.fundModel.setDistributionsAndNav(0)
+        self.fundModel.setValues()
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList

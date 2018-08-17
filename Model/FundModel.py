@@ -21,82 +21,56 @@ class FundModel(object):
         self.lastInvestmentYear = lastInvestmentYear
         self.lifeOfFund = lifeOfFund
         self.calculate = ModelCalculations.ModelCalculations()
-        self._contributionList = self.predictContributions(0)
-        self._distributionList = [] #todo
-        self._navList = [] #todo
+        self._contributionList = []
+        self._distributionList = []
+        self._navList = []
+
+    # Sets the lists of nav and distributions together.
+    def setValues(self):
+        for i in range(0, self.lifeOfFund):
+            print "current year: " + str(i)
+            self._contributionList.append(self.predictContribution(i))
+            self._distributionList.append(self.predictDistribution(i))
+            self._navList.append(self.predictNav(i))
 
     # Returns the predicted contribution values using the stored fields.
-    def predictContributions(self, startingYear):
-        result = []
-
-        for i in range(startingYear, self.lastInvestmentYear):
-            realContributionRate = None
-
-            if len(self.contributionRates) > i:
-                realContributionRate = self.contributionRates[i]
-            else:
-                realContributionRate = self.contributionRates[-1]
-
-            result.append(
-                self.calculate.contribution(realContributionRate,
-                                            self.capitalCommitment,
-                                            sum(result)))
-            if self.contributionRates[i] > .999999:
-                break
-        return result
+    def predictContribution(self, currentYear):
+        if currentYear >= self.lastInvestmentYear:
+            return 0
+        else:
+            print "calculating contribution"
+            print self.capitalCommitment
+            print self.contributionRates[currentYear]
+            return self.calculate.contribution(
+                self.contributionRates[currentYear],
+                self.capitalCommitment,
+                sum(self._contributionList))
 
     # Predicts the distribution for a given year.
-    def predictDistributions(self, currentYear):
-        distributionRate = self.calculate.rateOfDistribution(
-            self.fundYield, currentYear, self.lifeOfFund, self.bow)
-
-        #self._distributionList.append(self.calculate.distribution(
-        #    distributionRate, self._navList[currentYear - 1], self.growth))
-        print "printing nav list"
-        print self._navList
-        print "printing distr list"
-        print self._distributionList
-        return self.calculate.distribution(
-            distributionRate, self.getNav(currentYear - 1), self.growthRate)
+    def predictDistribution(self, currentYear):
+        if currentYear == 0:
+            return 0
+        else:
+            rateOfDistribution = self.calculate.rateOfDistribution(
+                self.fundYield, currentYear, self.lifeOfFund, self.bow)
+            return self.calculate.distribution(
+                rateOfDistribution, self._navList[currentYear - 1], self.growthRate)
 
     # Predicts the NAV for a given year.
     def predictNav(self, currentYear):
-        return self.calculate.nav(
-            self.getNav(currentYear - 1),
-            self.growthRate,
-            self.getContribution(currentYear),
-            self.getDistribution(currentYear))
+        if currentYear == 0:
+            return self._contributionList[currentYear]
+        return self.calculate.nav(self._navList[currentYear - 1],
+                              self.growthRate,
+                              self._contributionList[currentYear],
+                              self._distributionList[currentYear])
 
-    # Sets the lists of nav and distributions together.
-    def setDistributionsAndNav(self, startingYear):
-        for i in range(startingYear, self.lifeOfFund):
-            print "current year: " + str(i)
-            self._distributionList.append(self.predictDistributions(i))
-            self._navList.append(self.predictNav(i))
 
-    # Gets the contribution of the given year, returning 0 if the year is too high.
-    def getContribution(self, year):
-        print "year"
-        print year
-        print "list"
-        print len(self._contributionList)
-        if year >= len(self._contributionList):
-            return 0
-        else:
-            return self._contributionList[year]
 
-    def getNav(self, year):
-        if year >= len(self._navList) or year < 0:
-            return 0
-        else:
-            return self._navList[year]
 
-    def getDistribution(self, year):
-        if year >= len(self._distributionList) or year < 0:
-            return 0
-        else:
-            return self._distributionList[year]
 
+
+    '''
     def getContributionList(self):
         return self._contributionList
 
@@ -105,6 +79,7 @@ class FundModel(object):
 
     def getNavList(self):
         return self._navList
+        '''
 
 
 
