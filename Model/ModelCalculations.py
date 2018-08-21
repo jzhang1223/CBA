@@ -13,6 +13,11 @@ class ModelCalculations(object):
 
     # RD = Max[Y, (t / L) ^ B]
     def rateOfDistribution(self, fundYield, year, lifeOfFund, bow):
+        if (fundYield > ((.00 + year) / lifeOfFund) ** bow):
+            print "Using FundYield"
+        else:
+            print "Using Bow"
+
         return max(fundYield, ((.00 + year) / lifeOfFund) ** bow)
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)

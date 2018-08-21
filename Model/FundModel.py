@@ -35,14 +35,14 @@ class FundModel(object):
 
     # Returns the predicted contribution values using the stored fields.
     def predictContribution(self, currentYear):
-        if currentYear >= self.lastInvestmentYear:
+        if currentYear > self.lastInvestmentYear or currentYear == 0:
             return 0
         else:
             print "calculating contribution"
             print self.capitalCommitment
             print self.contributionRates[currentYear]
             return self.calculate.contribution(
-                self.contributionRates[currentYear],
+                self.contributionRates[currentYear - 1],
                 self.capitalCommitment,
                 sum(self._contributionList))
 
