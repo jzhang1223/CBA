@@ -36,13 +36,12 @@ class ModelCalculations(object):
         y = Symbol('y')
         return solve(equation, y)[0]
 
-    # Builds the equation that should be solved based on the number of segments.
+    # Builds the equation that should be solved based on the number of segments and the initial percentage.
     def _buildEquation(self, segments, initialPercentage):
         equation = []
         for i in range(1, segments + 1):
-            coefficient = comb(segments, i)
-            if i % 2 == 0:
-                coefficient *= -1
+            # (-1)^(i+1) alternates the negatives, starting with a positive coefficient
+            coefficient = comb(segments, i) * ((-1) ** (i + 1))
             equation.append("{} * y ** {}".format(coefficient, i))
         return " + ".join(equation) + " - {}".format(initialPercentage)
 
