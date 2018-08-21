@@ -1,3 +1,6 @@
+from sympy.solvers import solve
+from sympy import Symbol
+from scipy.special import comb
 
 # Certain formulas used in the model
 class ModelCalculations(object):
@@ -24,6 +27,29 @@ class ModelCalculations(object):
     def nav(self, previousNAV, growthRate, contributions, distributions):
         return (previousNAV * (1.0 + growthRate)) + contributions - distributions
 
+    # Solves the following equation to convert an annual contribution percentage into a segmented contribution percentage
+    # initialPercentage + (initialValue * newPercentage) ^ 2 = 1
+    # newPercentage is the variable being solved for
+    # ASSUMES that the answer is the first item of the return in the solve function
+    def segmentCommitment(self, segments, initialPercentage):
+        equation = self._buildEquation(segments, initialPercentage)
+        y = Symbol('y')
+        return solve(equation, y)[0]
+
+    # Builds the equation that should be solved based on the number of segments.
+    def _buildEquation(self, segments, initialPercentage):
+        equation = []
+        for i in range(1, segments + 1):
+            coefficient = comb(segments, i)
+            if i % 2 == 0:
+                coefficient *= -1
+            equation.append("{} * y ** {}".format(coefficient, i))
+        return " + ".join(equation) + " - {}".format(initialPercentage)
+
+
     # Not currently used
     def remainingContributions(self, contributionList, capitalCommitment):
         return .00 + capitalCommitment - sum(contributionList)
+
+a = ModelCalculations()
+print a._buildEquation(2, .5)

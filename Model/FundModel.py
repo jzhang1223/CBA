@@ -3,7 +3,7 @@ import ModelCalculations
 # Able to output projected values for a fund based on given information.
 class FundModel(object):
 
-    def __init__(self, capitalCommitment, contributionRates, bow, growthRate, fundYield, lastInvestmentYear, lifeOfFund):
+    def __init__(self, capitalCommitment, contributionRates, bow, growthRate, fundYield, lastInvestmentYear, lifeOfFund, segments):
         """
         Stores the given values for future computations.
         :param capitalCommitment: int of the total capitalCommitment
@@ -20,6 +20,7 @@ class FundModel(object):
         self.fundYield = fundYield
         self.lastInvestmentYear = lastInvestmentYear
         self.lifeOfFund = lifeOfFund
+        self.segments = segments
         self.calculate = ModelCalculations.ModelCalculations()
         self._contributionList = []
         self._distributionList = []
@@ -27,43 +28,43 @@ class FundModel(object):
 
     # Sets the lists of nav and distributions together.
     def setValues(self):
-        for i in range(0, self.lifeOfFund):
+        for i in range(0, self.lifeOfFund + 1):
             print "current year: " + str(i)
             self._contributionList.append(self.predictContribution(i))
             self._distributionList.append(self.predictDistribution(i))
             self._navList.append(self.predictNav(i))
 
     # Returns the predicted contribution values using the stored fields.
-    def predictContribution(self, currentYear):
-        if currentYear > self.lastInvestmentYear or currentYear == 0:
+    def predictContribution(self, currentTime):
+        if currentTime > self.lastInvestmentYear or currentTime == 0:
             return 0
         else:
             print "calculating contribution"
             print self.capitalCommitment
-            print self.contributionRates[currentYear]
+            print self.contributionRates[currentTime]
             return self.calculate.contribution(
-                self.contributionRates[currentYear - 1],
+                self.contributionRates[currentTime - 1],
                 self.capitalCommitment,
                 sum(self._contributionList))
 
     # Predicts the distribution for a given year.
-    def predictDistribution(self, currentYear):
-        if currentYear == 0:
+    def predictDistribution(self, currentTime):
+        if currentTime == 0:
             return 0
         else:
             rateOfDistribution = self.calculate.rateOfDistribution(
-                self.fundYield, currentYear, self.lifeOfFund, self.bow)
+                self.fundYield, currentTime, self.lifeOfFund, self.bow)
             return self.calculate.distribution(
-                rateOfDistribution, self._navList[currentYear - 1], self.growthRate)
+                rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
 
     # Predicts the NAV for a given year.
-    def predictNav(self, currentYear):
-        if currentYear == 0:
-            return self._contributionList[currentYear]
-        return self.calculate.nav(self._navList[currentYear - 1],
-                              self.growthRate,
-                              self._contributionList[currentYear],
-                              self._distributionList[currentYear])
+    def predictNav(self, currentTime):
+        if currentTime == 0:
+            return self._contributionList[currentTime]
+        return self.calculate.nav(self._navList[currentTime - 1],
+                                  self.growthRate,
+                                  self._contributionList[currentTime],
+                                  self._distributionList[currentTime])
 
 
 
