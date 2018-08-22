@@ -31,12 +31,14 @@ class ModelCalculations(object):
     # initialPercentage + (initialValue * newPercentage) ^ 2 = 1
     # newPercentage is the variable being solved for
     # ASSUMES that the answer is the first item of the return in the solve function
+    # Rounds the percentage to 4 decimal places
     def segmentCommitment(self, segments, initialPercentage):
         equation = self._buildEquation(segments, initialPercentage)
         y = Symbol('y')
-        return solve(equation, y)[0]
+        return round(solve(equation, y)[0], 4)
 
     # Builds the equation that should be solved based on the number of segments and the initial percentage.
+    # Equation is always set equal to 0 to be solved
     def _buildEquation(self, segments, initialPercentage):
         equation = []
         for i in range(1, segments + 1):
@@ -45,10 +47,10 @@ class ModelCalculations(object):
             equation.append("{} * y ** {}".format(coefficient, i))
         return " + ".join(equation) + " - {}".format(initialPercentage)
 
+    def _buildPascalRow(self, rowNumber):
+        pass
+
 
     # Not currently used
     def remainingContributions(self, contributionList, capitalCommitment):
         return .00 + capitalCommitment - sum(contributionList)
-
-a = ModelCalculations()
-print a._buildEquation(2, .5)

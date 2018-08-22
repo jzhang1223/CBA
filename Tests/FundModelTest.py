@@ -1,10 +1,7 @@
 import unittest
 import FundModel
 
-
 class FundModelTest(unittest.TestCase):
-
-
 
     def reset(self):
         self.commitment1 = 3500000
