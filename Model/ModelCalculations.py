@@ -1,6 +1,3 @@
-from sympy.solvers import solve
-from sympy import Symbol
-from scipy.special import comb
 
 # Certain formulas used in the model
 class ModelCalculations(object):
@@ -42,7 +39,6 @@ class ModelCalculations(object):
         equation = []
         pascalRow = self._buildPascalRow(segments)
         for i in range(1, segments + 1):
-            print i
             # (-1)^(i+1) alternates the negatives, starting with a positive coefficient.
             coefficient = pascalRow[i] * ((-1) ** (i + 1))
             equation.append("{} * {} ** {}".format(coefficient,'{0}', i))
@@ -61,13 +57,11 @@ class ModelCalculations(object):
     def _binarySolve(self, equation, annualRate, min=0.0, max=1.0):
         guess = (max - min) / 2.0 + min
         computed = eval(equation.format(guess), None, None)
-        if abs(computed - annualRate) < .000001:
+        if abs(computed - annualRate) < .00001:
             return round(guess, 5)
         elif computed > annualRate:
-            # Average of computed and min.
             return self._binarySolve(equation, annualRate, min, guess)
         else:
-            newGuess = (max - guess) / 2.0 + guess
             return self._binarySolve(equation, annualRate, guess, max)
 
 

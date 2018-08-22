@@ -1,6 +1,5 @@
 import ModelCalculations
 import unittest
-import cProfile
 
 class ModelCalculationsTest(unittest.TestCase):
 
@@ -43,10 +42,6 @@ class ModelCalculationsTest(unittest.TestCase):
         self.assertEqual(.11989, self.calculator.segmentCommitment(4, .4))
 
     def test_7_reductionMatches(self):
-        # 6 ~ 1s
-        # 9 ~ 34s ... 33s
-        # 10 ~ 47s ... 48s
-        # 11 ~ 63s ... 69s
         self.reset()
         value = 100
         initialPercentage = .3
@@ -62,4 +57,3 @@ class ModelCalculationsTest(unittest.TestCase):
         self.reset()
         rowNumber = 5
         self.assertEqual([1, 5, 10, 10, 5, 1], self.calculator._buildPascalRow(rowNumber))
-        
