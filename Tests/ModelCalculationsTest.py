@@ -1,5 +1,6 @@
 import ModelCalculations
 import unittest
+import cProfile
 
 class ModelCalculationsTest(unittest.TestCase):
 
@@ -14,22 +15,22 @@ class ModelCalculationsTest(unittest.TestCase):
     # 2 segments, initially .5 contribution
     def test_1_buildEquation(self):
         self.reset()
-        self.assertEqual("2.0 * y ** 1 + -1.0 * y ** 2 - 0.5", self.calculator._buildEquation(2, .5))
+        self.assertEqual("2.0 * {0} ** 1 + -1.0 * {0} ** 2", self.calculator._buildEquation(2))
 
     # 4 segments, initially .4 contribution
     def test_2_buildEquation(self):
         self.reset()
-        self.assertEqual("4.0 * y ** 1 + -6.0 * y ** 2 + 4.0 * y ** 3 + -1.0 * y ** 4 - 0.4", self.calculator._buildEquation(4, .4))
+        self.assertEqual("4.0 * {0} ** 1 + -6.0 * {0} ** 2 + 4.0 * {0} ** 3 + -1.0 * {0} ** 4", self.calculator._buildEquation(4))
 
     # 1 segment, initially .7 contribution
     def test_3_buildEquation(self):
         self.reset()
-        self.assertEqual("1.0 * y ** 1 - 0.7", self.calculator._buildEquation(1, .7))
+        self.assertEqual("1.0 * {0} ** 1", self.calculator._buildEquation(1))
 
     # 2 segments, initially .5 contribution
     def test_4_segmentContribution(self):
         self.reset()
-        self.assertEqual(.2929, self.calculator.segmentCommitment(2, .5))
+        self.assertEqual(.29289, self.calculator.segmentCommitment(2, .5))
 
     # 1 segment, initially .7 contribution
     def test_5_segmentContribution(self):
@@ -39,20 +40,26 @@ class ModelCalculationsTest(unittest.TestCase):
     #4 segments, initially .4 contribution
     def test_6_segmentContribution(self):
         self.reset()
-        self.assertEqual(.1199, self.calculator.segmentCommitment(4, .4))
+        self.assertEqual(.11989, self.calculator.segmentCommitment(4, .4))
 
     def test_7_reductionMatches(self):
         # 6 ~ 1s
-        # 9 ~ 34s
-        # 10 ~ 47s
-        # 11 ~ 63s
+        # 9 ~ 34s ... 33s
+        # 10 ~ 47s ... 48s
+        # 11 ~ 63s ... 69s
         self.reset()
         value = 100
         initialPercentage = .3
-        segments = 1
+        # Max segments = 103
+        segments = 52
         newPercentage = self.calculator.segmentCommitment(segments, initialPercentage)
         for i in range(0, segments):
-            print i
             value -= value * newPercentage
         self.assertEqual(70.0, round(value, 1))
 
+    # Row number 5 (0 indexing) of Pascal's triangle
+    def test_8_buildPascalRow(self):
+        self.reset()
+        rowNumber = 5
+        self.assertEqual([1, 5, 10, 10, 5, 1], self.calculator._buildPascalRow(rowNumber))
+        

@@ -27,28 +27,48 @@ class ModelCalculations(object):
     def nav(self, previousNAV, growthRate, contributions, distributions):
         return (previousNAV * (1.0 + growthRate)) + contributions - distributions
 
-    # Solves the following equation to convert an annual contribution percentage into a segmented contribution percentage
-    # initialPercentage + (initialValue * newPercentage) ^ 2 = 1
-    # newPercentage is the variable being solved for
-    # ASSUMES that the answer is the first item of the return in the solve function
-    # Rounds the percentage to 4 decimal places
-    def segmentCommitment(self, segments, initialPercentage):
-        equation = self._buildEquation(segments, initialPercentage)
-        y = Symbol('y')
-        return round(solve(equation, y)[0], 4)
+    # Solves the following equation to convert an annual contribution percentage into a segmented contribution percentage.
+    # initialPercentage + (initialValue * newPercentage) ^ 2 = 1.
+    # newPercentage is the variable being solved for.
+    # Rounds the percentage to 4 decimal places.
+    def segmentCommitment(self, segments, annualPercentage):
+        equation = self._buildEquation(segments)
+        return self._binarySolve(equation, annualPercentage)
 
     # Builds the equation that should be solved based on the number of segments and the initial percentage.
-    # Equation is always set equal to 0 to be solved
-    def _buildEquation(self, segments, initialPercentage):
+    # Equation is always set equal to 0 to be solved.
+    # Used to use n choose k but now uses the pascal row builder.
+    def _buildEquation(self, segments):
         equation = []
+        pascalRow = self._buildPascalRow(segments)
         for i in range(1, segments + 1):
-            # (-1)^(i+1) alternates the negatives, starting with a positive coefficient
-            coefficient = comb(segments, i) * ((-1) ** (i + 1))
-            equation.append("{} * y ** {}".format(coefficient, i))
-        return " + ".join(equation) + " - {}".format(initialPercentage)
+            print i
+            # (-1)^(i+1) alternates the negatives, starting with a positive coefficient.
+            coefficient = pascalRow[i] * ((-1) ** (i + 1))
+            equation.append("{} * {} ** {}".format(coefficient,'{0}', i))
+        return " + ".join(equation)
 
+    # Returns an array with the rowNumber of Pascal's triangle.
+    # Uses the number to the left to calculate new numbers.
     def _buildPascalRow(self, rowNumber):
-        pass
+        result = [1.0]
+        for k in range(rowNumber):
+            result.append(result[k] * (rowNumber - k) / (k + 1))
+        return result
+
+    # Uses binary search to find the solution to the equation b/c it is known to be between 0 and 1.
+    # The equation should not include the annual rate subtracted at the end.
+    def _binarySolve(self, equation, annualRate, min=0.0, max=1.0):
+        guess = (max - min) / 2.0 + min
+        computed = eval(equation.format(guess), None, None)
+        if abs(computed - annualRate) < .000001:
+            return round(guess, 5)
+        elif computed > annualRate:
+            # Average of computed and min.
+            return self._binarySolve(equation, annualRate, min, guess)
+        else:
+            newGuess = (max - guess) / 2.0 + guess
+            return self._binarySolve(equation, annualRate, guess, max)
 
 
     # Not currently used
