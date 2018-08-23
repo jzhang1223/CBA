@@ -68,6 +68,8 @@ class ModelCalculations(object):
     # r = (1+i/n)^n - 1     solve for i => i = n * (nthRoot(1+r) - 1)
     def segmentInterest(self, segments, annualPercentage):
         return round(segments * ((1.0+annualPercentage) ** (1.0/segments) - 1.0), 4)
+
+
     # Not currently used
     def remainingContributions(self, contributionList, capitalCommitment):
         return .00 + capitalCommitment - sum(contributionList)

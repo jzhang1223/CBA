@@ -57,3 +57,10 @@ class ModelCalculationsTest(unittest.TestCase):
         self.reset()
         rowNumber = 5
         self.assertEqual([1, 5, 10, 10, 5, 1], self.calculator._buildPascalRow(rowNumber))
+
+    # Based on investopedia 10% data for semiannual, quarterly, monthly, daily
+    def test_9_segmentInterest(self):
+        self.reset()
+        dict = {1:.1, 2:.1025, 4:.10381, 12:.10471, 365:.10516}
+        for i in dict:
+            self.assertEqual(.1, self.calculator.segmentInterest(i, dict[i]))
