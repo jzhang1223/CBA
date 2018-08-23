@@ -1,6 +1,7 @@
 import ModelCalculations
 import math
 
+# Max 177
 def binarySolver(equation, annualRate, segments):
     min = annualRate / segments
     max = annualRate
@@ -26,7 +27,7 @@ def binarySolver(equation, annualRate, segments):
 a = ModelCalculations.ModelCalculations()
 #print binarySolver("2.0 * {0} ** 1 + -1.0 * {0} ** 2", .5)
 
-#print binarySolver(a._buildEquation(200), 0.4, 200)
+print binarySolver(a._buildEquation(178), 0.4, 178)
 print "NEW BEGINNING"
 print binarySolver(a._buildEquation(4), .6, 4)
 print "NEW BEGINNING"
