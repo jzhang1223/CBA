@@ -13,15 +13,15 @@ class FundModel(object):
         :param fundYield: float of expected yield
         :param lastInvestmentYear: int of the last year allowed to invest
         """
-        self.capitalCommitment = capitalCommitment
-        self.contributionRates = contributionRates
-        self.bow = bow
-        self.growthRate = growthRate
-        self.fundYield = fundYield
-        self.lastInvestmentYear = lastInvestmentYear
-        self.lifeOfFund = lifeOfFund
-        self.segments = segments
         self.calculate = ModelCalculations.ModelCalculations()
+        self.capitalCommitment = capitalCommitment
+        #self.contributionRates = contributionRates
+        self.bow = bow
+        #self.growthRate = growthRate ... compounded
+        #self.fundYield = fundYield ... NOT compounded
+        #self.lastInvestmentYear = lastInvestmentYear
+        #self.lifeOfFund = lifeOfFund
+
         self._contributionList = []
         self._distributionList = []
         self._navList = []
@@ -66,8 +66,11 @@ class FundModel(object):
                                   self._contributionList[currentTime],
                                   self._distributionList[currentTime])
 
-
-
+    # Sets up the information that changes based on segmenting data.
+    def _setupRates(self, segments):
+        self.lastInvestmentYear *= segments
+        self.lifeOfFund *= segments
+        
 
 
 

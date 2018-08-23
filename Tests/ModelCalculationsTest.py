@@ -46,7 +46,7 @@ class ModelCalculationsTest(unittest.TestCase):
         value = 100
         initialPercentage = .3
         # Max segments = 103
-        segments = 52
+        segments = 103
         newPercentage = self.calculator.segmentCommitment(segments, initialPercentage)
         for i in range(0, segments):
             value -= value * newPercentage
