@@ -65,6 +65,7 @@ class ModelCalculations(object):
             return self._binarySolve(equation, annualRate, guess, max)
 
 
+
     # Not currently used
     def remainingContributions(self, contributionList, capitalCommitment):
         return .00 + capitalCommitment - sum(contributionList)
