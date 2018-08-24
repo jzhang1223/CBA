@@ -34,9 +34,9 @@ class FundModel(object):
     def setValues(self):
         for i in range(0, self.lifeOfFund + 1):
             print "current year: " + str(i)
-            self._contributionList.append(self.predictContribution(i))
-            self._distributionList.append(self.predictDistribution(i))
-            self._navList.append(self.predictNav(i))
+            self._contributionList.append(round(self.predictContribution(i), 2))
+            self._distributionList.append(round(self.predictDistribution(i), 2))
+            self._navList.append(round(self.predictNav(i), 2))
 
     # Returns the predicted contribution values using the stored fields.
     def predictContribution(self, currentTime):
