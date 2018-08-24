@@ -11,7 +11,7 @@ class FundModelTest(unittest.TestCase):
         self.fundYield1 = .06
         self.lastInvestmentYear1 = 4
         self.lifeOfFund1 = 8
-        self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1)
+        self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, 1)
 
     # Testing contributions
     def test_1_simple(self):
@@ -35,3 +35,16 @@ class FundModelTest(unittest.TestCase):
                          self.fundModel._distributionList)
         #  $1,316,000 	 $2,687,195 	 $2,815,223 	 $2,151,677 	 $1,230,028 	 $487,145 	 $99,918
 
+    def test_3_expandContributionRates(self):
+        self.reset()
+        segments = 2
+        rates = [.5, .7]
+        result = [.29289, .29289, .45227, .45227]
+        self.assertEqual(result, self.fundModel._expandContributionRates(segments, rates))
+
+    def test_4_expandContributionRates(self):
+        self.reset()
+        segments = 4
+        rates = [.4, .5]
+        result = [.11989, .11989 ,.11989 ,.11989, .1591, .1591, .1591, .1591]
+        self.assertEqual(result, self.fundModel._expandContributionRates(segments, rates))

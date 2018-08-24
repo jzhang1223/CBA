@@ -36,6 +36,11 @@ class ModelCalculationsTest(unittest.TestCase):
         self.reset()
         self.assertEqual(.7, self.calculator.segmentCommitment(1, .7))
 
+    # Another added test
+    def test_51_segmentContribtuion(self):
+        self.reset()
+        self.assertEqual(.45277, self.calculator.segmentCommitment(2, .7))
+
     #4 segments, initially .4 contribution
     def test_6_segmentContribution(self):
         self.reset()
@@ -64,3 +69,4 @@ class ModelCalculationsTest(unittest.TestCase):
         dict = {1:.1, 2:.1025, 4:.10381, 12:.10471, 365:.10516}
         for i in dict:
             self.assertEqual(.1, self.calculator.segmentInterest(i, dict[i]))
+

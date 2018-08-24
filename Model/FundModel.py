@@ -14,17 +14,21 @@ class FundModel(object):
         :param lastInvestmentYear: int of the last year allowed to invest
         """
         self.calculate = ModelCalculations.ModelCalculations()
+        self.lastInvestmentYear = lastInvestmentYear * segments
+        self.lifeOfFund = lifeOfFund * segments
         self.capitalCommitment = capitalCommitment
-        #self.contributionRates = contributionRates
+        self.contributionRates = self._expandContributionRates(segments, contributionRates)
         self.bow = bow
-        #self.growthRate = growthRate ... compounded
-        #self.fundYield = fundYield ... NOT compounded
-        #self.lastInvestmentYear = lastInvestmentYear
-        #self.lifeOfFund = lifeOfFund
+        self.growthRate = self.calculate.segmentInterest(segments, growthRate)
+        self.fundYield = fundYield / segments
 
         self._contributionList = []
         self._distributionList = []
         self._navList = []
+
+        # Done
+        #self.lastInvestmentYear = lastInvestmentYear
+        #self.lifeOfFund = lifeOfFund
 
     # Sets the lists of nav and distributions together.
     def setValues(self):
@@ -66,11 +70,13 @@ class FundModel(object):
                                   self._contributionList[currentTime],
                                   self._distributionList[currentTime])
 
-    # Sets up the information that changes based on segmenting data.
-    def _setupRates(self, segments):
-        self.lastInvestmentYear *= segments
-        self.lifeOfFund *= segments
-        
+    # Expands the contribution rates based on the number of segments and calculating a backtracked rate
+    def _expandContributionRates(self, segments, contributionRates):
+        result = []
+        for originalRate in contributionRates:
+            newRate = self.calculate.segmentCommitment(segments, originalRate)
+            result.extend([newRate] * segments)
+        return result
 
 
 
