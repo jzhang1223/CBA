@@ -18,6 +18,7 @@ class FundModel(object):
         self.lifeOfFund = lifeOfFund * segments
         self.capitalCommitment = capitalCommitment
         self.contributionRates = self._expandContributionRates(segments, contributionRates)
+        self._validateContributionRates(self.contributionRates)
         self.bow = bow
         self.growthRate = self.calculate.segmentInterest(segments, growthRate)
         self.fundYield = fundYield / segments
@@ -26,32 +27,24 @@ class FundModel(object):
         self._distributionList = []
         self._navList = []
 
-        # Done
-        #self.lastInvestmentYear = lastInvestmentYear
-        #self.lifeOfFund = lifeOfFund
-
     # Sets the lists of nav and distributions together.
     def setValues(self):
         for i in range(0, self.lifeOfFund + 1):
-            print "current year: " + str(i)
             self._contributionList.append(round(self.predictContribution(i), 2))
             self._distributionList.append(round(self.predictDistribution(i), 2))
             self._navList.append(round(self.predictNav(i), 2))
 
-    # Returns the predicted contribution values using the stored fields.
+    # Returns the predicted contribution values based on its own fields.
     def predictContribution(self, currentTime):
         if currentTime > self.lastInvestmentYear or currentTime == 0:
             return 0
         else:
-            print "calculating contribution"
-            print self.capitalCommitment
-            print self.contributionRates[currentTime]
             return self.calculate.contribution(
                 self.contributionRates[currentTime - 1],
                 self.capitalCommitment,
                 sum(self._contributionList))
 
-    # Predicts the distribution for a given year.
+    # Predicts the distribution for a given year based on its own fields.
     def predictDistribution(self, currentTime):
         if currentTime == 0:
             return 0
@@ -61,7 +54,7 @@ class FundModel(object):
             return self.calculate.distribution(
                 rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
 
-    # Predicts the NAV for a given year.
+    # Predicts the NAV for a given year based on its own fields.
     def predictNav(self, currentTime):
         if currentTime == 0:
             return self._contributionList[currentTime]
@@ -78,6 +71,16 @@ class FundModel(object):
             result.extend([newRate] * segments)
         return result
 
+    def _validateContributionRates(self, contributionRates):
+        length = len(contributionRates)
+        if length < 1:
+            raise ValueError("Can't have 0 contribution rates!")
+        for i in range(0, length):
+            temp = contributionRates[i]
+            if temp > 1.0 or temp < 0.0:
+                raise ValueError("Invalid contribution rate. Make sure it isn't greater than 1 or less than 0")
+            elif i != length - 1 and temp == 1.0:
+                raise ValueError("Can't have 100% contribution rate not at the end!")
 
 
     '''

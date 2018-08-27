@@ -37,9 +37,20 @@ class ModelCalculationsTest(unittest.TestCase):
         self.assertEqual(.7, self.calculator.segmentCommitment(1, .7))
 
     # Another added test
-    def test_51_segmentContribtuion(self):
+    def test_5_1_segmentContribtuion(self):
         self.reset()
         self.assertEqual(.45227, self.calculator.segmentCommitment(2, .7))
+
+    # Added a year = 0 test
+    def test_5_2_segmentContribution(self):
+        self.reset()
+        with self.assertRaises(ValueError):
+            self.calculator.segmentCommitment(0, .4)
+
+    # Added a year = 1 test
+    def test_5_3_segmentContribution(self):
+        self.reset()
+        self.assertEqual(.9, self.calculator.segmentCommitment(1, .9))
 
     #4 segments, initially .4 contribution
     def test_6_segmentContribution(self):
@@ -64,9 +75,20 @@ class ModelCalculationsTest(unittest.TestCase):
         self.assertEqual([1, 5, 10, 10, 5, 1], self.calculator._buildPascalRow(rowNumber))
 
     # Based on investopedia 10% data for semiannual, quarterly, monthly, daily
+    # Checks that given a compounded interest rate split into n segments should always go back to .1
     def test_9_segmentInterest(self):
         self.reset()
         dict = {1:.1, 2:.1025, 4:.10381, 12:.10471, 365:.10516}
         for i in dict:
             self.assertEqual(.1, self.calculator.segmentInterest(i, dict[i]))
+
+    # Same as test_9 except more diversified values.
+    def test_10_segmentInterest(self):
+        self.reset()
+        result = ((12,.16076,.15), (4,.21551,.2), (52,.07246,.07))
+        for i in result:
+            print i[0]
+            print i[1]
+            print i[2]
+            self.assertEqual(i[2], self.calculator.segmentInterest(i[0], i[1]))
 

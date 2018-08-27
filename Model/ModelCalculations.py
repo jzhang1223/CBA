@@ -8,16 +8,10 @@ class ModelCalculations(object):
 
     # D(t) = RD * [NAV(t-1) * (1 + G)]
     def distribution(self, rateOfDistribution, previousNAV, growthRate):
-        print rateOfDistribution * (previousNAV * (1.0 + growthRate))
         return rateOfDistribution * (previousNAV * (1.0 + growthRate))
 
     # RD = Max[Y, (t / L) ^ B]
     def rateOfDistribution(self, fundYield, year, lifeOfFund, bow):
-        if (fundYield > ((.00 + year) / lifeOfFund) ** bow):
-            print "Using FundYield"
-        else:
-            print "Using Bow"
-
         return max(fundYield, ((.00 + year) / lifeOfFund) ** bow)
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
@@ -29,6 +23,9 @@ class ModelCalculations(object):
     # newPercentage is the variable being solved for.
     # Rounds the percentage to 4 decimal places.
     def segmentCommitment(self, segments, annualPercentage):
+        self._checkValidSegments(segments)
+        if (segments == 1):
+            return annualPercentage
         equation = self._buildEquation(segments)
         return self._binarySolve(equation, annualPercentage)
 
@@ -36,6 +33,7 @@ class ModelCalculations(object):
     # Equation is always set equal to 0 to be solved.
     # Used to use n choose k but now uses the pascal row builder.
     def _buildEquation(self, segments):
+        self._checkValidSegments(segments)
         equation = []
         pascalRow = self._buildPascalRow(segments)
         for i in range(1, segments + 1):
@@ -64,10 +62,17 @@ class ModelCalculations(object):
         else:
             return self._binarySolve(equation, annualRate, guess, max)
 
-    # Returns the annual interest rate split into a number of segments.
+    # Returns the annual interest rate split into a number of segments for compounding.
+    # The effective interest rate is the given annual interest rate and the nominal rate is being solved for.
     # r = (1+i/n)^n - 1     solve for i => i = n * (nthRoot(1+r) - 1)
     def segmentInterest(self, segments, annualPercentage):
+        self._checkValidSegments(segments)
         return round(segments * ((1.0+annualPercentage) ** (1.0/segments) - 1.0), 4)
+
+    # Makes sure that there are a valid number of segments given.
+    def _checkValidSegments(self, segments):
+        if segments < 1:
+            raise ValueError("Invalid Number of Segments")
 
 
     # Not currently used
