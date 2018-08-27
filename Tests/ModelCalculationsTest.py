@@ -39,7 +39,7 @@ class ModelCalculationsTest(unittest.TestCase):
     # Another added test
     def test_51_segmentContribtuion(self):
         self.reset()
-        self.assertEqual(.45277, self.calculator.segmentCommitment(2, .7))
+        self.assertEqual(.45227, self.calculator.segmentCommitment(2, .7))
 
     #4 segments, initially .4 contribution
     def test_6_segmentContribution(self):

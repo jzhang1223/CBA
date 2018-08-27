@@ -9,8 +9,8 @@ class FundModel(object):
         :param capitalCommitment: int of the total capitalCommitment
         :param contributionRates: list of non-empty contribution rates as floats, 50% == 0.5
         :param bow: float of expected bow
-        :param growthRate: float of expected growth rate
-        :param fundYield: float of expected yield
+        :param growthRate: float of expected growth rate; Converts annual rate to compounded segmented rate.
+        :param fundYield: float of expected yield; Converts annual rate to non-compounded segmented rate.
         :param lastInvestmentYear: int of the last year allowed to invest
         """
         self.calculate = ModelCalculations.ModelCalculations()
