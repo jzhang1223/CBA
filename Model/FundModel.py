@@ -26,9 +26,10 @@ class FundModel(object):
         self._contributionList = []
         self._distributionList = []
         self._navList = []
+        self._setValues()
 
     # Sets the lists of nav and distributions together.
-    def setValues(self):
+    def _setValues(self):
         for i in range(0, self.lifeOfFund + 1):
             self._contributionList.append(round(self.predictContribution(i), 2))
             self._distributionList.append(round(self.predictDistribution(i), 2))

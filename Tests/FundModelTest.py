@@ -20,7 +20,6 @@ class FundModelTest(unittest.TestCase):
         self.reset()
         # 22 CCDD062016AF	2016	 $3,500,000 	12/31/17	40%	66%	67%	40%	100%    1.50 	13%	6%
         #  $1,400,000 	 $1,386,000 	 $476,000 	 $95,200   ... remaining  141372.0
-        self.fundModel.setValues()
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
@@ -30,7 +29,6 @@ class FundModelTest(unittest.TestCase):
     # Testing contributions, distributions, and navs for a standard model.
     def test_2_simple(self):
         self.reset()
-        self.fundModel.setValues()
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
@@ -82,7 +80,7 @@ class FundModelTest(unittest.TestCase):
         self.segments1 = 4
         self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
             self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
-        self.fundModel.setValues()
+
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
