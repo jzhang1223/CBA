@@ -26,14 +26,24 @@ class FundModel(object):
         self._contributionList = []
         self._distributionList = []
         self._navList = []
+        self._commitmentRemainingList = []
+        self._netCashFlowList = []
+        self._cummulativeCashFlowList = []
         self._setValues()
 
     # Sets the lists of nav and distributions together.
     def _setValues(self):
-        for i in range(self.lifeOfFund + 1):
-            self._contributionList.append(round(self.predictContribution(i), 2))
-            self._distributionList.append(round(self.predictDistribution(i), 2))
-            self._navList.append(round(self.predictNav(i), 2))
+        for currentTime in range(self.lifeOfFund + 1):
+            self._contributionList.append(round(self.predictContribution(currentTime), 2))
+            # commitment remaining
+            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(currentTime), 2))
+            self._distributionList.append(round(self.predictDistribution(currentTime), 2))
+            # net cash clow
+            self._netCashFlowList.append(round(self.predictNetCashFlow(currentTime), 2))
+            # cummulative cash flow
+            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
+            self._navList.append(round(self.predictNav(currentTime), 2))
+
 
     # Returns the predicted contribution values based on its own fields.
     def predictContribution(self, currentTime):
@@ -50,7 +60,12 @@ class FundModel(object):
             self.capitalCommitment,
             sum(self._contributionList))
 
-    # Predicts the distribution for a given year based on its own fields.
+    # Returns the predicted remaining commitment based on previous contributions and the initial commitment.
+    #todo tests
+    def predictCommitmentRemaining(self, currentTime):
+        return self.calculate.commitmentRemaining(self._contributionList, self.capitalCommitment)
+
+    # Predicts the distribution for a given time period based on its own fields.
     def predictDistribution(self, currentTime):
         if currentTime == 0:
             return 0
@@ -60,7 +75,17 @@ class FundModel(object):
             return self.calculate.distribution(
                 rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
 
-    # Predicts the NAV for a given year based on its own fields.
+    # Predicts the net cash flow for a given time period based on that year's distribution and contributions.
+    #todo tests
+    def predictNetCashFlow(self, currentTime):
+        return self.calculate.netCashFlow(self._contributionList[currentTime], self._distributionList[currentTime])
+
+    # Predicts the cummulative cash flow for a given time period based on the previous cash flows.
+    #todo tests
+    def predictCummulativeCashFlow(self, currentTime):
+        return self.calculate.cummulativeCashFlow(self._netCashFlowList)
+
+    # Predicts the NAV for a given time period based on its own fields.
     def predictNav(self, currentTime):
         if currentTime == 0:
             return self._contributionList[currentTime]

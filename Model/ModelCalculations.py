@@ -75,6 +75,14 @@ class ModelCalculations(object):
             raise ValueError("Invalid Number of Segments")
 
 
-    # Not currently used
-    def remainingContributions(self, contributionList, capitalCommitment):
+    # Calculates the remaining commitment for the last year based on a list of previous contributions and the initial capital commitment.
+    def commitmentRemaining(self, contributionList, capitalCommitment):
         return .00 + capitalCommitment - sum(contributionList)
+
+    # Calculates the net cash flow for a given year: distribution(t) - contribution(t)
+    def netCashFlow(self, contribution, distribution):
+        return distribution - contribution
+
+    # Calculates the cummulative cash flow for the last year based on a set of previous cash flows.
+    def cummulativeCashFlow(self, cashFlowList):
+        return sum(cashFlowList)
