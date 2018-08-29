@@ -30,7 +30,7 @@ class FundModel(object):
 
     # Sets the lists of nav and distributions together.
     def _setValues(self):
-        for i in range(0, self.lifeOfFund + 1):
+        for i in range(self.lifeOfFund + 1):
             self._contributionList.append(round(self.predictContribution(i), 2))
             self._distributionList.append(round(self.predictDistribution(i), 2))
             self._navList.append(round(self.predictNav(i), 2))
@@ -39,11 +39,16 @@ class FundModel(object):
     def predictContribution(self, currentTime):
         if currentTime > self.lastInvestmentYear or currentTime == 0:
             return 0
+
+        elif currentTime >= len(self.contributionRates):
+            contributionRate = self.contributionRates[-1]
         else:
-            return self.calculate.contribution(
-                self.contributionRates[currentTime - 1],
-                self.capitalCommitment,
-                sum(self._contributionList))
+            contributionRate = self.contributionRates[currentTime - 1]
+
+        return self.calculate.contribution(
+            contributionRate,
+            self.capitalCommitment,
+            sum(self._contributionList))
 
     # Predicts the distribution for a given year based on its own fields.
     def predictDistribution(self, currentTime):
@@ -76,13 +81,12 @@ class FundModel(object):
         length = len(contributionRates)
         if length < 1:
             raise ValueError("Can't have 0 contribution rates!")
-        for i in range(0, length):
+        for i in range(length):
             temp = contributionRates[i]
             if temp > 1.0 or temp < 0.0:
                 raise ValueError("Invalid contribution rate. Make sure it isn't greater than 1 or less than 0")
             elif i != length - 1 and temp == 1.0:
                 raise ValueError("Can't have 100% contribution rate not at the end!")
-
 
     '''
     def getContributionList(self):

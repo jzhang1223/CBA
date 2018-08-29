@@ -7,6 +7,7 @@ def formatModel(fundModel):
 
 pd.set_option('display.expand_frame_repr', False)
 
+
 commitment1 = 3500000
 contributionRates1 = [.4, .66, .67, .4, 1.0]
 bow1 = 1.5
@@ -30,7 +31,7 @@ result2 = formatModel(fundModel2)
 print result2
 
 
-contributionRates3 = [.25, 1.0/3, .5, .5, .5, .5, .5, .5]
+contributionRates3 = [.25, 1.0/3, .5]
 lastInvestmentYear3 = 8
 lifeOfFund3 = 12
 bow3 = 2.5

@@ -12,8 +12,8 @@ class FundModelTest(unittest.TestCase):
         self.lastInvestmentYear1 = 4
         self.lifeOfFund1 = 8
         self.segments1 = 1
-        self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
-            self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
+        self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
 
     # Testing contributions
     def test_1_simple(self):
@@ -43,7 +43,29 @@ class FundModelTest(unittest.TestCase):
         self.assertEqual([0.0, 1400000.0, 2770250.0, 2889902.52, 2205277.49, 1260669.70, 499280.00, 102406.85, 0.0],
                          self.fundModel._navList)
 
-        #  $1,316,000 	 $2,687,195 	 $2,815,223 	 $2,151,677 	 $1,230,028 	 $487,145 	 $99,918
+    # Testing using the last contribution until the end.
+    def test_2_1_simple(self):
+
+        self.reset()
+        self.contributionRates1 = [.25, 1.0/3, .5]
+        self.lastInvestmentYear1 = 8
+        self.lifeOfFund1 = 12
+        self.bow1 = 2.5
+        self.fundYield1 = 0.0
+        self.growthRate1 = .13
+        self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
+        print self.fundModel._contributionList
+        print self.fundModel._distributionList
+        print self.fundModel._navList
+
+        self.assertEqual([0.0, 875000.0, 875000.0, 875000.0, 437500.0, 218750.0, 109375.0, 54687.5, 27343.75, 0.0, 0.0, 0.0, 0.0],
+                         self.fundModel._contributionList)
+        self.assertEqual([0.0, 0.0, 11212.65, 65417.73, 210433.45, 444156.04, 746685.24, 1053297.05, 1252423.86, 1225447.34, 924200.61, 485155.42, 133219.26],
+                         self.fundModel._distributionList)
+        self.assertEqual([0.0, 875000.0, 1852537.35, 2902949.48, 3507399.46, 3737955.35, 3586579.31, 3054225.07, 2226194.22, 1290152.13, 533671.3, 117893.15, 0.0],
+                         self.fundModel._navList)
+
 
     # Tests contribution rates split into halves
     def test_3_expandContributionRates(self):
