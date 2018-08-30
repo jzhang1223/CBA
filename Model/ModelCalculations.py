@@ -1,3 +1,4 @@
+import datetime
 
 # Certain formulas used in the model
 class ModelCalculations(object):
@@ -86,3 +87,18 @@ class ModelCalculations(object):
     # Calculates the cummulative cash flow for the last year based on a set of previous cash flows.
     def cummulativeCashFlow(self, cashFlowList):
         return sum(cashFlowList)
+
+    # Returns the calculated end date based on life of the fund and the start date
+    def endDate(self, lifeOfFund, startDate):
+        endYear = startDate.year + lifeOfFund
+        return datetime.date(endYear, startDate.month, startDate.day)
+
+    # Returns the correct date for the given time period and life of the fund.
+    def correctDate(self, currentTime, startDate, endDate, lifeOfFund):
+        dateDifference = endDate - startDate
+        print endDate
+        print startDate
+        scale = (0.0 + currentTime) / lifeOfFund
+        print "scale:" + str(scale)
+        return startDate + datetime.timedelta(scale * dateDifference.days)
+

@@ -3,25 +3,30 @@ import ModelCalculations
 # Able to output projected values for a fund based on given information.
 class FundModel(object):
 
-    def __init__(self, capitalCommitment, contributionRates, bow, growthRate, fundYield, lastInvestmentYear, lifeOfFund, segments):
+    def __init__(self, capitalCommitment, contributionRates, bow, growthRate, fundYield, lastInvestmentYear, lifeOfFund, segments, startDate):
         """
         Stores the given values for future computations.
-        :param capitalCommitment: int of the total capitalCommitment
-        :param contributionRates: list of non-empty contribution rates as floats, 50% == 0.5
-        :param bow: float of expected bow
+        :param capitalCommitment: int of the total capitalCommitment.
+        :param contributionRates: list of non-empty contribution rates as floats, 50% == 0.5.
+        :param bow: float of expected bow.
         :param growthRate: float of expected growth rate; Converts annual rate to compounded segmented rate.
         :param fundYield: float of expected yield; Converts annual rate to non-compounded segmented rate.
-        :param lastInvestmentYear: int of the last year allowed to invest
+        :param lastInvestmentYear: int of the last year allowed to invest.
+        :param segments: int of the number of segments that the model will dive into detail, 1 == annual and 4 == quarterly while other numbers are accepted.
+        :param startDate: datetime object which marks the first date of the model.
         """
+        self.segments = segments
         self.calculate = ModelCalculations.ModelCalculations()
-        self.lastInvestmentYear = lastInvestmentYear * segments
-        self.lifeOfFund = lifeOfFund * segments
+        self.lastInvestmentYear = lastInvestmentYear * self.segments
+        self.lifeOfFund = lifeOfFund * self.segments
         self.capitalCommitment = capitalCommitment
-        self.contributionRates = self._expandContributionRates(segments, contributionRates)
+        self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
         self._validateContributionRates(self.contributionRates)
         self.bow = bow
-        self.growthRate = self.calculate.segmentInterest(segments, growthRate)
-        self.fundYield = fundYield / segments
+        self.growthRate = self.calculate.segmentInterest(self.segments, growthRate)
+        self.fundYield = fundYield / self.segments
+        self.startDate = startDate
+        self.endDate = self.calculate.endDate(self.lifeOfFund / self.segments, self.startDate)
 
         self._contributionList = []
         self._distributionList = []
@@ -29,6 +34,7 @@ class FundModel(object):
         self._commitmentRemainingList = []
         self._netCashFlowList = []
         self._cummulativeCashFlowList = []
+        self._dateList = []
         self._setValues()
 
     # Sets the lists of nav and distributions together.
@@ -43,6 +49,7 @@ class FundModel(object):
             # cummulative cash flow
             self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
             self._navList.append(round(self.predictNav(currentTime), 2))
+            self._dateList.append(self.predictDate(currentTime, self.lifeOfFund))
 
 
     # Returns the predicted contribution values based on its own fields.
@@ -102,6 +109,7 @@ class FundModel(object):
             result.extend([newRate] * segments)
         return result
 
+    # Performs validations on inputted contribution rates.
     def _validateContributionRates(self, contributionRates):
         length = len(contributionRates)
         if length < 1:
@@ -112,6 +120,11 @@ class FundModel(object):
                 raise ValueError("Invalid contribution rate. Make sure it isn't greater than 1 or less than 0")
             elif i != length - 1 and temp == 1.0:
                 raise ValueError("Can't have 100% contribution rate not at the end!")
+
+    # Returns the proper date based on the start date, end date, and the number of segments.
+    # Uses the start date and end date in the model's fields
+    def predictDate(self, currentTime, segments):
+        return self.calculate.correctDate(currentTime, self.startDate, self.endDate, segments)
 
     '''
     def getContributionList(self):
