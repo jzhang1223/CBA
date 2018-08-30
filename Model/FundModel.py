@@ -121,10 +121,10 @@ class FundModel(object):
             elif i != length - 1 and temp == 1.0:
                 raise ValueError("Can't have 100% contribution rate not at the end!")
 
-    # Returns the proper date based on the start date, end date, and the number of segments.
+    # Returns the proper date based on the start date, end date, and the lifeOfFund accounting for segments.
     # Uses the start date and end date in the model's fields
-    def predictDate(self, currentTime, segments):
-        return self.calculate.correctDate(currentTime, self.startDate, self.endDate, segments)
+    def predictDate(self, currentTime, lifeOfFund):
+        return self.calculate.correctDate(currentTime, self.startDate, self.endDate, lifeOfFund)
 
     '''
     def getContributionList(self):

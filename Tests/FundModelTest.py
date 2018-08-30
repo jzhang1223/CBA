@@ -1,5 +1,6 @@
 import unittest
 import FundModel
+import datetime
 
 class FundModelTest(unittest.TestCase):
 
@@ -12,8 +13,10 @@ class FundModelTest(unittest.TestCase):
         self.lastInvestmentYear1 = 4
         self.lifeOfFund1 = 8
         self.segments1 = 1
+        self.startDate1 = datetime.date(2010, 4, 15)
         self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
-                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
+                                             self.startDate1)
 
     # Testing contributions
     def test_1_simple(self):
@@ -54,7 +57,8 @@ class FundModelTest(unittest.TestCase):
         self.fundYield1 = 0.0
         self.growthRate1 = .13
         self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
-                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
+                                             self.startDate1)
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
@@ -101,7 +105,7 @@ class FundModelTest(unittest.TestCase):
         self.reset()
         self.segments1 = 4
         self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
-            self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1)
+            self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1, self.startDate1)
 
         print self.fundModel._contributionList
         print self.fundModel._distributionList
@@ -118,7 +122,7 @@ class FundModelTest(unittest.TestCase):
             self.contributionRates1 = [.3, 1.0, .4]
             self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
-                                                 self.lifeOfFund1, self.segments1)
+                                                 self.lifeOfFund1, self.segments1, self.startDate1)
 
     # Tests validating contribution rates, making sure error is raised correctly when a value > 1 is in.
     def test_7_validateContributionRates(self):
@@ -127,7 +131,7 @@ class FundModelTest(unittest.TestCase):
             self.contributionRates1 = [.3, .5, 1.3, .4]
             self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
-                                                 self.lifeOfFund1, self.segments1)
+                                                 self.lifeOfFund1, self.segments1, self.startDate1)
 
     # Tests validating contribution rates, making sure error is raised correctly when a value > 1 is at end.
     def test_8_validateContributionRates(self):
@@ -136,7 +140,7 @@ class FundModelTest(unittest.TestCase):
             self.contributionRates1 = [.3, .5, .2, 1.4]
             self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
-                                                 self.lifeOfFund1, self.segments1)
+                                                 self.lifeOfFund1, self.segments1, self.startDate1)
 
     # Tests validating contribution rates, making sure error is raised correctly when a value < 0 is in.
     def test_9_validateContributionRates(self):
@@ -145,7 +149,7 @@ class FundModelTest(unittest.TestCase):
             self.contributionRates1 = [.3, -.1, .4, .4]
             self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
-                                                 self.lifeOfFund1, self.segments1)
+                                                 self.lifeOfFund1, self.segments1, self.startDate1)
 
     # Tests validating contribution rates, making sure error is raised correctly when length < 1
     def test_10_validateContributionRates(self):
@@ -154,10 +158,29 @@ class FundModelTest(unittest.TestCase):
             self.contributionRates1 = []
             self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
-                                                 self.lifeOfFund1, self.segments1)
+                                                 self.lifeOfFund1, self.segments1, self.startDate1)
 
     # Tests that net cash flow is correct by comparing to the total sum of contributions and distributions.
     def test_11_checkNetCashFlow(self):
         self.reset()
         self.assertEqual(round(sum(self.fundModel._netCashFlowList), 2),
                          sum(self.fundModel._distributionList) - sum(self.fundModel._contributionList))
+
+    # Tests the dates are calculated properly.
+    # Off by a few days
+    def test_12_checkDateCalculation(self):
+        self.reset()
+        self.assertEqual([datetime.date(2010, 4, 15), datetime.date(2011, 4, 15), datetime.date(2012, 4, 15), datetime.date(2013, 4, 15),
+                          datetime.date(2014, 4, 15), datetime.date(2015, 4, 15), datetime.date(2016, 4, 15), datetime.date(2017, 4, 15),
+                          datetime.date(2018, 4, 15)],
+                         self.fundModel._dateList)
+
+    def test_13_checkDateCalculation(self):
+        self.reset()
+        self.startDate2 = datetime.date(2008, 3, 20)
+        self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
+                                             self.startDate2)
+        self.assertEqual([datetime.date(2008, 3, 20), datetime.date(2009, 3, 20), datetime.date(2010, 3, 20), datetime.date(2011, 3, 20),
+                          datetime.date(2012, 3, 20), datetime.date(2013, 3, 20), datetime.date(2014, 3, 20), datetime.date(2015, 3, 20),
+                          datetime.date(2016, 3, 20)], self.fundModel._dateList)
