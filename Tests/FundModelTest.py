@@ -155,3 +155,9 @@ class FundModelTest(unittest.TestCase):
             self.fundModel = FundModel.FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
                                                  self.lifeOfFund1, self.segments1)
+
+    # Tests that net cash flow is correct by comparing to the total sum of contributions and distributions.
+    def test_11_checkNetCashFlow(self):
+        self.reset()
+        self.assertEqual(round(sum(self.fundModel._netCashFlowList), 2),
+                         sum(self.fundModel._distributionList) - sum(self.fundModel._contributionList))

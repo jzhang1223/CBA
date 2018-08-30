@@ -2,8 +2,9 @@ import FundModel
 import pandas as pd
 
 def formatModel(fundModel):
-    return pd.DataFrame([fundModel._contributionList, fundModel._distributionList, fundModel._navList],
-                        index=['Contributions', 'Distributions', 'NAV'])
+    return pd.DataFrame([fundModel._contributionList, fundModel._distributionList, fundModel._navList,
+                        fundModel._commitmentRemainingList, fundModel._cummulativeCashFlowList, fundModel._netCashFlowList],
+                        index=['Contributions', 'Distributions', 'NAV', 'Commitment Remaining', 'Cummulative Cash Flow', 'Net Cash Flow'])
 
 pd.set_option('display.expand_frame_repr', False)
 
