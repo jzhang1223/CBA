@@ -42,12 +42,12 @@ class FundModel(object):
         for currentTime in range(self.lifeOfFund + 1):
             self._contributionList.append(round(self.predictContribution(currentTime), 2))
             # commitment remaining
-            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(currentTime), 2))
+            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(), 2))
             self._distributionList.append(round(self.predictDistribution(currentTime), 2))
             # net cash clow
             self._netCashFlowList.append(round(self.predictNetCashFlow(currentTime), 2))
             # cummulative cash flow
-            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
+            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(), 2))
             self._navList.append(round(self.predictNav(currentTime), 2))
             self._dateList.append(self.predictDate(currentTime, self.lifeOfFund))
 
@@ -69,7 +69,7 @@ class FundModel(object):
 
     # Returns the predicted remaining commitment based on previous contributions and the initial commitment.
     #todo tests
-    def predictCommitmentRemaining(self, currentTime):
+    def predictCommitmentRemaining(self):
         return self.calculate.commitmentRemaining(self._contributionList, self.capitalCommitment)
 
     # Predicts the distribution for a given time period based on its own fields.
@@ -89,7 +89,7 @@ class FundModel(object):
 
     # Predicts the cummulative cash flow for a given time period based on the previous cash flows.
     #todo tests
-    def predictCummulativeCashFlow(self, currentTime):
+    def predictCummulativeCashFlow(self):
         return self.calculate.cummulativeCashFlow(self._netCashFlowList)
 
     # Predicts the NAV for a given time period based on its own fields.
