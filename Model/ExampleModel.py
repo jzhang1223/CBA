@@ -25,15 +25,13 @@ fundModel1 = FundModel.FundModel(commitment1, contributionRates1, bow1, growthRa
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
 result1 = formatModel(fundModel1)
 
-print
-print result1
-print
+
 
 segments2 = 4
 fundModel2 = FundModel.FundModel(commitment1, contributionRates1, bow1,
                                  growthRate1, fundYield1, lastInvestmentYear1, lifeOfFund1, segments2, startDate1)
 result2 = formatModel(fundModel2)
-print result2
+
 
 
 contributionRates3 = [.25, 1.0/3, .5]
@@ -45,4 +43,11 @@ growthRate3 = .13
 fundModel3 = FundModel.FundModel(commitment1, contributionRates3, bow3,
                                  growthRate3, fundYield3, lastInvestmentYear3, lifeOfFund3, segments1, startDate1)
 result3 = formatModel(fundModel3)
+
+
+print
+print result1
+print
+print result2
+print
 print result3

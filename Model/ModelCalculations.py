@@ -97,7 +97,5 @@ class ModelCalculations(object):
     def correctDate(self, currentTime, startDate, endDate, lifeOfFund):
         dateDifference = endDate - startDate
         scale = (0.0 + currentTime) / lifeOfFund
-        print "scale: " + str(scale)
-        print "Date change: " + str(datetime.timedelta(scale * dateDifference.days))
         return startDate + datetime.timedelta(scale * dateDifference.days)
 
