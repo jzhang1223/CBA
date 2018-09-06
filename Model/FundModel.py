@@ -1,4 +1,5 @@
-import ModelCalculations
+from ModelCalculations import ModelCalculations
+from ModelPeriod import ModelPeriod
 
 # Able to output projected values for a fund based on given information.
 class FundModel(object):
@@ -16,7 +17,7 @@ class FundModel(object):
         :param startDate: datetime object which marks the first date of the model.
         """
         self.segments = segments
-        self.calculate = ModelCalculations.ModelCalculations()
+        self.calculate = ModelCalculations()
         self.lastInvestmentYear = lastInvestmentYear * self.segments
         self.lifeOfFund = lifeOfFund * self.segments
         self.capitalCommitment = capitalCommitment

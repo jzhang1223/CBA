@@ -1,4 +1,4 @@
-import FundModel
+from FundModel import FundModel
 import pandas as pd
 import datetime
 
@@ -21,14 +21,14 @@ lifeOfFund1 = 8
 segments1 = 1
 startDate1 = datetime.date(2008, 3, 20)
 
-fundModel1 = FundModel.FundModel(commitment1, contributionRates1, bow1, growthRate1,
+fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
 result1 = formatModel(fundModel1)
 
 
 
 segments2 = 4
-fundModel2 = FundModel.FundModel(commitment1, contributionRates1, bow1,
+fundModel2 = FundModel(commitment1, contributionRates1, bow1,
                                  growthRate1, fundYield1, lastInvestmentYear1, lifeOfFund1, segments2, startDate1)
 result2 = formatModel(fundModel2)
 
@@ -40,7 +40,7 @@ lifeOfFund3 = 12
 bow3 = 2.5
 fundYield3 = 0.0
 growthRate3 = .13
-fundModel3 = FundModel.FundModel(commitment1, contributionRates3, bow3,
+fundModel3 = FundModel(commitment1, contributionRates3, bow3,
                                  growthRate3, fundYield3, lastInvestmentYear3, lifeOfFund3, segments1, startDate1)
 result3 = formatModel(fundModel3)
 

@@ -1,5 +1,5 @@
-from Classes import Reader, Query
-from Classes import Fund
+from Classes import Reader
+
 
 reader1 = Reader.Reader("../cbaCashFlowModel.csv", 15)
 

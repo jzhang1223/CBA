@@ -1,4 +1,4 @@
-import CalculationAPI
+from Calculations import CalculationAPI
 from Classes import Query
 
 class RemainingCommitment(CalculationAPI.CalculationAPI):
