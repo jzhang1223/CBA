@@ -1,15 +1,15 @@
 import CalculationAPI
-import TotalValue
-import CapitalCommited
+from TotalValue import TotalValue
+from CapitalCommited import CapitalCommited
 
 
 class Tvcc(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, dateInQtr):
 
-        totalValue = TotalValue.TotalValue()
+        totalValue = TotalValue()
 
-        capitalCommited = CapitalCommited.CapitalCommited()
+        capitalCommited = CapitalCommited()
 
         result = (.00 + totalValue(fundID, dateInQtr)) / capitalCommited(fundID)
         return self.giveResult(result)

@@ -1,13 +1,13 @@
 import CalculationAPI
-import CapitalCommited
-import CapitalCalled
+from CapitalCommited import CapitalCommited
+from CapitalCalled import CapitalCalled
 
 class CalledPercentage(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate):
-        called = CapitalCalled.CapitalCalled()
+        called = CapitalCalled()
 
-        commited = CapitalCommited.CapitalCommited()
+        commited = CapitalCommited()
 
         result =  (.00 + called(fundID, endDate)) / commited(fundID)
         return self.giveResult(result)

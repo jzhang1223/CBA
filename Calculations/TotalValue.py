@@ -1,13 +1,13 @@
 import CalculationAPI
-import TotalDistributions
-import Nav
+from TotalDistributions import TotalDistributions
+from Nav import Nav
 
 class TotalValue(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, endDate):
-        nav = Nav.Nav()
+        nav = Nav()
 
-        distributions = TotalDistributions.TotalDistributions()
+        distributions = TotalDistributions()
 
         result = nav(fundID, endDate) + distributions(fundID, endDate)
         return self.giveResult(result)

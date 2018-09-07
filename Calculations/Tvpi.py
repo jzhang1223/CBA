@@ -1,14 +1,14 @@
 import CalculationAPI
-import TotalValue
-import CapitalCalled
+from TotalValue import TotalValue
+from CapitalCalled import CapitalCalled
 
 class Tvpi(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, dateInQtr):
 
-        totalValue = TotalValue.TotalValue()
+        totalValue = TotalValue()
 
-        capitalCalled = CapitalCalled.CapitalCalled()
+        capitalCalled = CapitalCalled()
 
         result = (.00 + totalValue(fundID, dateInQtr)) / capitalCalled(fundID, dateInQtr)
         return self.giveResult(result)

@@ -127,6 +127,10 @@ class FundModel(object):
     def predictDate(self, currentTime, lifeOfFund):
         return self.calculate.correctDate(currentTime, self.startDate, self.endDate, lifeOfFund)
 
+
+    # Returns the proper number of segments based on a given ModelPeriod.
+    def convertModelPeriod(self, modelPeriod):
+        return modelPeriod.value
     '''
     def getContributionList(self):
         return self._contributionList

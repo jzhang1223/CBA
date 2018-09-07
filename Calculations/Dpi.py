@@ -1,14 +1,14 @@
 import CalculationAPI
-import TotalDistributions
-import CapitalCalled
+from TotalDistributions import TotalDistributions
+from CapitalCalled import CapitalCalled
 
 class Dpi(CalculationAPI.CalculationAPI):
 
     def __call__(self, fundID, dateInQtr):
 
-        distributions = TotalDistributions.TotalDistributions()
+        distributions = TotalDistributions()
 
-        called = CapitalCalled.CapitalCalled()
+        called = CapitalCalled()
 
         result = (.00 + distributions(fundID, dateInQtr)) / called(fundID, dateInQtr)
         return self.giveResult(result)
