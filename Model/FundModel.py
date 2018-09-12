@@ -38,19 +38,26 @@ class FundModel(object):
         self._dateList = []
         self._setValues()
 
-    # Sets the lists of nav and distributions together.
+    # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
     def _setValues(self):
-        for currentTime in range(self.lifeOfFund + 1):
+        # Calculates values based on the "current time" of the model, i.e. how much data is already there.
+        for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
+            # contributions
             self._contributionList.append(round(self.predictContribution(currentTime), 2))
-            # commitment remaining
-            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(), 2))
+            # distributions
             self._distributionList.append(round(self.predictDistribution(currentTime), 2))
-            # net cash clow
+            # nav
+            self._navList.append(round(self.predictNav(currentTime), 2))
+        # Separated in case of partially given data. These values will always be calculated from t = 0.
+        for currentTime in range(self.lifeOfFund + 1):
+            self._dateList.append(self._predictDate(currentTime, self.lifeOfFund))
+            # commitment remaining
+            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(currentTime), 2))
+            # net cash flow
             self._netCashFlowList.append(round(self.predictNetCashFlow(currentTime), 2))
             # cummulative cash flow
-            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(), 2))
-            self._navList.append(round(self.predictNav(currentTime), 2))
-            self._dateList.append(self.predictDate(currentTime, self.lifeOfFund))
+            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
+
 
 
     # Returns the predicted contribution values based on its own fields.
@@ -70,8 +77,8 @@ class FundModel(object):
 
     # Returns the predicted remaining commitment based on previous contributions and the initial commitment.
     #todo tests
-    def predictCommitmentRemaining(self):
-        return self.calculate.commitmentRemaining(self._contributionList, self.capitalCommitment)
+    def predictCommitmentRemaining(self, currentTime):
+        return self.calculate.commitmentRemaining(self._contributionList[:currentTime + 1], self.capitalCommitment)
 
     # Predicts the distribution for a given time period based on its own fields.
     def predictDistribution(self, currentTime):
@@ -90,8 +97,8 @@ class FundModel(object):
 
     # Predicts the cummulative cash flow for a given time period based on the previous cash flows.
     #todo tests
-    def predictCummulativeCashFlow(self):
-        return self.calculate.cummulativeCashFlow(self._netCashFlowList)
+    def predictCummulativeCashFlow(self, currentTime):
+        return self.calculate.cummulativeCashFlow(self._netCashFlowList[:currentTime + 1])
 
     # Predicts the NAV for a given time period based on its own fields.
     def predictNav(self, currentTime):
@@ -124,13 +131,18 @@ class FundModel(object):
 
     # Returns the proper date based on the start date, end date, and the lifeOfFund accounting for segments.
     # Uses the start date and end date in the model's fields
-    def predictDate(self, currentTime, lifeOfFund):
+    def _predictDate(self, currentTime, lifeOfFund):
         return self.calculate.correctDate(currentTime, self.startDate, self.endDate, lifeOfFund)
 
 
     # Returns the proper number of segments based on a given ModelPeriod.
-    def convertModelPeriod(self, modelPeriod):
+    # Not yet used
+    def _convertModelPeriod(self, modelPeriod):
         return modelPeriod.value
+
+    # Returns the time of the model based on the number of elements in the list of contributions.
+    def _getModelTime(self):
+        return len(self._contributionList)
     '''
     def getContributionList(self):
         return self._contributionList
