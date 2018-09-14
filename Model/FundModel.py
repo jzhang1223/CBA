@@ -36,10 +36,11 @@ class FundModel(object):
         self._netCashFlowList = []
         self._cummulativeCashFlowList = []
         self._dateList = []
-        self._setValues()
+
+        # self.forecastValues()
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
-    def _setValues(self):
+    def forecastValues(self):
         # Calculates values based on the "current time" of the model, i.e. how much data is already there.
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions
@@ -58,6 +59,19 @@ class FundModel(object):
             # cummulative cash flow
             self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
 
+    # Sets actual values for the model
+    def setActualValues(self, contributions=[], distributions=[], navs=[]):
+        arguments = locals()
+        firstLength = len(contributions)
+
+        for key in arguments:
+            print arguments[key]
+            if arguments[key] is list and len(arguments[key]) != firstLength:
+                raise ValueError("Given data must all be the same length!")
+
+        self._setContributionList(contributions)
+        self._setDistributionList(distributions)
+        self._setNavList(navs)
 
 
     # Returns the predicted contribution values based on its own fields.
@@ -152,8 +166,18 @@ class FundModel(object):
 
     def getNavList(self):
         return self._navList
+        
+    
         '''
 
+    def _setContributionList(self, newList):
+        self._contributionList = newList
+
+    def _setDistributionList(self, newList):
+        self._distributionList = newList
+
+    def _setNavList(self, newList):
+        self._navList = newList
 
 
 

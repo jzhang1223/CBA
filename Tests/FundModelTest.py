@@ -17,6 +17,7 @@ class FundModelTest(unittest.TestCase):
         self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
                                              self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
                                              self.startDate1)
+        self.fundModel.forecastValues()
 
     # Testing contributions
     def test_1_simple(self):
@@ -26,6 +27,7 @@ class FundModelTest(unittest.TestCase):
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
+
         self.assertEqual([0.0, 1400000.0, 1386000.0, 478380.0, 94248.0, 0.0, 0.0, 0.0, 0.0], self.fundModel._contributionList)
 
 
@@ -59,6 +61,7 @@ class FundModelTest(unittest.TestCase):
         self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
                                              self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
                                              self.startDate1)
+        self.fundModel.forecastValues()
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
@@ -107,7 +110,7 @@ class FundModelTest(unittest.TestCase):
         self.segments1 = 4
         self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
             self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1, self.startDate1)
-
+        self.fundModel.forecastValues()
         print self.fundModel._contributionList
         print self.fundModel._distributionList
         print self.fundModel._navList
@@ -149,11 +152,13 @@ class FundModelTest(unittest.TestCase):
     # Tests validating contribution rates, making sure error is raised correctly when a 1 is in the middle.
     def test_6_validateContributionRates(self):
         self.reset()
+
         with self.assertRaises(ValueError):
             self.contributionRates1 = [.3, 1.0, .4]
             self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
                                                  self.lifeOfFund1, self.segments1, self.startDate1)
+            self.fundModel.forecastValues()
 
     # Tests validating contribution rates, making sure error is raised correctly when a value > 1 is in.
     def test_7_validateContributionRates(self):
@@ -163,6 +168,7 @@ class FundModelTest(unittest.TestCase):
             self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
                                                  self.lifeOfFund1, self.segments1, self.startDate1)
+            self.fundModel.forecastValues()
 
     # Tests validating contribution rates, making sure error is raised correctly when a value > 1 is at end.
     def test_8_validateContributionRates(self):
@@ -172,6 +178,7 @@ class FundModelTest(unittest.TestCase):
             self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
                                                  self.lifeOfFund1, self.segments1, self.startDate1)
+            self.fundModel.forecastValues()
 
     # Tests validating contribution rates, making sure error is raised correctly when a value < 0 is in.
     def test_9_validateContributionRates(self):
@@ -181,6 +188,7 @@ class FundModelTest(unittest.TestCase):
             self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
                                                  self.lifeOfFund1, self.segments1, self.startDate1)
+            self.fundModel.forecastValues()
 
     # Tests validating contribution rates, making sure error is raised correctly when length < 1
     def test_10_validateContributionRates(self):
@@ -190,6 +198,7 @@ class FundModelTest(unittest.TestCase):
             self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
                                                  self.growthRate1, self.fundYield1, self.lastInvestmentYear1,
                                                  self.lifeOfFund1, self.segments1, self.startDate1)
+            self.fundModel.forecastValues()
 
     # Tests that net cash flow is correct by comparing to the total sum of contributions and distributions.
     def test_11_checkNetCashFlow(self):
@@ -212,6 +221,34 @@ class FundModelTest(unittest.TestCase):
         self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
                                              self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
                                              self.startDate2)
+        self.fundModel.forecastValues()
         self.assertEqual([datetime.date(2008, 3, 20), datetime.date(2009, 3, 20), datetime.date(2010, 3, 20), datetime.date(2011, 3, 20),
                           datetime.date(2012, 3, 20), datetime.date(2013, 3, 20), datetime.date(2014, 3, 20), datetime.date(2015, 3, 20),
                           datetime.date(2016, 3, 20)], self.fundModel._dateList)
+
+    def test_13_realData(self):
+        self.reset()
+        contrList1 = [100000, 200000]
+        distrList1 = [30000, 40000]
+        navsList1 = [150000, 350000]
+        self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
+                                             self.startDate1)
+        self.fundModel.setActualValues(contrList1, distrList1, navsList1)
+        self.assertEqual(self.fundModel._contributionList, contrList1)
+        self.assertEqual(self.fundModel._distributionList, distrList1)
+        self.assertEqual(self.fundModel._cummulativeCashFlowList, [])
+        self.assertEqual(self.fundModel._netCashFlowList, [])
+        self.assertEqual(self.fundModel._dateList, [])
+        self.assertEqual(self.fundModel._commitmentRemainingList, [])
+
+        self.fundModel.forecastValues()
+        print self.fundModel._contributionList
+        print self.fundModel._distributionList
+        print self.fundModel._navList
+        print self.fundModel._netCashFlowList
+        print self.fundModel._cummulativeCashFlowList
+        print self.fundModel._commitmentRemainingList
+        print self.fundModel._dateList
+        self.assertEqual(len(self.fundModel._contributionList), len(self.fundModel._dateList))
+
