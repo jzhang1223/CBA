@@ -65,9 +65,9 @@ class FundModel(object):
         firstLength = len(contributions)
 
         for key in arguments:
-            print arguments[key]
             if arguments[key] is list and len(arguments[key]) != firstLength:
                 raise ValueError("Given data must all be the same length!")
+
 
         self._setContributionList(contributions)
         self._setDistributionList(distributions)

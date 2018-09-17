@@ -24,9 +24,9 @@ class FundModelTest(unittest.TestCase):
         self.reset()
         # 22 CCDD062016AF	2016	 $3,500,000 	12/31/17	40%	66%	67%	40%	100%    1.50 	13%	6%
         #  $1,400,000 	 $1,386,000 	 $476,000 	 $95,200   ... remaining  141372.0
-        print self.fundModel._contributionList
-        print self.fundModel._distributionList
-        print self.fundModel._navList
+        #print self.fundModel._contributionList
+        #print self.fundModel._distributionList
+        #print self.fundModel._navList
 
         self.assertEqual([0.0, 1400000.0, 1386000.0, 478380.0, 94248.0, 0.0, 0.0, 0.0, 0.0], self.fundModel._contributionList)
 
@@ -34,9 +34,9 @@ class FundModelTest(unittest.TestCase):
     # Testing contributions, distributions, and navs for a standard model.
     def test_2_simple(self):
         self.reset()
-        print self.fundModel._contributionList
-        print self.fundModel._distributionList
-        print self.fundModel._navList
+        #print self.fundModel._contributionList
+        #print self.fundModel._distributionList
+        #print self.fundModel._navList
         # Contributions: $0  $1400000  $1386000  $478380  $94248  $0  $0  $0  $0
         # Distributions: $0  $0  $197750  $718859.9836  $1154560.361  $1231293.856  $925276.7571  $461779.5483  $115719.7454
         # Nav: $0  $1400000  $2770250  $2889902.516  $2205277.482  $1260669.699  $499280.0023  $102406.8543  $0
@@ -62,9 +62,9 @@ class FundModelTest(unittest.TestCase):
                                              self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
                                              self.startDate1)
         self.fundModel.forecastValues()
-        print self.fundModel._contributionList
-        print self.fundModel._distributionList
-        print self.fundModel._navList
+        #print self.fundModel._contributionList
+        #print self.fundModel._distributionList
+        #print self.fundModel._navList
 
         self.assertEqual([0.0, 875000.0, 875000.0, 875000.0, 437500.0, 218750.0, 109375.0, 54687.5, 27343.75, 0.0, 0.0, 0.0, 0.0],
                          self.fundModel._contributionList)
@@ -111,10 +111,10 @@ class FundModelTest(unittest.TestCase):
         self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1,
             self.growthRate1, self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1, self.startDate1)
         self.fundModel.forecastValues()
-        print self.fundModel._contributionList
-        print self.fundModel._distributionList
-        print self.fundModel._navList
-        print self.fundModel._expandContributionRates(2, [1])
+        #print self.fundModel._contributionList
+        #print self.fundModel._distributionList
+        #print self.fundModel._navList
+        #print self.fundModel._expandContributionRates(2, [1])
         # end 0s are from lastInvestmentYear variable
         self.assertEqual([0.0,419615.0,369307.36,325031.1,286063.12,496415.08,379067.52,289459.75,221034.36,
                           172839.6,131000.32,99289.07,75254.17,28248.91,24862.15,21881.42,19258.06,0.0,0.0,0.0,0.0,0.0,
@@ -226,6 +226,8 @@ class FundModelTest(unittest.TestCase):
                           datetime.date(2012, 3, 20), datetime.date(2013, 3, 20), datetime.date(2014, 3, 20), datetime.date(2015, 3, 20),
                           datetime.date(2016, 3, 20)], self.fundModel._dateList)
 
+    # Tests that the resulting lengths of data after setting actual values are all the same length.
+    # i.e. setting contr, distr, nav with 2 items and calculating -> 7 lists of length n years
     def test_13_realData(self):
         self.reset()
         contrList1 = [100000, 200000]
@@ -252,3 +254,23 @@ class FundModelTest(unittest.TestCase):
         print self.fundModel._dateList
         self.assertEqual(len(self.fundModel._contributionList), len(self.fundModel._dateList))
 
+    # Tests that inputting actual values that are the same as projected values returns equivalent results.
+    # todo
+    def test_14_equivalent(self):
+        self.reset()
+        simpleContr1 = [0.0, 1400000.0, 1386000.0]
+        simpleDistr1 = [0.0, 0.0, 197750.0]
+        simpleNav1 = [0.0, 1400000.0, 2770250.0]
+        self.fundModel = FundModel(self.commitment1, self.contributionRates1, self.bow1, self.growthRate1,
+                                             self.fundYield1, self.lastInvestmentYear1, self.lifeOfFund1, self.segments1,
+                                             self.startDate1)
+        self.fundModel.setActualValues(simpleContr1, simpleDistr1, simpleNav1)
+        self.fundModel.forecastValues()
+
+
+        self.assertEqual([0.0, 1400000.0, 1386000.0, 478380.0, 94248.0, 0.0, 0.0, 0.0, 0.0],
+                         self.fundModel._contributionList)
+        self.assertEqual([0.0, 0.0, 197750.0, 718859.98, 1154560.36, 1231293.86, 925276.76, 461779.55, 115719.74],
+                         self.fundModel._distributionList)
+        self.assertEqual([0.0, 1400000.0, 2770250.0, 2889902.52, 2205277.49, 1260669.70, 499280.00, 102406.85, 0.0],
+                         self.fundModel._navList)

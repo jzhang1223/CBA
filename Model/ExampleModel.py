@@ -46,8 +46,8 @@ result3 = formatModel(fundModel3)
 
 
 print
-print result1
+#print result1
 print
-print result2
+#print result2
 print
-print result3
+#print result3
