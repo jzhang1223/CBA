@@ -18,6 +18,8 @@ class FundModel(object):
         """
         self.segments = segments
         self.calculate = ModelCalculations()
+        self.startDate = startDate
+        self.endDate = self.calculate.endDate(lifeOfFund, self.startDate)
         self.lastInvestmentYear = lastInvestmentYear * self.segments
         self.lifeOfFund = lifeOfFund * self.segments
         self.capitalCommitment = capitalCommitment
@@ -26,8 +28,7 @@ class FundModel(object):
         self.bow = bow
         self.growthRate = self.calculate.segmentInterest(self.segments, growthRate)
         self.fundYield = fundYield / self.segments
-        self.startDate = startDate
-        self.endDate = self.calculate.endDate(self.lifeOfFund / self.segments, self.startDate)
+
 
         self._contributionList = []
         self._distributionList = []

@@ -87,7 +87,7 @@ class FundModelTest(unittest.TestCase):
         self.reset()
         self.segments1 = 4
         rates = [.4, .5]
-        result = [.11989, .11989 ,.11989 ,.11989, .1591, .1591, .1591, .1591]
+        result = [.11989, .11989, .11989, .11989, .1591, .1591, .1591, .1591]
         self.assertEqual(result, self.fundModel._expandContributionRates(self.segments1, rates))
 
     # Tests splitting rates into 1 segment, ie should return the same list
@@ -255,7 +255,6 @@ class FundModelTest(unittest.TestCase):
         self.assertEqual(len(self.fundModel._contributionList), len(self.fundModel._dateList))
 
     # Tests that inputting actual values that are the same as projected values returns equivalent results.
-    # todo
     def test_14_equivalent(self):
         self.reset()
         simpleContr1 = [0.0, 1400000.0, 1386000.0]
