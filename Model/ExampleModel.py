@@ -77,5 +77,31 @@ fundModel4.setActualValues(actualContribution4, actualDistribution4, actualNav4)
 fundModel4.forecastValues()
 result4 = formatModel(fundModel4)
 
+# MPPE012015GB
 print result4
+print
 
+
+commitment5 = 500000
+contributionRates5 = [.25, .33, .5, .25]
+bow5 = 2.5
+growthRate5 = .15
+fundYield5 = 0
+lastInvestmentYear5 = 7
+lifeOfFund5 = 12
+segments5 = 1
+startDate5 = datetime.date(2014, 1, 1)
+
+actualContribution5 = [0, 325000, 150000, 10000, 10000]
+actualDistribution5 = [0, 0, 21439, 0, 56392]
+actualNav5 = [0, 369459, 569448, 588701, 629827]
+
+fundModel5 = FundModel(commitment5, contributionRates5, bow5,
+                       growthRate5, fundYield5, lastInvestmentYear5, lifeOfFund5, segments5, startDate5)
+
+fundModel5.setActualValues(actualContribution5, actualDistribution5, actualNav5)
+fundModel5.forecastValues()
+result5 = formatModel(fundModel5)
+
+#RVVC1A2013MI
+print result5
