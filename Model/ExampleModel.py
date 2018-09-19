@@ -105,3 +105,28 @@ result5 = formatModel(fundModel5)
 
 #RVVC1A2013MI
 print result5
+print
+
+commitment6 = 5000000
+contributionRates6 = [.4, .66, 1]
+bow6 = 1.5
+growthRate6 = .13
+fundYield6 = .06
+lastInvestmentYear6 = 4
+lifeOfFund6 = 8
+segments6 = 1
+startDate6 = datetime.date(2015, 1, 1)
+
+actualContribution6 = [0, 1509678, 715113, 1281598]
+actualDistribution6 = [0, 15889, 269404, 545951]
+actualNav6 = [0, 1467138, 2204100, 3250219]
+
+fundModel6 = FundModel(commitment6, contributionRates6, bow6,
+                       growthRate6, fundYield6, lastInvestmentYear6, lifeOfFund6, segments6, startDate6)
+
+fundModel6.setActualValues(actualContribution6, actualDistribution6, actualNav6)
+fundModel6.forecastValues()
+result6 = formatModel(fundModel6)
+
+#BSMZ022015GB
+print result6
