@@ -130,3 +130,28 @@ result6 = formatModel(fundModel6)
 
 #BSMZ022015GB
 print result6
+
+
+commitment7 = 1000000
+contributionRates7 = [.25, .33, .5, .25]
+bow7 = 2.5
+growthRate7 = .15
+fundYield7 = .0
+lastInvestmentYear7 = 7
+lifeOfFund7 = 12
+segments7 = 1
+startDate7 = datetime.date(2015, 1, 1)
+
+actualContribution7 = [0, 386062, 175000, 155000]
+actualDistribution7 = [0, 0, 0, 0]
+actualNav7 = [0, 465778, 769025, 915245]
+
+fundModel7 = FundModel(commitment7, contributionRates7, bow7,
+                       growthRate7, fundYield7, lastInvestmentYear7, lifeOfFund7, segments7, startDate7)
+
+fundModel7.setActualValues(actualContribution7, actualDistribution7, actualNav7)
+fundModel7.forecastValues()
+result7 = formatModel(fundModel7)
+
+print result7
+print
