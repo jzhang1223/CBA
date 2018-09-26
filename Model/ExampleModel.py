@@ -10,7 +10,7 @@ def formatModel(fundModel):
 
 pd.set_option('display.expand_frame_repr', False)
 
-
+exportFileName = "InitialTest.csv"
 commitment1 = 3500000
 contributionRates1 = [.4, .66, .67, .4, 1.0]
 bow1 = 1.5
@@ -66,9 +66,9 @@ lifeOfFund4 = 10
 segments4 = 1
 startDate4 = datetime.date(2015, 1, 1)
 
-actualContribution4 = [0, 1124178, 842202]
-actualDistribution4 = [0, 4315, 0]
-actualNav4 = [0, 1042235, 2046627]
+actualContribution4 = [0, 0, 1124178, 842202]
+actualDistribution4 = [0, 0, 4315, 0]
+actualNav4 = [0, 0, 1042235, 2046627]
 
 fundModel4 = FundModel(commitment4, contributionRates4, bow4,
                        growthRate4, fundYield4, lastInvestmentYear4, lifeOfFund4, segments4, startDate4)
@@ -76,7 +76,7 @@ fundModel4 = FundModel(commitment4, contributionRates4, bow4,
 fundModel4.setActualValues(actualContribution4, actualDistribution4, actualNav4)
 fundModel4.forecastValues()
 result4 = formatModel(fundModel4)
-
+fundModel4.exportToCsv(exportFileName)
 # MPPE012015GB
 print result4
 print
@@ -104,6 +104,7 @@ fundModel5.forecastValues()
 result5 = formatModel(fundModel5)
 
 #RVVC1A2013MI
+fundModel5.exportToCsv(exportFileName)
 print result5
 print
 

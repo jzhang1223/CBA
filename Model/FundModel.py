@@ -1,5 +1,7 @@
 from ModelCalculations import ModelCalculations
 from ModelPeriod import ModelPeriod
+import pandas as pd
+import csv
 
 # Able to output projected values for a fund based on given information.
 class FundModel(object):
@@ -42,6 +44,7 @@ class FundModel(object):
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
     def forecastValues(self):
+        self._setDates()
         # Calculates values based on the "current time" of the model, i.e. how much data is already there.
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions
@@ -52,7 +55,6 @@ class FundModel(object):
             self._navList.append(round(self.predictNav(currentTime), 2))
         # Separated in case of partially given data. These values will always be calculated from t = 0.
         for currentTime in range(self.lifeOfFund + 1):
-            self._dateList.append(self._predictDate(currentTime, self.lifeOfFund))
             # commitment remaining
             self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(currentTime), 2))
             # net cash flow
@@ -62,18 +64,22 @@ class FundModel(object):
 
     # Sets actual values for the model
     def setActualValues(self, contributions=[], distributions=[], navs=[]):
-        arguments = locals()
         firstLength = len(contributions)
 
-        for key in arguments:
-            if arguments[key] is list and len(arguments[key]) != firstLength:
-                raise ValueError("Given data must all be the same length!")
-
+        if len(distributions) != firstLength or len(navs) != firstLength:
+            raise ValueError("Given data must all be the same length!")
 
         self._setContributionList(contributions)
         self._setDistributionList(distributions)
         self._setNavList(navs)
 
+    # Exports Values to a csv
+    def exportToCsv(self, fileName):
+        # self._formatModelToDataframe().to_csv("../" + fileName, index=False)
+        modelData = self._formatModelToDataframe()
+
+        with open('../' + fileName, 'a') as file:
+            modelData.to_csv(file, header=True)
 
     # Returns the predicted contribution values based on its own fields.
     def predictContribution(self, currentTime):
@@ -158,6 +164,21 @@ class FundModel(object):
     # Returns the time of the model based on the number of elements in the list of contributions.
     def _getModelTime(self):
         return len(self._contributionList)
+
+    # Sets the dates for the fund
+    def _setDates(self):
+        #todo change to using ModelPeriod object
+        for currentTime in range(self.lifeOfFund + 1):
+            self._dateList.append(self._predictDate(currentTime, self.lifeOfFund))
+
+    # Formats the data into a dataframe to be exported
+    def _formatModelToDataframe(self):
+        return pd.DataFrame(
+            [self._dateList, self._contributionList, self._distributionList, self._navList,
+             self._commitmentRemainingList, self._cummulativeCashFlowList, self._netCashFlowList],
+            index=['Date', 'Contributions', 'Distributions', 'NAV',
+                   'Commitment Remaining', 'Cummulative Cash Flow', 'Net Cash Flow'])
+
     '''
     def getContributionList(self):
         return self._contributionList
