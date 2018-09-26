@@ -10,5 +10,5 @@ class CapitalCalled(CalculationAPI.CalculationAPI):
         return self.giveResult(result)
 
 
-a = CapitalCalled()
-a('CCDD062016AF', '18/4/2')
+#a = CapitalCalled()
+#a('CCDD062016AF', '18/4/2')

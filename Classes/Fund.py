@@ -1,5 +1,6 @@
 from APIs import FundAPI
 
+
 class Fund(FundAPI.FundAPI):
 
     # String

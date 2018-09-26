@@ -1,6 +1,5 @@
 # https://github.com/peliot/XIRR-and-XNPV/blob/master/financial.py
 import CalculationAPI
-import datetime
 from scipy import optimize
 import numpy as np
 
@@ -8,7 +7,7 @@ import numpy as np
 
 class Xirr(CalculationAPI.CalculationAPI):
 
-    def __call__(self, fundID, endDate, guess= -0.5):
+    def __call__(self, fundID, endDate, guess= 0.1):
         # query for values
 
         cashflows = self.CashFlowDB.queryDB(" SELECT cfDate, cashValue FROM `CommitmentJoinDistribution` "

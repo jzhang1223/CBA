@@ -1,7 +1,6 @@
 from APIs import QueryAPI
 #from Classes import Reader
 import pymysql.cursors
-import datetime
 
 # Make this the class that has the connection?
 class Query(QueryAPI.QueryAPI):
@@ -47,10 +46,10 @@ class Query(QueryAPI.QueryAPI):
             print "@#$"
             print e
 
-fundID = 'CCDD062016AF'
-endDate = datetime.datetime.strptime('4/2/18', '%m/%d/%y')
-a = Query()
-print a.queryDB(
-            "SELECT cfDate, cashValue FROM CashFlow "
-            "WHERE fundID = '{}' AND cfDate <= '{}'".format(fundID, endDate)).fetchall()
+#fundID = 'CCDD062016AF'
+#endDate = datetime.datetime.strptime('4/2/18', '%m/%d/%y')
+#a = Query()
+#print a.queryDB(
+#            "SELECT cfDate, cashValue FROM CashFlow "
+#            "WHERE fundID = '{}' AND cfDate <= '{}'".format(fundID, endDate)).fetchall()
 
