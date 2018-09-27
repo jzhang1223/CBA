@@ -10,7 +10,7 @@ def formatModel(fundModel):
 
 pd.set_option('display.expand_frame_repr', False)
 
-exportFileName = "InitialTest.csv"
+exportFileName = "../../cbaDBdata/InitialTest.csv"
 commitment1 = 3500000
 contributionRates1 = [.4, .66, .67, .4, 1.0]
 bow1 = 1.5
@@ -63,12 +63,12 @@ growthRate4 = .16
 fundYield4 = 0
 lastInvestmentYear4 = 6
 lifeOfFund4 = 10
-segments4 = 1
-startDate4 = datetime.date(2015, 1, 1)
+segments4 = 4
+startDate4 = datetime.date(2016, 1, 1)
 
-actualContribution4 = [0, 0, 1124178, 842202]
-actualDistribution4 = [0, 0, 4315, 0]
-actualNav4 = [0, 0, 1042235, 2046627]
+actualContribution4 = [0, 590964, 40978, 487922, 0, 256267, 537759, 48176, 0, 59507, 698467]
+actualDistribution4 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+actualNav4 = [0, 481346, 497637, 1045657, 1042235, 1424458, 1909480, 1943885, 2046627, 2091255, 2916081]
 
 fundModel4 = FundModel(commitment4, contributionRates4, bow4,
                        growthRate4, fundYield4, lastInvestmentYear4, lifeOfFund4, segments4, startDate4)
@@ -78,7 +78,28 @@ fundModel4.forecastValues()
 result4 = formatModel(fundModel4)
 fundModel4.exportToCsv(exportFileName)
 # MPPE012015GB
+print 'MainPost I'
 print result4
+print
+
+commitment4_1 = 5000000
+contributionRates4_1 = [.25, .5, .5, .25, .25]
+bow4_1 = 2.5
+growthRate4_1 = .16
+fundYield4_1 = 0.0
+lastInvestmentYear4_1 = 6
+lifeOfFund4_1 = 10
+segments4_1 = 4
+startDate4_1 = datetime.date(2019, 4, 1)
+
+fundModel4_1 = FundModel(commitment4_1, contributionRates4_1, bow4_1, growthRate4_1,
+                         fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, segments4_1, startDate4_1)
+fundModel4_1.forecastValues()
+result4_1 = formatModel(fundModel4_1)
+fundModel4_1.exportToCsv(exportFileName)
+# MPPE022018GB
+print 'MainPost II'
+print result4_1
 print
 
 
@@ -104,7 +125,6 @@ fundModel5.forecastValues()
 result5 = formatModel(fundModel5)
 
 #RVVC1A2013MI
-fundModel5.exportToCsv(exportFileName)
 print result5
 print
 

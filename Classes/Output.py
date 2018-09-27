@@ -30,7 +30,7 @@ class Output(object):
         for i in range(len(self.fundList)):
             self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
         print self.fundDF
-        self.fundDF.to_csv("../" + fileName, index=False)
+        self.fundDF.to_csv(fileName, index=False)
 
     def _getCalledPercentage(self, fundID, date):
         func = CalledPercentage.CalledPercentage()
@@ -89,7 +89,7 @@ class Output(object):
 tempDate = '18/8/9'
 #Output("testOutputAverages.csv", tempDate)
 
-Output("testOutput.csv", tempDate)
+Output("../testOutput.csv", tempDate)
 
 # Final Output
 #Output("RawDataOutput.csv", tempDate)

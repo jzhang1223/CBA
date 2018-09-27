@@ -78,7 +78,7 @@ class FundModel(object):
         # self._formatModelToDataframe().to_csv("../" + fileName, index=False)
         modelData = self._formatModelToDataframe()
 
-        with open('../' + fileName, 'a') as file:
+        with open(fileName, 'a') as file:
             modelData.to_csv(file, header=True)
 
     # Returns the predicted contribution values based on its own fields.
