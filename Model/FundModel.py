@@ -108,6 +108,8 @@ class FundModel(object):
         else:
             rateOfDistribution = self.calculate.rateOfDistribution(
                 self.fundYield, currentTime, self.lifeOfFund, self.bow)
+            print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+            print "..."
             return self.calculate.distribution(
                 rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
 

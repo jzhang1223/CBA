@@ -13,7 +13,10 @@ class ModelCalculations(object):
 
     # RD = Max[Y, (t / L) ^ B]
     def rateOfDistribution(self, fundYield, year, lifeOfFund, bow):
-        return max(fundYield, ((.00 + year) / lifeOfFund) ** bow)
+        print 'Year: ' + str(year)
+        print 'Yield: ' + str(fundYield)
+        print 'Bow Factor: ' + str(((.00 + year) / lifeOfFund) ** bow)
+        return max(fundYield, ((.00 + year) / lifeOfFund) ** (bow))
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
     def nav(self, previousNAV, growthRate, contributions, distributions):
@@ -66,9 +69,10 @@ class ModelCalculations(object):
     # Returns the annual interest rate split into a number of segments for compounding.
     # The effective interest rate is the given annual interest rate and the nominal rate is being solved for.
     # r = (1+i/n)^n - 1     solve for i => i = n * (nthRoot(1+r) - 1)
+    # Does not multiply by segments b/c looking for the actual rate to be used in each month in order to still compound annually.
     def segmentInterest(self, segments, annualPercentage):
         self._checkValidSegments(segments)
-        return round(segments * ((1.0+annualPercentage) ** (1.0/segments) - 1.0), 4)
+        return round((1.0+annualPercentage) ** (1.0/segments) - 1.0, 4)
 
     # Makes sure that there are a valid number of segments given.
     def _checkValidSegments(self, segments):

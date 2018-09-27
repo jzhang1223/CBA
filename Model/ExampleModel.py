@@ -10,7 +10,11 @@ def formatModel(fundModel):
 
 pd.set_option('display.expand_frame_repr', False)
 
+
+
+
 exportFileName = "../../cbaDBdata/InitialTest.csv"
+'''
 commitment1 = 3500000
 contributionRates1 = [.4, .66, .67, .4, 1.0]
 bow1 = 1.5
@@ -20,6 +24,7 @@ lastInvestmentYear1 = 4
 lifeOfFund1 = 8
 segments1 = 1
 startDate1 = datetime.date(2008, 3, 20)
+
 
 fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
@@ -48,13 +53,7 @@ fundModel3.forecastValues()
 result3 = formatModel(fundModel3)
 
 
-print
-print result1
-print
-print result2
-print
-print result3
-print
+
 
 commitment4 = 5000000
 contributionRates4 = [.25, .5, .5, .4, .35]
@@ -76,11 +75,9 @@ fundModel4 = FundModel(commitment4, contributionRates4, bow4,
 fundModel4.setActualValues(actualContribution4, actualDistribution4, actualNav4)
 fundModel4.forecastValues()
 result4 = formatModel(fundModel4)
-fundModel4.exportToCsv(exportFileName)
+#fundModel4.exportToCsv(exportFileName)
 # MPPE012015GB
-print 'MainPost I'
-print result4
-print
+'''
 
 commitment4_1 = 5000000
 contributionRates4_1 = [.25, .5, .5, .25, .25]
@@ -95,14 +92,16 @@ startDate4_1 = datetime.date(2019, 4, 1)
 fundModel4_1 = FundModel(commitment4_1, contributionRates4_1, bow4_1, growthRate4_1,
                          fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, segments4_1, startDate4_1)
 fundModel4_1.forecastValues()
+fundModel4_2 = FundModel(commitment4_1, contributionRates4_1, bow4_1, growthRate4_1,
+                         fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, 1, startDate4_1)
+fundModel4_2.forecastValues()
+
 result4_1 = formatModel(fundModel4_1)
-fundModel4_1.exportToCsv(exportFileName)
+result4_2 = formatModel(fundModel4_2)
+
 # MPPE022018GB
-print 'MainPost II'
-print result4_1
-print
 
-
+'''
 commitment5 = 500000
 contributionRates5 = [.25, .33, .5, .25]
 bow5 = 2.5
@@ -125,8 +124,7 @@ fundModel5.forecastValues()
 result5 = formatModel(fundModel5)
 
 #RVVC1A2013MI
-print result5
-print
+
 
 commitment6 = 5000000
 contributionRates6 = [.4, .66, 1]
@@ -150,7 +148,7 @@ fundModel6.forecastValues()
 result6 = formatModel(fundModel6)
 
 #BSMZ022015GB
-print result6
+
 
 
 commitment7 = 1000000
@@ -174,5 +172,35 @@ fundModel7.setActualValues(actualContribution7, actualDistribution7, actualNav7)
 fundModel7.forecastValues()
 result7 = formatModel(fundModel7)
 
+
+print
+print result1
+print
+print result2
+print
+print result3
+print
+print 'MainPost I'
+print result4
+print
+print 'MainPost II'
+print result4_1
+print
+print result5
+print
+print result6
+print
 print result7
 print
+'''
+
+#print 'MainPost I'
+#print result4
+print
+print 'MainPost II'
+print result4_1
+print
+print result4_2
+print
+#fundModel4_1.exportToCsv(exportFileName)
+#fundModel4_2.exportToCsv(exportFileName)
