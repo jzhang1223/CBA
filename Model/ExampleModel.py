@@ -86,19 +86,22 @@ growthRate4_1 = .16
 fundYield4_1 = 0.0
 lastInvestmentYear4_1 = 6
 lifeOfFund4_1 = 10
-segments4_1 = 4
+segments4_1 = 1
 startDate4_1 = datetime.date(2019, 4, 1)
 
 fundModel4_1 = FundModel(commitment4_1, contributionRates4_1, bow4_1, growthRate4_1,
                          fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, segments4_1, startDate4_1)
 fundModel4_1.forecastValues()
 fundModel4_2 = FundModel(commitment4_1, contributionRates4_1, bow4_1, growthRate4_1,
-                         fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, 1, startDate4_1)
+                         fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, 4, startDate4_1)
 fundModel4_2.forecastValues()
+fundModel4_3 = FundModel(commitment4_1, contributionRates4_1, bow4_1, growthRate4_1,
+                         fundYield4_1, lastInvestmentYear4_1, lifeOfFund4_1, 12, startDate4_1)
+fundModel4_3.forecastValues()
 
 result4_1 = formatModel(fundModel4_1)
 result4_2 = formatModel(fundModel4_2)
-
+result4_3 = formatModel(fundModel4_3)
 # MPPE022018GB
 
 '''
@@ -202,5 +205,6 @@ print result4_1
 print
 print result4_2
 print
+print result4_3
 #fundModel4_1.exportToCsv(exportFileName)
-#fundModel4_2.exportToCsv(exportFileName)
+fundModel4_2.exportToCsv(exportFileName)

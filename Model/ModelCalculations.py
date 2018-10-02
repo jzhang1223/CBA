@@ -12,11 +12,11 @@ class ModelCalculations(object):
         return rateOfDistribution * (previousNAV * (1.0 + growthRate))
 
     # RD = Max[Y, (t / L) ^ B]
-    def rateOfDistribution(self, fundYield, year, lifeOfFund, bow):
+    def rateOfDistribution(self, fundYield, year, lifeOfFund, bow, segments):
         print 'Year: ' + str(year)
         print 'Yield: ' + str(fundYield)
         print 'Bow Factor: ' + str(((.00 + year) / lifeOfFund) ** bow)
-        return max(fundYield, ((.00 + year) / lifeOfFund) ** (bow))
+        return max(fundYield, ((.00 + year) / lifeOfFund) ** (bow * (segments ** (1.0/2.85))))
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
     def nav(self, previousNAV, growthRate, contributions, distributions):
