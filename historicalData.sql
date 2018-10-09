@@ -59,31 +59,33 @@ WHERE DATE IS NULL;
 SELECT COUNT(*) FROM historicalTransactions
 WHERE Activity LIKE '%DD%';
 
-SELECT hn.cfYear, hn.cfQuarter, hn.Fund, Market_Value, hd.total AS Distributions, hc.total AS Contributions
-FROM `historicalNav` AS hn 
-    JOIN `historicalDistributions` AS hd 
-    #ON(hn.cfYear = hd.cfYear AND hn.Fund = hd.Fund AND hn.cfQuarter = hd.cfQuarter)
-        JOIN `historicalContributions` AS hc
-        #ON(hc.cfYear = hd.cfYear AND hc.Fund = hd.Fund AND hc.cfQuarter = hd.cfQuarter)
-ORDER BY hn.Fund, hn.cfYear, hn.cfQuarter;
 
+# Gets the historical data for a fund, just replace the WHERE clause
 SELECT hn.cfYear, hn.cfQuarter, hn.Fund, Market_Value, hd.total AS Distributions, hc.total AS Contributions
 FROM `historicalNav` AS hn 
     LEFT JOIN `historicalDistributions` AS hd
         ON(hn.cfYear = hd.cfYear AND hn.Fund = hd.Fund AND hn.cfQuarter = hd.cfQuarter)
         LEFT JOIN `historicalContributions` AS hc
             ON(hc.cfYear = hn.cfYear AND hc.Fund = hn.Fund AND hc.cfQuarter = hn.cfQuarter)
-        /*
-    UNION
-    
-    SELECT hn1.cfYear, hn1.cfQuarter, hn1.Fund, Market_Value, hd1.total AS Distributions
-    FROM `historicalNav` AS hn1 
-    RIGHT JOIN `historicalDistributions` AS hd1
-        ON(hn1.cfYear = hd1.cfYear AND hn1.Fund = hd1.Fund AND hn1.cfQuarter = hd1.cfQuarter)
-        */
-
-        
+WHERE hn.Fund = 'BC 8'
 ORDER BY hn.Fund, hn.cfYear, hn.cfQuarter;
+
+# CREATE TABLE dateRange (cfYear int(11), cfQuarter int(11));
+select * from dateRange;
+
+SELECT t1.cfYear, t1.cfQuarter, Fund, Market_Value, Distributions, Contributions
+FROM (SELECT * FROM dateRange) as t1
+LEFT JOIN (SELECT hn.cfYear, hn.cfQuarter, hn.Fund, Market_Value, hd.total AS Distributions, hc.total AS Contributions
+        FROM `historicalNav` AS hn 
+        LEFT JOIN `historicalDistributions` AS hd
+            ON(hn.cfYear = hd.cfYear AND hn.Fund = hd.Fund AND hn.cfQuarter = hd.cfQuarter)
+            LEFT JOIN `historicalContributions` AS hc
+            ON(hc.cfYear = hn.cfYear AND hc.Fund = hn.Fund AND hc.cfQuarter = hn.cfQuarter)
+            WHERE hn.Fund = 'BC 8'
+            ORDER BY hn.Fund, hn.cfYear, hn.cfQuarter) as t2 
+ON t1.cfYear = t2.cfYear AND t1.cfQuarter = t2.cfQuarter
+ORDER BY cfYear ASC, cfQuarter ASC;
+
 
 /*
 ### Used for setting up the historical transaction table.

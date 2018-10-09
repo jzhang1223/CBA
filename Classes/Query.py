@@ -43,7 +43,7 @@ class Query(QueryAPI.QueryAPI):
                 self.connection.commit()
                 return cursor
         except Exception as e:
-            print "@#$"
+            print "queryDB Error"
             print e
 
 #fundID = 'CCDD062016AF'

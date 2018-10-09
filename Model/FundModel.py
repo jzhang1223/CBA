@@ -78,6 +78,7 @@ class FundModel(object):
         # self._formatModelToDataframe().to_csv("../" + fileName, index=False)
         modelData = self._formatModelToDataframe()
 
+        # 'a' for append
         with open(fileName, 'a') as file:
             modelData.to_csv(file, header=True)
 
