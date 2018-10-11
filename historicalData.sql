@@ -73,6 +73,7 @@ ORDER BY hn.Fund, hn.cfYear, hn.cfQuarter;
 # CREATE TABLE dateRange (cfYear int(11), cfQuarter int(11));
 select * from dateRange;
 
+# Variables: WHERE FUND = ..., MAX and MIN cfYear and Quarters
 SELECT t1.cfYear, t1.cfQuarter, Fund, Market_Value, Distributions, Contributions
 FROM (SELECT * FROM dateRange) as t1
 LEFT JOIN (SELECT hn.cfYear, hn.cfQuarter, hn.Fund, Market_Value, hd.total AS Distributions, hc.total AS Contributions
@@ -84,7 +85,20 @@ LEFT JOIN (SELECT hn.cfYear, hn.cfQuarter, hn.Fund, Market_Value, hd.total AS Di
             WHERE hn.Fund = 'BC 8'
             ORDER BY hn.Fund, hn.cfYear, hn.cfQuarter) as t2 
 ON t1.cfYear = t2.cfYear AND t1.cfQuarter = t2.cfQuarter
-ORDER BY cfYear ASC, cfQuarter ASC;
+WHERE t1.cfYear >= 2004 AND t1.cfYear <= 2018 
+    AND NOT ((t1.cfYear = 2004 AND t1.cfQuarter < 3) OR (t1.cfYear = 2018 AND t1.cfQuarter > 4))
+ORDER BY t1.cfYear ASC, t1.cfQuarter ASC;
+
+SELECT hn.cfQuarter
+        FROM `historicalNav` AS hn 
+            LEFT JOIN `historicalDistributions` AS hd
+                ON(hn.cfYear = hd.cfYear AND hn.Fund = hd.Fund AND hn.cfQuarter = hd.cfQuarter)
+                LEFT JOIN `historicalContributions` AS hc
+                    ON(hc.cfYear = hn.cfYear AND hc.Fund = hn.Fund AND hc.cfQuarter = hn.cfQuarter)
+        WHERE hn.Fund = 'BC 8'
+        ORDER BY hn.cfYear DESC, hn.cfQuarter DESC
+        LIMIT 1;
+
 
 
 /*

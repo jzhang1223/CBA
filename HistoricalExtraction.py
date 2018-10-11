@@ -80,22 +80,25 @@ ORDER BY hn.cfYear ASC, hn.cfQuarter ASC;""".format(fund)).fetchone()[0]
         ORDER BY hn.cfYear DESC, hn.cfQuarter DESC
         LIMIT 1;""".format(fund)).fetchone()[0]
 
-    def writeData(self, fund, fileName):
-        print
+    def organizeData(self, fund):
         a = self.getData(fund)
 
         #return pd.DataFrame(self.getData())
         modelData = pd.DataFrame(list(a.fetchall()))
 
         modelData.columns = self._getHeaders(a.description)
-
+        modelData.columns.name = fund
+        print modelData.columns
         pd.set_option('display.expand_frame_repr', False)
 
-        print "***"
         # Needs bracket for None item
         modelData = modelData.replace([None], 0)
-        print "***"
-        print modelData
+        return modelData
+
+    def writeData(self, modelData, fileName):
+        with open(fileName, 'a') as file:
+            modelData.to_csv(file, header=True)
+
 
         #with open(fileName, 'a') as file:
         #    modelData.to_csv(file, header=True)
@@ -129,10 +132,72 @@ ORDER BY hn.cfYear ASC, hn.cfQuarter ASC;""".format(fund)).fetchone()[0]
         #return self.CashFlowDB.queryDB("SELECT {}".format(self._createRange(2010, 2015)))
 
 
-
+fileName = "historicalDataExtraction.csv"
+df = pd.read_csv("../cbaDBdata/Sample Data Set.csv")
+funds = list(set(df["Fund"]))
+# Take out the ARBY values
+invalidFunds = ["ABRY 5", "ABRY 6", "ABRY 7", "ABRY 8"]
+funds = sorted(funds)
+for fund in invalidFunds:
+    funds.remove(fund)
 
 a = HistoricalExtraction()
-a.writeData("BC 8", "historicalDataExtraction")
+allFunds = []
+for fund in funds:
+    # allFunds....
+    #allFunds = pd.join(allFunds, a.organizeData(fund), how='inner')
+    #print a.organizeData(fund)
+    #print allFunds
+    #allFunds = allFunds.join(a.organizeData(fund), how='outer', lsuffix="_first", rsuffix="_next")
+    allFunds.append(a.organizeData(fund))
+allFunds = pd.concat(allFunds, ignore_index=True, axis=1)
+
+for i in range(len(allFunds.columns) - 1, -1, -1):
+    if not ((i % 5 == 2) or (i % 5 == 3)):
+        allFunds = allFunds.drop(i, axis=1)
+    elif i % 5 == 2:
+        allFunds = allFunds.rename(columns={ allFunds.columns[i]: "Market_Value{}->".format(len(allFunds.columns)-i)})
+
+    elif i % 5 == 3:
+        allFunds = allFunds.rename(columns={ allFunds.columns[i]: "<-Distributions{}".format(len(allFunds.columns)-i)})
+    else:
+        print "*******ERROR******"
+
+print "STARTING"
+print allFunds
+print "ENDING"
+#print len(allFunds[allFunds.columns[0]])
+#print len(allFunds[allFunds.columns][0].columns)
+#print len(allFunds.columns)
+print allFunds.shape[0]
+
+# Number of columns
+for i in range(0, allFunds.shape[1], 2):
+    # Number of rows
+    for j in range(0, allFunds.shape[0]):
+        print allFunds.iloc[j,i]
+        if allFunds.iloc[j,i] == 0:
+            print "TRUE"
+            print allFunds.iloc[j,i]
+            print allFunds.iloc[j-1][i]
+            print "Old, new"
+            allFunds.iloc[j,i] = allFunds.iloc[j-1][i]
+        #if allFunds[allFunds.columns[0]].iloc[j][i] == 0:
+            #allFunds[allFunds.columns[0]].iloc[j][i] = allFunds[allFunds.columns[0]].iloc[j-1][i]
+            #print allFunds[allFunds.columns[0]].iloc[j][i]
+            #temp = allFunds[allFunds.columns[0]].iloc[j-1][i]
+            #allFunds[allFunds.columns[0]].iloc[j][i] = temp
+            #print allFunds.iloc[j][i]
+        print allFunds.iloc[j,i]
+
+
+
+#print allFunds[allFunds.columns[0]].iloc[0][0]
+print allFunds
+a.writeData(allFunds, fileName)
+
+#a.writeData(allFunds, "historicalDataExtraction.csv", ["Distributions", "Market_Value"])
+
 #a._trySelect()
 #print a._getMinYear("BC 8")
 #print a._getMaxYear("BC 8")
