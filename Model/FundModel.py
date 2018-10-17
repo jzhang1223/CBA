@@ -51,17 +51,22 @@ class FundModel(object):
             self._contributionList.append(round(self.predictContribution(currentTime), 2))
 
         if (self.segments != 1):
-            print "HERE"
             self._swapContributionOrder()
-            self._splitDistributions()
+
         # Calculates values based on the "current time" of the model, i.e. how much data is already there.
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
+            print "_getModelTime() == " + str(self._getModelTime())
             # contributions
             #self._contributionList.append(round(self.predictContribution(currentTime), 2))
             # distributions
             self._distributionList.append(round(self.predictDistribution(currentTime), 2))
             # nav
             self._navList.append(round(self.predictNav(currentTime), 2))
+
+        if (self.segments != 1):
+            print self._distributionList
+            self._splitDistributions()
+
         # Separated in case of partially given data. These values will always be calculated from t = 0.
         for currentTime in range(self.lifeOfFund + 1):
             # commitment remaining
@@ -115,13 +120,12 @@ class FundModel(object):
     def predictDistribution(self, currentTime):
         if currentTime == 0:
             return 0
-        else:
-            rateOfDistribution = self.calculate.rateOfDistribution(
-                self.fundYield, currentTime, self.lifeOfFund, self.bow, self.segments)
-            print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
-            print "..."
-            return self.calculate.distribution(
-                rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+        rateOfDistribution = self.calculate.rateOfDistribution(
+            self.fundYield, currentTime, self.lifeOfFund, self.bow, self.segments)
+        #print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+        print "..."
+        return self.calculate.distribution(
+            rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
 
     # Predicts the net cash flow for a given time period based on that year's distribution and contributions.
     #todo tests
@@ -199,15 +203,23 @@ class FundModel(object):
             if len(holder) == self.segments:
                 holder.reverse()
                 for i in range((time - self.segments) + 1, time + 1):
-                    print "i: " + str(i)
-                    print "index: " + str((i % self.segments) - 1)
                     self._contributionList[i] = holder[(i % self.segments) - 1]
                 print holder
                 holder = []
 
     # Divides the annual distribution into even amounts for each segments.
     def _splitDistributions(self):
-        pass
+        for time in range(1, self.lifeOfFund + 1):
+            differenceToLastSegment = self._findLastSegmentIndex(time)
+            print self._distributionList[time]
+            self._distributionList[time] = self._distributionList[time + differenceToLastSegment] / 4
+
+    # Determines how many segments away a given time period is.
+    def _findLastSegmentIndex(self, time):
+        if (time % self.segments == 0):
+            return 0
+        else:
+            return self.segments - (time % self.segments)
     '''
     def getContributionList(self):
         return self._contributionList

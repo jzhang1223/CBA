@@ -9,16 +9,18 @@ class ModelCalculations(object):
 
     # D(t) = RD * [NAV(t-1) * (1 + G)]
     def distribution(self, rateOfDistribution, previousNAV, growthRate):
+        print "giving distribution with: RoD={} PrevNav={} GrowthRate={}".format(rateOfDistribution, previousNAV, growthRate)
         return rateOfDistribution * (previousNAV * (1.0 + growthRate))
 
     # RD = Max[Y, (t / L) ^ B]
+    # For non-annual analysis, tries to only use bow factor in last quarter, which will be split up.
     def rateOfDistribution(self, fundYield, year, lifeOfFund, bow, segments):
         print 'Year: ' + str(year)
         print 'Yield: ' + str(fundYield)
         print 'Bow Factor: ' + str(((.00 + year) / lifeOfFund) ** bow)
-        adjustment = ((year % segments) + 1) / segments#(segments - (year % segments) + 0.0) / segments#(((year - 5.0) % segments + 1.0) / segments)
-        print adjustment
-        return max(fundYield, (((.00 + year) / lifeOfFund) ** bow) * adjustment)
+        if (year % segments != 0):
+            return 0
+        return max(fundYield, (((.00 + year) / lifeOfFund) ** bow))
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
     def nav(self, previousNAV, growthRate, contributions, distributions):
@@ -104,4 +106,12 @@ class ModelCalculations(object):
         dateDifference = endDate - startDate
         scale = (0.0 + currentTime) / lifeOfFund
         return startDate + datetime.timedelta(scale * dateDifference.days)
+
+    # Returns a growth rate accounting for contribution to generate an equivalent value.
+    def equivalentGrowthRate(self, percentageNeeded, growthRate, principal, contribution):
+        growth = principal * (1 + growthRate)
+        return (growth * percentageNeeded) / (growth + contribution)
+
+a = ModelCalculations()
+print a.equivalentGrowthRate(.1, .4, 100, 60)
 
