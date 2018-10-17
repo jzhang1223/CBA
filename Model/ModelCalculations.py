@@ -16,7 +16,9 @@ class ModelCalculations(object):
         print 'Year: ' + str(year)
         print 'Yield: ' + str(fundYield)
         print 'Bow Factor: ' + str(((.00 + year) / lifeOfFund) ** bow)
-        return max(fundYield, ((.00 + year) / lifeOfFund) ** (bow * (segments ** (1.0/2.85))))
+        adjustment = ((year % segments) + 1) / segments#(segments - (year % segments) + 0.0) / segments#(((year - 5.0) % segments + 1.0) / segments)
+        print adjustment
+        return max(fundYield, (((.00 + year) / lifeOfFund) ** bow) * adjustment)
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
     def nav(self, previousNAV, growthRate, contributions, distributions):

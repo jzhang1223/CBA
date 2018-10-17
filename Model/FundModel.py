@@ -28,7 +28,7 @@ class FundModel(object):
         self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
         self._validateContributionRates(self.contributionRates)
         self.bow = bow
-        self.growthRate = self.calculate.segmentInterest(self.segments, growthRate)
+        self.growthRate = self.calculate.segmentInterest(self.segments, growthRate)#growthRate / self.segments
         self.fundYield = fundYield / self.segments
 
 
@@ -45,10 +45,19 @@ class FundModel(object):
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
     def forecastValues(self):
         self._setDates()
-        # Calculates values based on the "current time" of the model, i.e. how much data is already there.
+        # trying new loop and setting the order of contributions
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions
             self._contributionList.append(round(self.predictContribution(currentTime), 2))
+
+        if (self.segments != 1):
+            print "HERE"
+            self._swapContributionOrder()
+            self._splitDistributions()
+        # Calculates values based on the "current time" of the model, i.e. how much data is already there.
+        for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
+            # contributions
+            #self._contributionList.append(round(self.predictContribution(currentTime), 2))
             # distributions
             self._distributionList.append(round(self.predictDistribution(currentTime), 2))
             # nav
@@ -166,7 +175,7 @@ class FundModel(object):
 
     # Returns the time of the model based on the number of elements in the list of contributions.
     def _getModelTime(self):
-        return len(self._contributionList)
+        return len(self._distributionList)
 
     # Sets the dates for the fund
     def _setDates(self):
@@ -182,6 +191,23 @@ class FundModel(object):
             index=['Date', 'Contributions', 'Distributions', 'NAV',
                    'Commitment Remaining', 'Cummulative Cash Flow', 'Net Cash Flow'])
 
+    # Reorders the contributions for each year such that, should work for different segments.
+    def _swapContributionOrder(self):
+        holder = []
+        for time in range(1, self.lifeOfFund + 1):
+            holder.append(self._contributionList[time])
+            if len(holder) == self.segments:
+                holder.reverse()
+                for i in range((time - self.segments) + 1, time + 1):
+                    print "i: " + str(i)
+                    print "index: " + str((i % self.segments) - 1)
+                    self._contributionList[i] = holder[(i % self.segments) - 1]
+                print holder
+                holder = []
+
+    # Divides the annual distribution into even amounts for each segments.
+    def _splitDistributions(self):
+        pass
     '''
     def getContributionList(self):
         return self._contributionList

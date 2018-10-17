@@ -150,6 +150,7 @@ for fund in funds:
     #print allFunds
     #allFunds = allFunds.join(a.organizeData(fund), how='outer', lsuffix="_first", rsuffix="_next")
     allFunds.append(a.organizeData(fund))
+# Changes from list of dataframes to one large dataframe
 allFunds = pd.concat(allFunds, ignore_index=True, axis=1)
 
 for i in range(len(allFunds.columns) - 1, -1, -1):
@@ -166,9 +167,7 @@ for i in range(len(allFunds.columns) - 1, -1, -1):
 print "STARTING"
 print allFunds
 print "ENDING"
-#print len(allFunds[allFunds.columns[0]])
-#print len(allFunds[allFunds.columns][0].columns)
-#print len(allFunds.columns)
+
 print allFunds.shape[0]
 
 # Number of columns
