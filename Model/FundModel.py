@@ -2,6 +2,7 @@ from ModelCalculations import ModelCalculations
 from ModelPeriod import ModelPeriod
 import pandas as pd
 import csv
+from Classes import Extractor
 
 # Able to output projected values for a fund based on given information.
 class FundModel(object):
@@ -65,7 +66,7 @@ class FundModel(object):
 
         if (self.segments != 1):
             print self._distributionList
-            self._splitDistributions()
+            #self._splitDistributions()
 
         # Separated in case of partially given data. These values will always be calculated from t = 0.
         for currentTime in range(self.lifeOfFund + 1):
@@ -77,15 +78,19 @@ class FundModel(object):
             self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
 
     # Sets actual values for the model
-    def setActualValues(self, contributions=[], distributions=[], navs=[]):
-        firstLength = len(contributions)
+    def setActualValues(self, fund):
 
-        if len(distributions) != firstLength or len(navs) != firstLength:
+        extractor = Extractor()
+        extractor.extractActuals(
+            fund, self.calculate.makeDates(self.startDate, self.lastInvestmentYear / self.segments, self.segments))
+        firstLength = len(extractor.getContributionList())
+
+        if len(extractor.getDistributionList()) != firstLength or len(extractor.getNavList()) != firstLength:
             raise ValueError("Given data must all be the same length!")
 
-        self._setContributionList(contributions)
-        self._setDistributionList(distributions)
-        self._setNavList(navs)
+        self._setContributionList(extractor.getContributionList())
+        self._setDistributionList(extractor.getDistributionList())
+        self._setNavList(extractor.getNavList())
 
     # Exports Values to a csv
     def exportToCsv(self, fileName):
@@ -122,10 +127,13 @@ class FundModel(object):
             return 0
         rateOfDistribution = self.calculate.rateOfDistribution(
             self.fundYield, currentTime, self.lifeOfFund, self.bow, self.segments)
-        #print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+        print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
         print "..."
         return self.calculate.distribution(
             rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+        #standard = self.calculate.distribution(
+        #    rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+
 
     # Predicts the net cash flow for a given time period based on that year's distribution and contributions.
     #todo tests
@@ -183,7 +191,7 @@ class FundModel(object):
 
     # Sets the dates for the fund
     def _setDates(self):
-        #todo change to using ModelPeriod object
+        #todo change to using ModelPeriod object or whatever is used for extracting actual data in caluclator class
         for currentTime in range(self.lifeOfFund + 1):
             self._dateList.append(self._predictDate(currentTime, self.lifeOfFund))
 

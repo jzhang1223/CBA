@@ -18,7 +18,7 @@ class ModelCalculations(object):
         print 'Year: ' + str(year)
         print 'Yield: ' + str(fundYield)
         print 'Bow Factor: ' + str(((.00 + year) / lifeOfFund) ** bow)
-        if (year % segments != 0):
+        if (year % segments != 0 and segments != 1):
             return 0
         return max(fundYield, (((.00 + year) / lifeOfFund) ** bow))
 
@@ -108,10 +108,14 @@ class ModelCalculations(object):
         return startDate + datetime.timedelta(scale * dateDifference.days)
 
     # Returns a growth rate accounting for contribution to generate an equivalent value.
-    def equivalentGrowthRate(self, percentageNeeded, growthRate, principal, contribution):
+    def _equivalentGrowthRate(self, percentageNeeded, growthRate, principal, contribution):
         growth = principal * (1 + growthRate)
         return (growth * percentageNeeded) / (growth + contribution)
 
+    # Given the first date of the fund, number of segments, and years, makes the list of dates for extracting data.
+    def makeDates(self, firstDate, segments, years):
+        pass #todo
+
 a = ModelCalculations()
-print a.equivalentGrowthRate(.1, .4, 100, 60)
+print a._equivalentGrowthRate(.1, .4, 100, 60)
 

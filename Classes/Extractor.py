@@ -44,6 +44,8 @@ class Extractor(object):
     def getNavList(self):
         return self.navList
 
+
+
 e = Extractor()
 e.extractActuals('RVVC1A2013MI', ['14/12/31', '15/12/31', '16/12/31', '17/12/31', '18/12/31', '19/12/31'])
 print e.contributionList
