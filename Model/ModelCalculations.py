@@ -113,6 +113,7 @@ class ModelCalculations(object):
         return (growth * percentageNeeded) / (growth + contribution)
 
     # Given the first date of the fund, number of segments, and years, makes the list of dates for extracting data.
+    # **could potentially have issues with ending 0s
     def makeDates(self, firstDate, segments, years):
         pass #todo
 

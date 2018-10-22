@@ -3,6 +3,8 @@ from ModelPeriod import ModelPeriod
 import pandas as pd
 import csv
 from Classes import Extractor
+from Calculations import FundStartDate
+from Calculations import FundLastDate
 
 # Able to output projected values for a fund based on given information.
 class FundModel(object):
@@ -80,9 +82,11 @@ class FundModel(object):
     # Sets actual values for the model
     def setActualValues(self, fund):
 
-        extractor = Extractor()
+        extractor = Extractor.Extractor()
+        fundStart = FundStartDate.FundStartDate()
+        fundLast = FundLastDate.FundLastDate()
         extractor.extractActuals(
-            fund, self.calculate.makeDates(self.startDate, self.lastInvestmentYear / self.segments, self.segments))
+            fund, fundStart(fund), self.lifeOfFund / self.segments, self.segments, fundLast(fund))
         firstLength = len(extractor.getContributionList())
 
         if len(extractor.getDistributionList()) != firstLength or len(extractor.getNavList()) != firstLength:

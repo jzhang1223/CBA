@@ -1,6 +1,10 @@
 import CapitalCalled
 import TotalDistributions
 import Nav
+import datetime
+from dateutil.relativedelta import *
+import ConvertDate
+
 
 # Takes the data from the database to use in the model.
 class Extractor(object):
@@ -8,9 +12,19 @@ class Extractor(object):
     def __init__(self):
         self.reset()
 
-    def extractActuals(self, fundID, dateList):
+    # Looks up the actual values and sets its own fields to be them
+    def extractActuals(self, fundID, startDate, years, segments, endDate):
+        #todo find datelist
+        dateList = self._makeDateList(startDate, years, segments, endDate)
+        print "PRINTING DATELIST"
+        print dateList
+
+
         for day in dateList:
             print day
+            convertDate = ConvertDate.ConvertDate()
+            day = convertDate(day)
+
 
             #contribution
             findContribution = CapitalCalled.CapitalCalled()
@@ -44,10 +58,28 @@ class Extractor(object):
     def getNavList(self):
         return self.navList
 
+    # Makes a list of dates starting from the starting date to the end, split based on the number of segments
+    def _makeDateList(self, startDate, years, segments, endDate):
+        print "Years: {}, Segments: {}".format(years, segments)
+        monthDifference = 12.0 / segments
+        result = []
+        result.append(startDate)
+        for period in range(1, years * segments):
+
+            #last date + additional timedifference object
+            lastDate = result[-1]
+            nextDate = lastDate+relativedelta(months=+monthDifference)
+            if nextDate < endDate:
+                result.append(lastDate+relativedelta(months=+monthDifference))
+            print "APPEND#{}: {}".format(period, result[-1])
+        return result
+
+
 
 
 e = Extractor()
-e.extractActuals('RVVC1A2013MI', ['14/12/31', '15/12/31', '16/12/31', '17/12/31', '18/12/31', '19/12/31'])
+#print e._makeDateList(datetime.date(10, 7, 21), 5, 4)
+#e.extractActuals('RVVC1A2013MI', datetime.date(10, 7, 21), 5, 4)
 print e.contributionList
 print e.distributionList
 print e.navList
