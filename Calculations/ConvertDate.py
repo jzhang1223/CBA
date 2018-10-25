@@ -12,8 +12,8 @@ class ConvertDate(CalculationAPI.CalculationAPI):
         else:
             raise ValueError("Requires a datetime.date or str")
 
-#a = ConvertDate()
+a = ConvertDate()
 #b = datetime.date(2012, 1, 4)
-#c = "11-03-30"
+#c = "11-3-30"
 #print a(b)
 #print a(c)

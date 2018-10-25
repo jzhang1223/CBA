@@ -5,8 +5,10 @@ import csv
 from Classes import Extractor
 from Calculations import FundStartDate
 from Calculations import FundLastDate
+from Calculations import ConvertDate
 
 # Able to output projected values for a fund based on given information.
+# Casts items to their desired types
 class FundModel(object):
 
     def __init__(self, capitalCommitment, contributionRates, bow, growthRate, fundYield, lastInvestmentYear, lifeOfFund, segments, startDate):
@@ -21,18 +23,23 @@ class FundModel(object):
         :param segments: int of the number of segments that the model will dive into detail, 1 == annual and 4 == quarterly while other numbers are accepted.
         :param startDate: datetime object which marks the first date of the model.
         """
-        self.segments = segments
+        self.segments = int(segments)
         self.calculate = ModelCalculations()
-        self.startDate = startDate
-        self.endDate = self.calculate.endDate(lifeOfFund, self.startDate)
-        self.lastInvestmentYear = lastInvestmentYear * self.segments
-        self.lifeOfFund = lifeOfFund * self.segments
-        self.capitalCommitment = capitalCommitment
+        if type(startDate) == 'Datetime':
+            self.startDate = startDate
+        else:
+            dateConverter = ConvertDate.ConvertDate()
+            self.startDate = dateConverter(startDate)
+        self.endDate = self.calculate.endDate(int(lifeOfFund), self.startDate)
+        self.lastInvestmentYear = int(lastInvestmentYear) * self.segments
+        self.lifeOfFund = int(lifeOfFund) * self.segments
+        self.capitalCommitment = int(capitalCommitment)
+        # need to convert string of contribution rates into a list
         self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
         self._validateContributionRates(self.contributionRates)
-        self.bow = bow
-        self.growthRate = self.calculate.segmentInterest(self.segments, growthRate)#growthRate / self.segments
-        self.fundYield = fundYield / self.segments
+        self.bow = float(bow)
+        self.growthRate = self.calculate.segmentInterest(self.segments, float(growthRate))#growthRate / self.segments
+        self.fundYield = float(fundYield) / self.segments
 
 
         self._contributionList = []
