@@ -9,5 +9,5 @@ class FundStartDate(CalculationAPI.CalculationAPI):
             "SELECT fundStartDate(\'{}\');".format(fundID)).fetchone()[0]
         return self.giveResult(result)
 
-a = FundStartDate()
-a('TBPE112014AF')
+#a = FundStartDate()
+#a('TBPE112014AF')

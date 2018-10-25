@@ -27,3 +27,6 @@ fundModel1.setActualValues('MPPE012015GB')
 fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
 print result1
+
+exportFileName = "../../cbaDBdata/mp2015.csv"
+#fundModel1.exportToCsv(exportFileName)

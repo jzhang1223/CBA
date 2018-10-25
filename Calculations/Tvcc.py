@@ -15,6 +15,6 @@ class Tvcc(CalculationAPI.CalculationAPI):
         return self.giveResult(result)
 
 
-a = Tvcc()
-a('TBPE112014AF', '18/8/1')
+#a = Tvcc()
+#a('TBPE112014AF', '18/8/1')
 

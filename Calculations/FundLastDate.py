@@ -8,5 +8,5 @@ class FundLastDate(CalculationAPI.CalculationAPI):
             "SELECT fundEndDate(\'{}\');".format(fundID)).fetchone()[0]
         return self.giveResult(result)
 
-a = FundLastDate()
-a('TBPE112014AF')
+#a = FundLastDate()
+#a('TBPE112014AF')

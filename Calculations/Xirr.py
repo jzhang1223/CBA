@@ -17,14 +17,6 @@ class Xirr(CalculationAPI.CalculationAPI):
                                             "ORDER BY cfDate DESC LIMIT 1) as cfDate, "
                                             "totalNav('{0}','{1}') as cashValue) order by cfDate ASC;".format(fundID, endDate)).fetchall()
 
-        print "*** FUND: " + fundID + " ****"
-        print cashflows
-        #i = -0.5
-        #while i < .5:
-        #    print self._xirr(cashflows, i)
-        #    i += 0.1
-        print "************"
-
         return self._xirr(cashflows, guess)
 
     def _xnpv(self, rate, cashflows):
@@ -47,7 +39,7 @@ class Xirr(CalculationAPI.CalculationAPI):
         chron_order = sorted(cashflows, key=lambda x: x[0])
         t0 = chron_order[0][0]  # t0 is the date of the first cash flow
 
-        print rate
+        #print rate
         return sum([cf / (1 + rate) ** ((t - t0).days / 365.0) for (t, cf) in chron_order])
 
     def _xirr(self, cashflows, guess=-0.5):
@@ -83,13 +75,13 @@ class Xirr(CalculationAPI.CalculationAPI):
 
                 print "Terminated"
                 result = "ERROR"
-            print "Finished checking: " + str(i)
+            #print "Finished checking: " + str(i)
             i += 0.1
 
-        print set
-        print np.mean(set)
+        #print set
+        #print np.mean(set)
         return self.giveResult(np.mean(set))
 
 
-a = Xirr()
-a('SCPE042010AF', '18/4/2')
+#a = Xirr()
+#a('SCPE042010AF', '18/4/2')

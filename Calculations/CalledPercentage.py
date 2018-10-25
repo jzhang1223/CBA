@@ -12,5 +12,5 @@ class CalledPercentage(CalculationAPI.CalculationAPI):
         result =  (.00 + called(fundID, endDate)) / commited(fundID)
         return self.giveResult(result)
 
-a = CalledPercentage()
-a('CCDD062016AF', '18/4/2')
+#a = CalledPercentage()
+#a('CCDD062016AF', '18/4/2')

@@ -1,4 +1,5 @@
 import datetime
+from dateutil.relativedelta import *
 
 # Certain formulas used in the model
 class ModelCalculations(object):
@@ -117,6 +118,6 @@ class ModelCalculations(object):
     def makeDates(self, firstDate, segments, years):
         pass #todo
 
-a = ModelCalculations()
-print a._equivalentGrowthRate(.1, .4, 100, 60)
+#a = ModelCalculations()
+
 

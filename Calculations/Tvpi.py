@@ -14,5 +14,5 @@ class Tvpi(CalculationAPI.CalculationAPI):
         return self.giveResult(result)
 
 
-a = Tvpi()
-a('CCDD062016AF', '18/4/2')
+#a = Tvpi()
+#a('CCDD062016AF', '18/4/2')

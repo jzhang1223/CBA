@@ -12,5 +12,5 @@ class TotalValue(CalculationAPI.CalculationAPI):
         result = nav(fundID, endDate) + distributions(fundID, endDate)
         return self.giveResult(result)
 
-a = TotalValue()
-a('CCDD062016AF', '18/4/2')
+#a = TotalValue()
+#a('CCDD062016AF', '18/4/2')

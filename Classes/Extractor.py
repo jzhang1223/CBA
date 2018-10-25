@@ -77,9 +77,9 @@ class Extractor(object):
 
 
 
-e = Extractor()
+#e = Extractor()
 #print e._makeDateList(datetime.date(10, 7, 21), 5, 4)
 #e.extractActuals('RVVC1A2013MI', datetime.date(10, 7, 21), 5, 4)
-print e.contributionList
-print e.distributionList
-print e.navList
+#print e.contributionList
+#print e.distributionList
+#print e.navList
