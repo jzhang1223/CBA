@@ -50,11 +50,10 @@ class FundModel(object):
         self._cummulativeCashFlowList = []
         self._dateList = []
 
-        # self.forecastValues()
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
     def forecastValues(self):
-        self._setDates()
+        #self._setDates()
         # trying new loop and setting the order of contributions
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions

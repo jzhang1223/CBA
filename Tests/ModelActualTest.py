@@ -18,7 +18,7 @@ fundYield1 = 0.0
 lastInvestmentYear1 = 8
 lifeOfFund1 = 11
 segments1 = 1
-startDate1 = datetime.date(2016, 3, 1)
+startDate1 = '16-3-1'#datetime.date(2016, 3, 1)
 
 
 fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
