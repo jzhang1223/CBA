@@ -16,14 +16,14 @@ bow1 = 2.5
 growthRate1 = .16
 fundYield1 = 0.0
 lastInvestmentYear1 = 8
-lifeOfFund1 = 11
+lifeOfFund1 = 10
 segments1 = 1
-startDate1 = '16-3-1'#datetime.date(2016, 3, 1)
+startDate1 = datetime.date(2016, 3, 1)
 
 
 fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
-fundModel1.setActualValues('MPPE012015GB')
+#fundModel1.setActualValues('MPPE012015GB')
 fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
 print result1

@@ -1,11 +1,13 @@
 from ModelCalculations import ModelCalculations
 from ModelPeriod import ModelPeriod
 import pandas as pd
+import datetime
 import csv
 from Classes import Extractor
 from Calculations import FundStartDate
 from Calculations import FundLastDate
 from Calculations import ConvertDate
+
 
 # Able to output projected values for a fund based on given information.
 # Casts items to their desired types
@@ -25,7 +27,8 @@ class FundModel(object):
         """
         self.segments = int(segments)
         self.calculate = ModelCalculations()
-        if type(startDate) == 'Datetime':
+        #if type(startDate) == 'datetime.date':
+        if isinstance(startDate, datetime.date):
             self.startDate = startDate
         else:
             dateConverter = ConvertDate.ConvertDate()
