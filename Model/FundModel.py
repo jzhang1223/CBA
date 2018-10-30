@@ -1,8 +1,6 @@
 from ModelCalculations import ModelCalculations
-from ModelPeriod import ModelPeriod
 import pandas as pd
 import datetime
-import csv
 from Classes import Extractor
 from Calculations import FundStartDate
 from Calculations import FundLastDate

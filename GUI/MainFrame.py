@@ -4,6 +4,7 @@ import inspect
 
 class Application(tk.Frame):
 
+
     def createWidgets(self):
         # Title of window
         self.winfo_toplevel().title("INSERT TITLE HERE")
@@ -20,7 +21,7 @@ class Application(tk.Frame):
 
         self.RESET = tk.Button(self)
         self.RESET["text"] = "Reset Model"
-        self.RESET["command"] = self._resetAll()
+        self.RESET["command"] = self._resetAll
         self.RESET.pack({"side": "left"})
 
         self.SUBMIT = tk.Button(self)
@@ -42,9 +43,11 @@ class Application(tk.Frame):
 
     # Sets up the components for entering Fund Model Data
     def _setupEntryWidgets(self):
+        self.textBoxList = []
         print "SETTING UP ENTRY WIDGETS"
         for argument in inspect.getargspec(fm.FundModel.__init__)[0]:
             if argument != 'self':
+
                 # make labels for the textbox
                 setattr(self, argument + "LABEL", tk.Label(self, text = argument))
                 # make the text box
@@ -52,6 +55,10 @@ class Application(tk.Frame):
                 # pack the label, box
                 getattr(self, argument + "LABEL").pack({"side": "left"})
                 getattr(self, argument + "TEXT").pack({"side": "left"})
+
+                # Add to master list of widgets for easy clearing.
+                self.textBoxList.append(getattr(self, argument + "TEXT"))
+
                 print argument
 
 
@@ -91,17 +98,20 @@ class Application(tk.Frame):
         pass #todo
 
     # Resets the model and all text boxes.
+    # Possibly clear or not clear the text boxes. If not cleared, needs something to tell the user data is reset. todo
     def _resetAll(self):
         print "RESETING MODEL"
-        self.capitalCommitmentTEXT.delete(0, tk.END)
-        self.contributionRatesTEXT.delete(0, tk.END)
-        self.bowTEXT.delete(0, tk.END)
-        self.growthRateTEXT.delete(0, tk.END)
-        self.fundYieldTEXT.delete(0, tk.END)
-        self.lastInvestmentYearTEXT.delete(0, tk.END)
-        self.lifeOfFundTEXT.delete(0, tk.END)
-        self.segmentsTEXT.delete(0, tk.END)
-        self.startDateTEXT.delete(0, tk.END)
+        for textBox in self.textBoxList:
+            textBox.delete(0, tk.END)
+        #self.capitalCommitmentTEXT.delete(0, tk.END)
+        #self.contributionRatesTEXT.delete(0, tk.END)
+        #self.bowTEXT.delete(0, tk.END)
+        #self.growthRateTEXT.delete(0, tk.END)
+        #self.fundYieldTEXT.delete(0, tk.END)
+        #self.lastInvestmentYearTEXT.delete(0, tk.END)
+        #self.lifeOfFundTEXT.delete(0, tk.END)
+        #self.segmentsTEXT.delete(0, tk.END)
+        #self.startDateTEXT.delete(0, tk.END)
         self.fundModel = None
 
     # Save the data to an file.
