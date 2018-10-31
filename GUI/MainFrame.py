@@ -29,12 +29,13 @@ class Application(tk.Frame):
         self.SUBMIT["command"] = self._createModel
         self.SUBMIT.grid(row = 0, column = 2)
 
+    '''
         self.FORECAST = tk.Button(self)
         self.FORECAST["text"] = "Forecast Model"
         self.FORECAST["command"] = self._forecastModel
         self.FORECAST.grid(row = 0, column = 3)
 
-    '''
+    
         self.FUNDNAME = tk.Entry(self)
 
         self.FUNDNAME.pack({"side": "left"})
@@ -52,7 +53,7 @@ class Application(tk.Frame):
                 # make labels for the textbox
                 setattr(self, argument + "LABEL", tk.Label(self, text = argument))
                 # make the text box
-                setattr(self, argument + "TEXT", tk.Entry(self, width=7))
+                setattr(self, argument + "TEXT", tk.Entry(self, width = 7))
                 # pack the label, box
                 getattr(self, argument + "LABEL").grid(row = 1, column = count)
                 getattr(self, argument + "TEXT").grid(row = 1, column = count + 1)
@@ -61,6 +62,10 @@ class Application(tk.Frame):
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
                 count += 2
                 print argument
+        self.fundNameLABEL = tk.Label(self, text = "fundName")
+        self.fundNameTEXT = tk.Entry(self, width = 7)
+        self.fundNameLABEL.grid(row = 1, column = count)
+        self.fundNameTEXT.grid(row=1, column=count + 1)
 
 
     def _createModel(self):
@@ -101,10 +106,12 @@ class Application(tk.Frame):
         pass #todo
 
     def _createOutput(self, output):
+        #for i in range(len(self.fundModel))
         if hasattr(self, 'OUTPUT'):
             self.OUTPUT.grid_forget()
-        self.OUTPUT = tk.Label(self, text = output)
+        self.OUTPUT = tk.Label(self, text = output.iloc[5:6])
         self.OUTPUT.grid(columnspan = 40)
+        print len(output)
 
 
     # Resets the model and all text boxes.
