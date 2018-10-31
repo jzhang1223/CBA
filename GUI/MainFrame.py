@@ -53,8 +53,8 @@ class Application(tk.Frame):
                 # make the text box
                 setattr(self, argument + "TEXT", tk.Entry(self, width=7))
                 # pack the label, box
-                getattr(self, argument + "LABEL").pack({"side": "left"})
-                getattr(self, argument + "TEXT").pack({"side": "left"})
+                getattr(self, argument + "LABEL").pack()
+                getattr(self, argument + "TEXT").pack()
 
                 # Add to master list of widgets for easy clearing.
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
@@ -92,10 +92,15 @@ class Application(tk.Frame):
         print "FORECASTING MODEL"
         self.fundModel.forecastValues()
         print self.fundModel._formatModelToDataframe()
+        self._createOutput(self.fundModel._formatModelToDataframe())
 
     # Aquires the actual data to add to the FundModel.
     def _makeActuals(self):
         pass #todo
+
+    def _createOutput(self, output):
+        self.OUTPUT = tk.Label(self, text = output)
+        self.OUTPUT.pack({"side":"bottom"})
 
     # Resets the model and all text boxes.
     # Possibly clear or not clear the text boxes. If not cleared, needs something to tell the user data is reset. todo
@@ -103,15 +108,6 @@ class Application(tk.Frame):
         print "RESETING MODEL"
         for textBox in self.textBoxList:
             textBox.delete(0, tk.END)
-        #self.capitalCommitmentTEXT.delete(0, tk.END)
-        #self.contributionRatesTEXT.delete(0, tk.END)
-        #self.bowTEXT.delete(0, tk.END)
-        #self.growthRateTEXT.delete(0, tk.END)
-        #self.fundYieldTEXT.delete(0, tk.END)
-        #self.lastInvestmentYearTEXT.delete(0, tk.END)
-        #self.lifeOfFundTEXT.delete(0, tk.END)
-        #self.segmentsTEXT.delete(0, tk.END)
-        #self.startDateTEXT.delete(0, tk.END)
         self.fundModel = None
 
     # Save the data to an file.
