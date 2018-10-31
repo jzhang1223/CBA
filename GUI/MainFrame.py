@@ -15,24 +15,24 @@ class Application(tk.Frame):
         self.QUIT["fg"]   = "red"
         self.QUIT["command"] =  self.quit
 
-        self.QUIT.pack({"side": "left"})
+        self.QUIT.grid(row = 0, column = 0)
 
         self._setupEntryWidgets()
 
         self.RESET = tk.Button(self)
         self.RESET["text"] = "Reset Model"
         self.RESET["command"] = self._resetAll
-        self.RESET.pack({"side": "left"})
+        self.RESET.grid(row = 0, column = 1)
 
         self.SUBMIT = tk.Button(self)
         self.SUBMIT["text"] = "Create Model"
         self.SUBMIT["command"] = self._createModel
-        self.SUBMIT.pack({"side": "left"})
+        self.SUBMIT.grid(row = 0, column = 2)
 
         self.FORECAST = tk.Button(self)
         self.FORECAST["text"] = "Forecast Model"
         self.FORECAST["command"] = self._forecastModel
-        self.FORECAST.pack({"side": "left"})
+        self.FORECAST.grid(row = 0, column = 3)
 
     '''
         self.FUNDNAME = tk.Entry(self)
@@ -44,6 +44,7 @@ class Application(tk.Frame):
     # Sets up the components for entering Fund Model Data
     def _setupEntryWidgets(self):
         self.textBoxList = []
+        count = 0
         print "SETTING UP ENTRY WIDGETS"
         for argument in inspect.getargspec(fm.FundModel.__init__)[0]:
             if argument != 'self':
@@ -53,12 +54,12 @@ class Application(tk.Frame):
                 # make the text box
                 setattr(self, argument + "TEXT", tk.Entry(self, width=7))
                 # pack the label, box
-                getattr(self, argument + "LABEL").pack()
-                getattr(self, argument + "TEXT").pack()
+                getattr(self, argument + "LABEL").grid(row = 1, column = count)
+                getattr(self, argument + "TEXT").grid(row = 1, column = count + 1)
 
                 # Add to master list of widgets for easy clearing.
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
-
+                count += 2
                 print argument
 
 
@@ -87,6 +88,7 @@ class Application(tk.Frame):
         print self.fundModel.segments
         print self.fundModel.startDate
             #raise ValueError("Check your data again")
+        self._forecastModel()
 
     def _forecastModel(self):
         print "FORECASTING MODEL"
@@ -99,8 +101,10 @@ class Application(tk.Frame):
         pass #todo
 
     def _createOutput(self, output):
+        self.OUTPUT = None
         self.OUTPUT = tk.Label(self, text = output)
-        self.OUTPUT.pack({"side":"bottom"})
+        self.OUTPUT.grid(columnspan = 40)
+
 
     # Resets the model and all text boxes.
     # Possibly clear or not clear the text boxes. If not cleared, needs something to tell the user data is reset. todo
@@ -116,7 +120,7 @@ class Application(tk.Frame):
 
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        self.pack()
+        self.grid()
         self.createWidgets()
 
 root = tk.Tk()
