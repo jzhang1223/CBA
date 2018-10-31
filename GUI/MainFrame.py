@@ -101,7 +101,8 @@ class Application(tk.Frame):
         pass #todo
 
     def _createOutput(self, output):
-        self.OUTPUT = None
+        if hasattr(self, 'OUTPUT'):
+            self.OUTPUT.grid_forget()
         self.OUTPUT = tk.Label(self, text = output)
         self.OUTPUT.grid(columnspan = 40)
 
