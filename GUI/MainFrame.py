@@ -1,6 +1,8 @@
 import Tkinter as tk
 import FundModel as fm
 import inspect
+import pandas as pd
+pd.set_option("display.max_rows", 10000)
 
 class Application(tk.Frame):
 
@@ -12,22 +14,23 @@ class Application(tk.Frame):
         # Quit buttons
         self.QUIT = tk.Button(self)
         self.QUIT["text"] = "QUIT"
-        self.QUIT["fg"]   = "red"
+        #self.QUIT["fg"]   = "red"
         self.QUIT["command"] =  self.quit
-
         self.QUIT.grid(row = 0, column = 0)
 
-        self._setupEntryWidgets()
+
 
         self.RESET = tk.Button(self)
         self.RESET["text"] = "Reset Model"
         self.RESET["command"] = self._resetAll
-        self.RESET.grid(row = 0, column = 1)
+        self.RESET.grid(row = 1, column = 0)
 
         self.SUBMIT = tk.Button(self)
         self.SUBMIT["text"] = "Create Model"
         self.SUBMIT["command"] = self._createModel
-        self.SUBMIT.grid(row = 0, column = 2)
+        self.SUBMIT.grid(row = 2, column = 0)
+
+        self._setupEntryWidgets()
 
     '''
         self.FORECAST = tk.Button(self)
@@ -51,12 +54,12 @@ class Application(tk.Frame):
             if argument != 'self':
 
                 # make labels for the textbox
-                setattr(self, argument + "LABEL", tk.Label(self, text = argument))
+                setattr(self, argument + "LABEL", tk.Label(self, text = argument, bg = 'red'))
                 # make the text box
-                setattr(self, argument + "TEXT", tk.Entry(self, width = 7))
+                setattr(self, argument + "TEXT", tk.Entry(self, width = 7, bg = 'green'))
                 # pack the label, box
-                getattr(self, argument + "LABEL").grid(row = 1, column = count)
-                getattr(self, argument + "TEXT").grid(row = 1, column = count + 1)
+                getattr(self, argument + "LABEL").grid(row = count, column = 1)
+                getattr(self, argument + "TEXT").grid(row = count + 1, column = 1)
 
                 # Add to master list of widgets for easy clearing.
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
@@ -64,8 +67,8 @@ class Application(tk.Frame):
                 print argument
         self.fundNameLABEL = tk.Label(self, text = "fundName")
         self.fundNameTEXT = tk.Entry(self, width = 7)
-        self.fundNameLABEL.grid(row = 1, column = count)
-        self.fundNameTEXT.grid(row=1, column=count + 1)
+        self.fundNameLABEL.grid(row = count, column = 1)
+        self.fundNameTEXT.grid(row= count + 1, column= 1)
 
 
     def _createModel(self):
@@ -109,9 +112,18 @@ class Application(tk.Frame):
         #for i in range(len(self.fundModel))
         if hasattr(self, 'OUTPUT'):
             self.OUTPUT.grid_forget()
-        self.OUTPUT = tk.Label(self, text = output.iloc[5:6])
-        self.OUTPUT.grid(columnspan = 40)
-        print len(output)
+        print output.to_string()
+        #self.OUTPUT = tk.Label(self, text = output.index.tolist())
+        self.OUTPUT = tk.Label(self, text = "'ua\nb\nc\nd\ne\nf\ng")
+        self.OUTPUT.grid(row = 0, column = 2)
+
+        for i in range(0, len(output.columns)):
+            self.OUTPUT = tk.Label(self, text = str(output[i].to_string(index = False)), bg = 'orange', width = 12)
+            #self.OUTPUT = tk.Message(text = output.to_string())
+            self.OUTPUT.grid(row = 0, column = i + 3, sticky = 'W')
+
+        print type(output[1].to_string(index = False))
+        print output[1].to_string(index=False)
 
 
     # Resets the model and all text boxes.
