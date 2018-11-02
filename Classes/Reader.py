@@ -9,7 +9,7 @@ class Reader(ReaderAPI.ReaderAPI):
     #fileName = None
     #limit = None
     CashFlowDB = Query.Query()
-    count = 0
+    #count = 0
 
     def __init__(self, fileName, limit):
         self.fileName = fileName
@@ -53,9 +53,9 @@ class Reader(ReaderAPI.ReaderAPI):
         elif self._simpleRow(row):
             self._makeSimpleRow(row)
         elif self._inferredRow(row):
-            print "*** THIS IS AN INFERRED ROW"
-            self.count += 1
-            print "@@@ COUNT: " + str(self.count)
+            #print "*** THIS IS AN INFERRED ROW"
+            #self.count += 1
+            #print "@@@ COUNT: " + str(self.count)
             self._makeInferredRow(row)
         else:
             # ignore the base cash flow

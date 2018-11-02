@@ -23,12 +23,12 @@ class Application(tk.Frame):
         self.RESET = tk.Button(self)
         self.RESET["text"] = "Reset Model"
         self.RESET["command"] = self._resetAll
-        self.RESET.grid(row = 1, column = 0)
+        self.RESET.grid(row = 0, column = 1)
 
         self.SUBMIT = tk.Button(self)
         self.SUBMIT["text"] = "Create Model"
         self.SUBMIT["command"] = self._createModel
-        self.SUBMIT.grid(row = 2, column = 0)
+        self.SUBMIT.grid(row = 0, column = 2)
 
         self._setupEntryWidgets()
 
@@ -58,8 +58,8 @@ class Application(tk.Frame):
                 # make the text box
                 setattr(self, argument + "TEXT", tk.Entry(self, width = 7, bg = 'green'))
                 # pack the label, box
-                getattr(self, argument + "LABEL").grid(row = count, column = 1)
-                getattr(self, argument + "TEXT").grid(row = count + 1, column = 1)
+                getattr(self, argument + "LABEL").grid(row = 1, column = count)
+                getattr(self, argument + "TEXT").grid(row = 1, column = count + 1)
 
                 # Add to master list of widgets for easy clearing.
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
@@ -67,8 +67,8 @@ class Application(tk.Frame):
                 print argument
         self.fundNameLABEL = tk.Label(self, text = "fundName")
         self.fundNameTEXT = tk.Entry(self, width = 7)
-        self.fundNameLABEL.grid(row = count, column = 1)
-        self.fundNameTEXT.grid(row= count + 1, column= 1)
+        self.fundNameLABEL.grid(row = 1, column = count)
+        self.fundNameTEXT.grid(row= 1, column= count + 1)
 
 
     def _createModel(self):
@@ -113,14 +113,16 @@ class Application(tk.Frame):
         if hasattr(self, 'OUTPUT'):
             self.OUTPUT.grid_forget()
         print output.to_string()
-        #self.OUTPUT = tk.Label(self, text = output.index.tolist())
-        self.OUTPUT = tk.Label(self, text = "'ua\nb\nc\nd\ne\nf\ng")
-        self.OUTPUT.grid(row = 0, column = 2)
+        self.OUTPUT = tk.Label(self, text = "\n".join(output.index.tolist()))
+        print output.index.tolist()
+        print "\n".join(output.index.tolist())
+        #self.OUTPUT = tk.Label(self, text = "'ua\nb\nc\nd\ne\nf\ng")
+        self.OUTPUT.grid(row = 2, column = 0)
 
         for i in range(0, len(output.columns)):
-            self.OUTPUT = tk.Label(self, text = str(output[i].to_string(index = False)), bg = 'orange', width = 12)
+            self.OUTPUT = tk.Label(self, text = str(output[i].to_string(index = False)), bg = 'orange', width = 10)
             #self.OUTPUT = tk.Message(text = output.to_string())
-            self.OUTPUT.grid(row = 0, column = i + 3, sticky = 'W')
+            self.OUTPUT.grid(row = 2, column = i + 1)
 
         print type(output[1].to_string(index = False))
         print output[1].to_string(index=False)
