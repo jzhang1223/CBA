@@ -18,17 +18,28 @@ class Application(tk.Frame):
         self.QUIT["command"] =  self.quit
         self.QUIT.grid(row = 0, column = 0)
 
-
-
         self.RESET = tk.Button(self)
         self.RESET["text"] = "Reset Model"
         self.RESET["command"] = self._resetAll
         self.RESET.grid(row = 0, column = 1)
 
+        self.CLEARINPUTS = tk.Button(self)
+        self.CLEARINPUTS["text"] = "Clear Inputs"
+        self.CLEARINPUTS["command"] = self._clearInputs
+        self.CLEARINPUTS.grid(row = 0, column = 2)
+
+        self.CLEAROUTPUTS = tk.Button(self)
+        self.CLEAROUTPUTS["text"] = "Clear Outputs"
+        self.CLEAROUTPUTS["command"] = self._clearOutputs
+        self.CLEAROUTPUTS.grid(row = 0, column = 3)
+
         self.SUBMIT = tk.Button(self)
         self.SUBMIT["text"] = "Create Model"
         self.SUBMIT["command"] = self._createModel
-        self.SUBMIT.grid(row = 0, column = 2)
+        self.SUBMIT.grid(row = 0, column = 4)
+
+        self.STATUS = tk.Label(self)
+        self.STATUS.grid(row = 0, column = 5)
 
         self._setupEntryWidgets()
 
@@ -48,15 +59,16 @@ class Application(tk.Frame):
     # Sets up the components for entering Fund Model Data
     def _setupEntryWidgets(self):
         self.textBoxList = []
+        self.outputList = []
         count = 0
         print "SETTING UP ENTRY WIDGETS"
         for argument in inspect.getargspec(fm.FundModel.__init__)[0]:
             if argument != 'self':
 
                 # make labels for the textbox
-                setattr(self, argument + "LABEL", tk.Label(self, text = argument, bg = 'red'))
+                setattr(self, argument + "LABEL", tk.Label(self, text = argument))
                 # make the text box
-                setattr(self, argument + "TEXT", tk.Entry(self, width = 7, bg = 'green'))
+                setattr(self, argument + "TEXT", tk.Entry(self, width = 7))
                 # pack the label, box
                 getattr(self, argument + "LABEL").grid(row = 1, column = count)
                 getattr(self, argument + "TEXT").grid(row = 1, column = count + 1)
@@ -114,31 +126,50 @@ class Application(tk.Frame):
             self.OUTPUT.grid_forget()
         print output.to_string()
         self.OUTPUT = tk.Label(self, text = "\n".join(output.index.tolist()))
+
+
         print output.index.tolist()
         print "\n".join(output.index.tolist())
         #self.OUTPUT = tk.Label(self, text = "'ua\nb\nc\nd\ne\nf\ng")
         self.OUTPUT.grid(row = 2, column = 0)
+        self.outputList.append(self.OUTPUT)
 
         for i in range(0, len(output.columns)):
-            self.OUTPUT = tk.Label(self, text = str(output[i].to_string(index = False)), bg = 'orange', width = 10)
+            self.OUTPUT = tk.Label(self, text = str(output[i].to_string(index = False)), width = 10)
             #self.OUTPUT = tk.Message(text = output.to_string())
             self.OUTPUT.grid(row = 2, column = i + 1)
+            self.outputList.append(self.OUTPUT)
 
         print type(output[1].to_string(index = False))
         print output[1].to_string(index=False)
 
+        self.setStatus("FORCASTED")
 
     # Resets the model and all text boxes.
     # Possibly clear or not clear the text boxes. If not cleared, needs something to tell the user data is reset. todo
     def _resetAll(self):
         print "RESETING MODEL"
-        for textBox in self.textBoxList:
-            textBox.delete(0, tk.END)
         self.fundModel = None
+        self.setStatus("MODEL RESET")
 
     # Save the data to an file.
     def _saveData(self):
         print "saving data..."
+
+    # Clears the inputs to the entry boxes
+    def _clearInputs(self):
+        for textBox in self.textBoxList:
+            textBox.delete(0, tk.END)
+        self.setStatus("Inputs Cleared")
+
+    def _clearOutputs(self):
+        for output in self.outputList:
+            output.grid_forget()
+        self.setStatus("Outputs Cleared")
+
+    # Sets the status of the GUI to the STATUS label
+    def setStatus(self, status):
+        self.STATUS["text"] = status
 
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)

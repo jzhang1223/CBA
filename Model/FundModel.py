@@ -25,7 +25,6 @@ class FundModel(object):
         """
         self.segments = int(segments)
         self.calculate = ModelCalculations()
-        #if type(startDate) == 'datetime.date':
         if isinstance(startDate, datetime.date):
             self.startDate = startDate
         else:
@@ -54,7 +53,7 @@ class FundModel(object):
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
     def forecastValues(self):
-        #self._setDates()
+        self._setDates()
         # trying new loop and setting the order of contributions
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions
@@ -75,7 +74,7 @@ class FundModel(object):
 
         if (self.segments != 1):
             print self._distributionList
-            #self._splitDistributions()
+            self._splitDistributions()
 
         # Separated in case of partially given data. These values will always be calculated from t = 0.
         for currentTime in range(self.lifeOfFund + 1):
@@ -188,7 +187,7 @@ class FundModel(object):
     # Returns the proper date based on the start date, end date, and the lifeOfFund accounting for segments.
     # Uses the start date and end date in the model's fields
     def _predictDate(self, currentTime, lifeOfFund):
-        return self.calculate.correctDate(currentTime, self.startDate, self.endDate, lifeOfFund)
+        return self.calculate.correctDate(currentTime, self.startDate, self.segments, lifeOfFund)
 
 
     # Returns the proper number of segments based on a given ModelPeriod.

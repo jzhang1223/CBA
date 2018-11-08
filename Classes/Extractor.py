@@ -2,7 +2,7 @@ import CapitalCalled
 import TotalDistributions
 import Nav
 import datetime
-from dateutil.relativedelta import *
+from dateutil.relativedelta import relativedelta
 import ConvertDate
 
 
@@ -24,7 +24,6 @@ class Extractor(object):
             print day
             convertDate = ConvertDate.ConvertDate()
             day = convertDate(day)
-
 
             #contribution
             findContribution = CapitalCalled.CapitalCalled()
@@ -77,9 +76,9 @@ class Extractor(object):
 
 
 
-#e = Extractor()
-#print e._makeDateList(datetime.date(10, 7, 21), 5, 4)
+e = Extractor()
+#print e._makeDateList(datetime.date(10, 7, 21), 5, 4, datetime.date()
 #e.extractActuals('RVVC1A2013MI', datetime.date(10, 7, 21), 5, 4)
-#print e.contributionList
-#print e.distributionList
+print e.contributionList
+print e.distributionList
 #print e.navList

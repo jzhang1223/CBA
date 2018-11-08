@@ -1,4 +1,5 @@
 import datetime
+from dateutil.relativedelta import relativedelta
 
 # Certain formulas used in the model
 class ModelCalculations(object):
@@ -102,10 +103,12 @@ class ModelCalculations(object):
         return datetime.date(endYear, startDate.month, startDate.day)
 
     # Returns the correct date for the given time period and number of segments * original life of fund.
-    def correctDate(self, currentTime, startDate, endDate, lifeOfFund):
-        dateDifference = endDate - startDate
-        scale = (0.0 + currentTime) / lifeOfFund
-        return startDate + datetime.timedelta(scale * dateDifference.days)
+    def correctDate(self, currentTime, startDate, segments, lifeOfFund):
+        #dateDifference = endDate - startDate
+        #scale = (0.0 + currentTime) / lifeOfFund
+        #return startDate + datetime.timedelta(scale * dateDifference.days)
+        monthDifference = 12.0 / segments
+        return startDate + relativedelta(months = monthDifference * currentTime)
 
     # Returns a growth rate accounting for contribution to generate an equivalent value.
     def _equivalentGrowthRate(self, percentageNeeded, growthRate, principal, contribution):

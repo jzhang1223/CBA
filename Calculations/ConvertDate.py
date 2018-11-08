@@ -8,7 +8,7 @@ class ConvertDate(CalculationAPI.CalculationAPI):
         if type(date) == datetime.date:
             return "{}-{}-{}".format(date.year, date.month, date.day)
         elif type(date) == str:
-            return datetime.datetime.strptime(date, '%y-%m-%d')
+            return datetime.datetime.strptime(date, '%y-%m-%d').date()
         else:
             raise ValueError("Requires a datetime.date or str")
 
