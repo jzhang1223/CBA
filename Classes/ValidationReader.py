@@ -10,7 +10,15 @@ class ValidationReader(object):
         self.fileVersion = fileVersion
         self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v{} - Far Hills.xlsx'.format(fileVersion)
         self.validationDf = pd.read_excel(ospath(self.filePath), sheet_name='Validation', header=1)
-        self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)
+        self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)[
+            ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
+             "Invest Start Date", "Contribution (% of Rem. Commit)", "Unnamed: 14", "Unnamed: 15", "Unnamed: 16", "Unnamed: 17",
+             "Model Metrics", "Unnamed: 19", "Unnamed: 20", "Model Years to", "Unnamed: 23"]]
+        # Renamming the columns to be readable
+        self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
+             "Invest Start Date", "Contribution 1", "Contribution 2", "Contribution 3", "Contribution 4", "Contribution 5",
+             "Bow", "Growth", "Yield", "Invest Years", "Life"]
+        self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
 
         # Should probably be abstracted given more time
         self.initializeClientDf()
@@ -50,9 +58,7 @@ class ValidationReader(object):
             rowItem = ValidationTables.Sponsor(row[1].get("Sponsor_Code"), row[1].get("Sponsor_List"))
             check = ("SELECT * FROM Sponsor WHERE sponsorId=\'{}\' AND sponsorName=\'{}\'".format(
                 rowItem.getSponsorId().encode('utf-8'), rowItem.getSponsorName().encode('utf-8')))
-            cursor = self.CashFlowDB.queryDB(check)
-            rowHolder = cursor.fetchone()
-            if rowHolder is None:
+            if self._rowDoesntExist(check):
                 query = ("INSERT INTO Sponsor (sponsorId, sponsorName) VALUES (\'{}\', \'{}\')".format(
                     rowItem.getSponsorId().encode('utf-8'), rowItem.getSponsorName().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
@@ -62,9 +68,7 @@ class ValidationReader(object):
             rowItem = ValidationTables.FundStyle(row[1].get("Fund_Code"), row[1].get("Fund_Style"))
             check = ("SELECT * FROM FundStyle WHERE fundStyleId=\'{}\' AND fundStyleName=\'{}\'".format(
                 rowItem.getFundStyleId().encode('utf-8'), rowItem.getfundStyleName().encode('utf-8')))
-            cursor = self.CashFlowDB.queryDB(check)
-            rowHolder = cursor.fetchone()
-            if rowHolder is None:
+            if self._rowDoesntExist(check):
                 query = ("INSERT INTO FundStyle (fundStyleId, fundStyleName) VALUES (\'{}\', \'{}\')".format(
                     rowItem.getFundStyleId().encode('utf-8'), rowItem.getfundStyleName().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
@@ -75,9 +79,7 @@ class ValidationReader(object):
             rowItem = ValidationTables.FundClient(row[1].get("Client_Code"), row[1].get("Client_List"))
             check = ("SELECT * FROM FundClient WHERE clientId=\'{}\' AND clientName=\'{}\'".format(
                 rowItem.getClientId().encode('utf-8'), rowItem.getClientName().encode('utf-8')))
-            cursor = self.CashFlowDB.queryDB(check)
-            rowHolder = cursor.fetchone()
-            if rowHolder is None:
+            if self._rowDoesntExist(check):
                 query = ("INSERT INTO FundClient (clientId, clientName) VALUES (\'{}\', \'{}\')".format(
                     rowItem.getClientId().encode('utf-8'), rowItem.getClientName().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
@@ -88,25 +90,65 @@ class ValidationReader(object):
             rowItem = ValidationTables.Family(row[1].get("Fund Family"), row[1].get("Sponsor_Code"))
             check = ("SELECT * FROM Family WHERE familyName=\'{}\' AND sponsorId=\'{}\'".format(
                 rowItem.getFamilyName().encode('utf-8'), rowItem.getSponsorId().encode('utf-8')))
-            cursor = self.CashFlowDB.queryDB(check)
-            rowHolder = cursor.fetchone()
-            if rowHolder is None:
+            if self._rowDoesntExist(check):
                 query = ("INSERT INTO Family (familyName, sponsorId) VALUES (\'{}\', \'{}\')".format(
                     rowItem.getFamilyName().encode('utf-8'), rowItem.getSponsorId().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
 
-    #### Tries to add a CashFlow object into the CashFlow table in the DB.
-    def _processCashFlow(self, cashflow):
-        check = ("SELECT * FROM CashFlow WHERE fundID=\'" + cashflow.getFundID() + "\' AND cfDate=\'" +
-                         cashflow.getDate() + "\' AND cashValue=" + cashflow.getValue() + " AND typeID=" +
-                         cashflow.getTypeID() + " AND notes=\'" + cashflow.getNotes() + "\'")
-        cursor = self.CashFlowDB.queryDB(check)
+    def processFundInfo(self):
+        fundDataDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
+        for row in fundDataDf.iterrows():
+            check = ("SELECT * FROM Fund WHERE fundId=\'{}\'".format(row[1].get("ID Code")))
+            if self._rowDoesntExist(check):
+                self._addFund(row)
+                self._appendFund(row)
+                print "Adding new row"
+            else:
+                self._appendFund(row)
+                print "Appending to existing row"
+
+
+    # Adds all statistics to an existing fund that needs more info
+    def _appendFund(self, row):
+        # FamilyID PK is just the family name so its OK
+        fundStyleId = self._findId("FundStyle", "fundStyleId", "fundStyleName", row[1].get("Fund Style"))
+        if pd.isnull(row[1].get("Client")):
+            fundClientId = "null"
+        else:
+            fundClientId = "\'{}\'".format(self._findId("FundClient", "clientId", "clientName", row[1].get("Client")))
+
+        contributionRates = ", ".join([str(row[1].get("Contribution 1")), str(row[1].get("Contribution 2")), str(row[1].get("Contribution 3")),
+                                       str(row[1].get("Contribution 4")), str(row[1].get("Contribution 5"))])
+
+        statement = ("UPDATE Fund SET familyId = \'{}\', fundStyleId = \'{}\', clientId = {}, designation = \'{}\', "
+                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\',"
+                 "closeDate = \'{}\', investStartDate = \'{}\', contributionRates = \'{}\'")
+        query = statement.format(row[1].get("Fund Family"), fundStyleId, fundClientId, row[1].get("Designation"),
+                                 row[1].get("Growth"), row[1].get("Yield"),row[1].get("Bow"),
+                                 row[1].get("Invest Years"),row[1].get("Life"), row[1].get("Vintage Year"),
+                                 row[1].get("Close Date"), row[1].get("Invest Start Date"),contributionRates)
+
+        print query
+
+
+    # Creates a new fund and adds statistics to it
+    def _addFund(self, row):
+        fundId = row[1].get("ID Code")
+        query = ("INSERT INTO Fund (fundId) VALUES (\'{}\')".format(fundId))
+        print query
+
+    # Checks to see if the given query returns any results in cbaDB
+    def _rowDoesntExist(self, query):
+        cursor = self.CashFlowDB.queryDB(query)
         rowHolder = cursor.fetchone()
-        if rowHolder is None:
-            query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) " + "VALUES (\'" +
-                     cashflow.getFundID() + "\', \'" + cashflow.getDate() + "\', " + cashflow.getValue() + ", " +
-                     cashflow.getTypeID() + ", \'" + cashflow.getNotes() + "\')")
-            self.CashFlowDB.queryDB(query)
+        return rowHolder is None
+
+    # Searches a table for a given field to find the correct Id value
+    def _findId(self, table, key, field, criteria):
+        query = "SELECT {} FROM {} WHERE {} = \'{}\'".format(key, table, field, criteria)
+        cursor = self.CashFlowDB.queryDB(query)
+        return cursor.fetchone()[0]
 
 a = ValidationReader()
-a.processMergedDf()
+print a.sponsorDataTableDf["Client"]
+a.processFundInfo()

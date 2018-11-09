@@ -11,12 +11,12 @@ def formatModel(fundModel):
 pd.set_option('display.expand_frame_repr', False)
 
 commitment1 = 1000000
-contributionRates1 = [.4, .66, 1]
-bow1 = 1.5
-growthRate1 = .15
-fundYield1 = .08
-lastInvestmentYear1 = 4
-lifeOfFund1 = 8
+contributionRates1 = [.25, .5, .5, .25]
+bow1 = 2.5
+growthRate1 = .16
+fundYield1 = .0
+lastInvestmentYear1 = 6
+lifeOfFund1 = 10
 segments1 = 4
 startDate1 = datetime.date(2019, 1, 1)
 
@@ -28,5 +28,5 @@ fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
 print result1
 
-exportFileName = "../../cbaDBdata/distressedDebt.csv"
+exportFileName = "../../cbaDBdata/standardPE.csv"
 fundModel1.exportToCsv(exportFileName)
