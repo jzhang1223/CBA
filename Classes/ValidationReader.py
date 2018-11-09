@@ -121,12 +121,13 @@ class ValidationReader(object):
                                        str(row[1].get("Contribution 4")), str(row[1].get("Contribution 5"))])
 
         statement = ("UPDATE Fund SET familyId = \'{}\', fundStyleId = \'{}\', clientId = {}, designation = \'{}\', "
-                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\',"
-                 "closeDate = \'{}\', investStartDate = \'{}\', contributionRates = \'{}\'")
-        query = statement.format(row[1].get("Fund Family"), fundStyleId, fundClientId, row[1].get("Designation"),
+                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
+                 "closeDate = \'{}\', investStartDate = \'{}\', contributionRates = \'{}\' WHERE fundId = \'{}\'")
+        query = statement.format(row[1].get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row[1].get("Designation"),
                                  row[1].get("Growth"), row[1].get("Yield"),row[1].get("Bow"),
                                  row[1].get("Invest Years"),row[1].get("Life"), row[1].get("Vintage Year"),
-                                 row[1].get("Close Date"), row[1].get("Invest Start Date"),contributionRates)
+                                 row[1].get("Close Date"), row[1].get("Invest Start Date"), contributionRates,
+                                 row[1].get("ID Code"))
 
         print query
 
