@@ -19,6 +19,7 @@ class ValidationReader(object):
              "Invest Start Date", "Contribution 1", "Contribution 2", "Contribution 3", "Contribution 4", "Contribution 5",
              "Bow", "Growth", "Yield", "Invest Years", "Life"]
         self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
+        self.sponsorDataTableDf["Fund Family"] = self.sponsorDataTableDf["Fund Family"].str.strip()
 
         # Should probably be abstracted given more time
         self.initializeClientDf()
@@ -100,6 +101,7 @@ class ValidationReader(object):
         for row in fundDataDf.iterrows():
             check = ("SELECT * FROM Fund WHERE fundId=\'{}\'".format(row[1].get("ID Code")))
             if self._rowDoesntExist(check):
+                print "ROW DOESNT EXIST"
                 self._addFund(row)
                 self._appendFund(row)
                 print "Adding new row"
@@ -129,14 +131,14 @@ class ValidationReader(object):
                                  row[1].get("Close Date"), row[1].get("Invest Start Date"), contributionRates,
                                  row[1].get("ID Code"))
 
-        print query
+        self.CashFlowDB.queryDB(query)
 
 
     # Creates a new fund and adds statistics to it
     def _addFund(self, row):
         fundId = row[1].get("ID Code")
         query = ("INSERT INTO Fund (fundId) VALUES (\'{}\')".format(fundId))
-        print query
+        self.CashFlowDB.queryDB(query)
 
     # Checks to see if the given query returns any results in cbaDB
     def _rowDoesntExist(self, query):
@@ -151,5 +153,9 @@ class ValidationReader(object):
         return cursor.fetchone()[0]
 
 a = ValidationReader()
-print a.sponsorDataTableDf["Client"]
+#print a.sponsorDataTableDf["Client"]
+a.processSponsors()
+a.processFundStyleDf()
+a.processClientDf()
+a.processMergedDf()
 a.processFundInfo()
