@@ -17,16 +17,16 @@ growthRate1 = .16
 fundYield1 = .0
 lastInvestmentYear1 = 6
 lifeOfFund1 = 10
-segments1 = 4
-startDate1 = datetime.date(2019, 1, 1)
+segments1 = 1
+startDate1 = datetime.date(2013, 2, 1)
 
 
 fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
-#fundModel1.setActualValues('MPPE012015GB')
-fundModel1.forecastValues()
+fundModel1.setActualValues('MPPE012015GB')
+#fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
 print result1
 
 exportFileName = "../../cbaDBdata/standardPE.csv"
-fundModel1.exportToCsv(exportFileName)
+#fundModel1.exportToCsv(exportFileName)

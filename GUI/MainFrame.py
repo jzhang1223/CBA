@@ -12,34 +12,32 @@ class Application(tk.Frame):
         self.winfo_toplevel().title("INSERT TITLE HERE")
 
         # Quit buttons
-        self.QUIT = tk.Button(self)
-        self.QUIT["text"] = "QUIT"
-        #self.QUIT["fg"]   = "red"
-        self.QUIT["command"] =  self.quit
+        self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
         self.QUIT.grid(row = 0, column = 0)
 
-        self.RESET = tk.Button(self)
-        self.RESET["text"] = "Reset Model"
-        self.RESET["command"] = self._resetAll
+        self.RESET = tk.Button(self, text = "Reset Model", command = self._resetAll)
         self.RESET.grid(row = 0, column = 1)
 
-        self.CLEARINPUTS = tk.Button(self)
-        self.CLEARINPUTS["text"] = "Clear Inputs"
-        self.CLEARINPUTS["command"] = self._clearInputs
+        self.CLEARINPUTS = tk.Button(self, text = "Clear Inputs", command = self._clearInputs)
         self.CLEARINPUTS.grid(row = 0, column = 2)
 
-        self.CLEAROUTPUTS = tk.Button(self)
-        self.CLEAROUTPUTS["text"] = "Clear Outputs"
-        self.CLEAROUTPUTS["command"] = self._clearOutputs
-        self.CLEAROUTPUTS.grid(row = 0, column = 3)
+        self.FILLINPUTS = tk.Button(self, text = "Fill Inputs", command = self._fillInputs)
+        self.FILLINPUTS.grid(row = 0, column = 3)
 
-        self.SUBMIT = tk.Button(self)
-        self.SUBMIT["text"] = "Create Model"
-        self.SUBMIT["command"] = self._createModel
+        self.SUBMIT = tk.Button(self, text = "Create Model", command = self._createModel)
         self.SUBMIT.grid(row = 0, column = 4)
 
         self.STATUS = tk.Label(self)
         self.STATUS.grid(row = 0, column = 5)
+
+        #todo radiobutton widget
+        self.MODELTYPE = tk.IntVar()
+        self.PROJECTIONBUTTON = tk.Radiobutton(self, text="Projection Only", variable=self.MODELTYPE, value=0)
+        self.ACTUALBUTTON = tk.Radiobutton(self, text="Actuals Only", variable=self.MODELTYPE, value=1)
+        self.ACTUALANDPROJECTIONBUTTON = tk.Radiobutton(self, text="Actuals + Projection", variable=self.MODELTYPE, value=2)
+        self.PROJECTIONBUTTON.grid(row = 0, column = 6)
+        self.ACTUALBUTTON.grid(row = 0, column = 7)
+        self.ACTUALANDPROJECTIONBUTTON.grid(row = 0, column = 8)
 
         self._setupEntryWidgets()
 
@@ -84,6 +82,7 @@ class Application(tk.Frame):
 
 
     def _createModel(self):
+        self._resetAll()
         print "CREATING MODEL"
         capitalCommitment = self.capitalCommitmentTEXT.get()
         # Needs to accept contributionRates delimited by ", ".
@@ -110,27 +109,51 @@ class Application(tk.Frame):
             #raise ValueError("Check your data again")
         self._forecastModel()
 
+    # Forecasts the model based on the selected radiobutton.
     def _forecastModel(self):
         print "FORECASTING MODEL"
-        self.fundModel.forecastValues()
-        print self.fundModel._formatModelToDataframe()
+        if self.MODELTYPE.get() > 0:
+            self.fundModel.setActualValues(self.fundNameTEXT.get())
+        if self.MODELTYPE.get() != 1:
+            self.fundModel.forecastValues()
+            #print self.fundModel._formatModelToDataframe()
         self._createOutput(self.fundModel._formatModelToDataframe())
 
-    # Aquires the actual data to add to the FundModel.
-    def _makeActuals(self):
-        pass #todo
+    # Fill in the inputs based on the fundId given
+    #todo
+    def _fillInputs(self):
+        #commitment, segments
+        import Query
+        CashflowDB = Query.Query()
+        query = ("SELECT contributionRates, bow, Growth, yield, investYears, life, investStartDate "
+                 "FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
+        print query
+        result = CashflowDB.queryDB(query).fetchone()
+        print result
+        self.contributionRatesTEXT.insert(0, result[0])
+        self.bowTEXT.insert(0, result[1])
+        self.growthRateTEXT.insert(0, result[2])
+        self.fundYieldTEXT.insert(0, result[3])
+        self.lastInvestmentYearTEXT.insert(0, result[4])
+        self.lifeOfFundTEXT.insert(0, result[5])
+        #todo remove the time part so its just a date?
+        self.startDateTEXT.insert(0, result[6])
+
+        # Get inputs if exists
+        # Fill into correct spots
+        # Give status
 
     def _createOutput(self, output):
         #for i in range(len(self.fundModel))
         if hasattr(self, 'OUTPUT'):
             self.OUTPUT.grid_forget()
+        print "PRINTING OUTPUT"
         print output.to_string()
         self.OUTPUT = tk.Label(self, text = "\n".join(output.index.tolist()))
 
 
         print output.index.tolist()
         print "\n".join(output.index.tolist())
-        #self.OUTPUT = tk.Label(self, text = "'ua\nb\nc\nd\ne\nf\ng")
         self.OUTPUT.grid(row = 2, column = 0)
         self.outputList.append(self.OUTPUT)
 
@@ -146,22 +169,25 @@ class Application(tk.Frame):
         self.setStatus("FORCASTED")
 
     # Resets the model and all text boxes.
-    # Possibly clear or not clear the text boxes. If not cleared, needs something to tell the user data is reset. todo
     def _resetAll(self):
         print "RESETING MODEL"
         self.fundModel = None
         self.setStatus("MODEL RESET")
+        self._clearOutputs()
+
 
     # Save the data to an file.
+    #todo
     def _saveData(self):
         print "saving data..."
 
-    # Clears the inputs to the entry boxes
+    # Clears the inputs to the entry boxes.
     def _clearInputs(self):
         for textBox in self.textBoxList:
             textBox.delete(0, tk.END)
         self.setStatus("Inputs Cleared")
 
+    # Removes the output from the screen.
     def _clearOutputs(self):
         for output in self.outputList:
             output.grid_forget()
@@ -170,6 +196,8 @@ class Application(tk.Frame):
     # Sets the status of the GUI to the STATUS label
     def setStatus(self, status):
         self.STATUS["text"] = status
+
+
 
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)

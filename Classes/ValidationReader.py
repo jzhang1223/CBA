@@ -17,7 +17,7 @@ class ValidationReader(object):
         # Renamming the columns to be readable
         self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
              "Invest Start Date", "Contribution 1", "Contribution 2", "Contribution 3", "Contribution 4", "Contribution 5",
-             "Bow", "Growth", "Yield", "Invest Years", "Life"]
+             "Bow", "Growth Rate", "Yield", "Invest Years", "Life"]
         self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         self.sponsorDataTableDf["Fund Family"] = self.sponsorDataTableDf["Fund Family"].str.strip()
 
@@ -123,10 +123,10 @@ class ValidationReader(object):
                                        str(row[1].get("Contribution 4")), str(row[1].get("Contribution 5"))])
 
         statement = ("UPDATE Fund SET familyId = \'{}\', fundStyleId = \'{}\', clientId = {}, designation = \'{}\', "
-                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
+                 "growthRate = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
                  "closeDate = \'{}\', investStartDate = \'{}\', contributionRates = \'{}\' WHERE fundId = \'{}\'")
         query = statement.format(row[1].get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row[1].get("Designation"),
-                                 row[1].get("Growth"), row[1].get("Yield"),row[1].get("Bow"),
+                                 row[1].get("Growth Rate"), row[1].get("Yield"),row[1].get("Bow"),
                                  row[1].get("Invest Years"),row[1].get("Life"), row[1].get("Vintage Year"),
                                  row[1].get("Close Date"), row[1].get("Invest Start Date"), contributionRates,
                                  row[1].get("ID Code"))
