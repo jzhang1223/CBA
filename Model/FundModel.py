@@ -36,7 +36,7 @@ class FundModel(object):
         self.capitalCommitment = int(capitalCommitment)
         # need to convert string of contribution rates into a list
         self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
-        self._validateContributionRates(self.contributionRates)
+        #self._validateContributionRates(self.contributionRates)
         self.bow = float(bow)
         self.growthRate = self.calculate.segmentInterest(self.segments, float(growthRate))#growthRate / self.segments
         self.fundYield = float(fundYield) / self.segments

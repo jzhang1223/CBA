@@ -66,6 +66,7 @@ class Extractor(object):
         for period in range(1, years * segments):
 
             #last date + additional timedifference object
+            print result
             lastDate = result[-1]
             nextDate = lastDate+relativedelta(months=+monthDifference)
             if nextDate < endDate:

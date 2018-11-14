@@ -12,11 +12,11 @@ class ValidationReader(object):
         self.validationDf = pd.read_excel(ospath(self.filePath), sheet_name='Validation', header=1)
         self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)[
             ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
-             "Invest Start Date", "Contribution (% of Rem. Commit)", "Unnamed: 14", "Unnamed: 15", "Unnamed: 16", "Unnamed: 17",
+             "Invest Start Date", "Commitment ($M)","Contribution (% of Rem. Commit)", "Unnamed: 14", "Unnamed: 15", "Unnamed: 16", "Unnamed: 17",
              "Model Metrics", "Unnamed: 19", "Unnamed: 20", "Model Years to", "Unnamed: 23"]]
         # Renamming the columns to be readable
         self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
-             "Invest Start Date", "Contribution 1", "Contribution 2", "Contribution 3", "Contribution 4", "Contribution 5",
+             "Invest Start Date", "Commitment", "Contribution 1", "Contribution 2", "Contribution 3", "Contribution 4", "Contribution 5",
              "Bow", "Growth Rate", "Yield", "Invest Years", "Life"]
         self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         self.sponsorDataTableDf["Fund Family"] = self.sponsorDataTableDf["Fund Family"].str.strip()
@@ -123,13 +123,13 @@ class ValidationReader(object):
                                        str(row[1].get("Contribution 4")), str(row[1].get("Contribution 5"))])
 
         statement = ("UPDATE Fund SET familyId = \'{}\', fundStyleId = \'{}\', clientId = {}, designation = \'{}\', "
-                 "growthRate = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
-                 "closeDate = \'{}\', investStartDate = \'{}\', contributionRates = \'{}\' WHERE fundId = \'{}\'")
+                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
+                 "closeDate = \'{}\', investStartDate = \'{}\', commitment = {}, contributionRates = \'{}\' WHERE fundId = \'{}\'")
         query = statement.format(row[1].get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row[1].get("Designation"),
                                  row[1].get("Growth Rate"), row[1].get("Yield"),row[1].get("Bow"),
                                  row[1].get("Invest Years"),row[1].get("Life"), row[1].get("Vintage Year"),
-                                 row[1].get("Close Date"), row[1].get("Invest Start Date"), contributionRates,
-                                 row[1].get("ID Code"))
+                                 row[1].get("Close Date"), row[1].get("Invest Start Date"), row[1].get("Commitment") * 1000000,
+                                 contributionRates, row[1].get("ID Code"))
 
         self.CashFlowDB.queryDB(query)
 
@@ -153,7 +153,7 @@ class ValidationReader(object):
         return cursor.fetchone()[0]
 
 a = ValidationReader()
-#print a.sponsorDataTableDf["Client"]
+print a.sponsorDataTableDf["Commitment"]
 a.processSponsors()
 a.processFundStyleDf()
 a.processClientDf()

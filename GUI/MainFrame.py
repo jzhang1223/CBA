@@ -125,35 +125,35 @@ class Application(tk.Frame):
         #commitment, segments
         import Query
         CashflowDB = Query.Query()
-        query = ("SELECT contributionRates, bow, Growth, yield, investYears, life, investStartDate "
+        query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
                  "FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
-        print query
         result = CashflowDB.queryDB(query).fetchone()
-        print result
+        commitmentQuery = "SELECT capitalCommited(\'{}\')".format(self.fundNameTEXT.get())
+        commitmentResult = CashflowDB.queryDB(commitmentQuery).fetchone()[0]
+        print commitmentResult
+        self.capitalCommitmentTEXT.insert(0, str(commitmentResult))
+
+
         self.contributionRatesTEXT.insert(0, result[0])
         self.bowTEXT.insert(0, result[1])
         self.growthRateTEXT.insert(0, result[2])
         self.fundYieldTEXT.insert(0, result[3])
         self.lastInvestmentYearTEXT.insert(0, result[4])
         self.lifeOfFundTEXT.insert(0, result[5])
-        #todo remove the time part so its just a date?
-        self.startDateTEXT.insert(0, result[6])
+        startDate = result[6].date()
+        self.startDateTEXT.insert(0, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
 
         # Get inputs if exists
         # Fill into correct spots
         # Give status
 
     def _createOutput(self, output):
-        #for i in range(len(self.fundModel))
         if hasattr(self, 'OUTPUT'):
             self.OUTPUT.grid_forget()
         print "PRINTING OUTPUT"
         print output.to_string()
         self.OUTPUT = tk.Label(self, text = "\n".join(output.index.tolist()))
 
-
-        print output.index.tolist()
-        print "\n".join(output.index.tolist())
         self.OUTPUT.grid(row = 2, column = 0)
         self.outputList.append(self.OUTPUT)
 
@@ -163,17 +163,14 @@ class Application(tk.Frame):
             self.OUTPUT.grid(row = 2, column = i + 1)
             self.outputList.append(self.OUTPUT)
 
-        print type(output[1].to_string(index = False))
-        print output[1].to_string(index=False)
-
         self.setStatus("FORCASTED")
 
     # Resets the model and all text boxes.
     def _resetAll(self):
         print "RESETING MODEL"
         self.fundModel = None
-        self.setStatus("MODEL RESET")
         self._clearOutputs()
+        self.setStatus("MODEL RESET")
 
 
     # Save the data to an file.
@@ -196,8 +193,6 @@ class Application(tk.Frame):
     # Sets the status of the GUI to the STATUS label
     def setStatus(self, status):
         self.STATUS["text"] = status
-
-
 
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
