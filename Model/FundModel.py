@@ -91,6 +91,9 @@ class FundModel(object):
         extractor = Extractor.Extractor()
         fundStart = FundStartDate.FundStartDate()
         fundLast = FundLastDate.FundLastDate()
+        #print "FIRST AND LAST DATES"
+        #print fundStart(fund)
+        #print fundLast(fund)
         extractor.extractActuals(
             fund, fundStart(fund), self.lifeOfFund / self.segments, self.segments, fundLast(fund))
         firstLength = len(extractor.getContributionList())
@@ -101,6 +104,14 @@ class FundModel(object):
         self._setContributionList(extractor.getContributionList())
         self._setDistributionList(extractor.getDistributionList())
         self._setNavList(extractor.getNavList())
+
+        for segment in range(0, self._getModelTime()):
+            # commitment remaining
+            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(segment), 2))
+            # net cash flow
+            self._netCashFlowList.append(round(self.predictNetCashFlow(segment), 2))
+            # cummulative cash flow
+            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(segment), 2))
 
     # Exports Values to a csv
     def exportToCsv(self, fileName):
@@ -120,6 +131,7 @@ class FundModel(object):
             contributionRate = self.contributionRates[-1]
         else:
             contributionRate = self.contributionRates[currentTime - 1]
+
 
         return self.calculate.contribution(
             contributionRate,

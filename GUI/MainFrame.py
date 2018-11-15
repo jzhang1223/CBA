@@ -27,17 +27,19 @@ class Application(tk.Frame):
         self.SUBMIT = tk.Button(self, text = "Create Model", command = self._createModel)
         self.SUBMIT.grid(row = 0, column = 4)
 
-        self.STATUS = tk.Label(self)
-        self.STATUS.grid(row = 0, column = 5)
+        self.EXPORT = tk.Button(self, text = "Export Model", command = self._exportModel)
+        self.EXPORT.grid(row = 0, column = 5)
 
-        #todo radiobutton widget
+        self.STATUS = tk.Label(self)
+        self.STATUS.grid(row = 0, column = 6)
+
         self.MODELTYPE = tk.IntVar()
         self.PROJECTIONBUTTON = tk.Radiobutton(self, text="Projection Only", variable=self.MODELTYPE, value=0)
         self.ACTUALBUTTON = tk.Radiobutton(self, text="Actuals Only", variable=self.MODELTYPE, value=1)
         self.ACTUALANDPROJECTIONBUTTON = tk.Radiobutton(self, text="Actuals + Projection", variable=self.MODELTYPE, value=2)
-        self.PROJECTIONBUTTON.grid(row = 0, column = 6)
-        self.ACTUALBUTTON.grid(row = 0, column = 7)
-        self.ACTUALANDPROJECTIONBUTTON.grid(row = 0, column = 8)
+        self.PROJECTIONBUTTON.grid(row = 0, column = 7)
+        self.ACTUALBUTTON.grid(row = 0, column = 8)
+        self.ACTUALANDPROJECTIONBUTTON.grid(row = 0, column = 9)
 
         self._setupEntryWidgets()
 
@@ -189,6 +191,10 @@ class Application(tk.Frame):
         for output in self.outputList:
             output.grid_forget()
         self.setStatus("Outputs Cleared")
+
+    # Exports the model to a csv file
+    def _exportModel(self):
+        pass
 
     # Sets the status of the GUI to the STATUS label
     def setStatus(self, status):

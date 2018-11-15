@@ -59,6 +59,8 @@ class Extractor(object):
 
     # Makes a list of dates starting from the starting date to the end, split based on the number of segments
     def _makeDateList(self, startDate, years, segments, endDate):
+        print startDate
+        print endDate
         print "Years: {}, Segments: {}".format(years, segments)
         monthDifference = 12.0 / segments
         result = []
@@ -68,10 +70,13 @@ class Extractor(object):
             #last date + additional timedifference object
             print result
             lastDate = result[-1]
-            nextDate = lastDate+relativedelta(months=+monthDifference)
-            if nextDate < endDate:
-                result.append(lastDate+relativedelta(months=+monthDifference))
+            nextDate = lastDate+relativedelta(months=monthDifference)
+            #if next date is less than 1 unit of monthDifference between itself and endDate
+            if nextDate < endDate or nextDate <= endDate+relativedelta(months=monthDifference):
+                result.append(nextDate)
             print "APPEND#{}: {}".format(period, result[-1])
+
+        print result
         return result
 
 
