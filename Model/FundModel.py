@@ -53,7 +53,7 @@ class FundModel(object):
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
     def forecastValues(self):
-        self._setDates()
+        self._setDates(self._getModelLagTime(), self.lifeOfFund + 1)
         # trying new loop and setting the order of contributions
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions
@@ -77,13 +77,8 @@ class FundModel(object):
             self._splitDistributions()
 
         # Separated in case of partially given data. These values will always be calculated from t = 0.
-        for currentTime in range(self.lifeOfFund + 1):
-            # commitment remaining
-            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(currentTime), 2))
-            # net cash flow
-            self._netCashFlowList.append(round(self.predictNetCashFlow(currentTime), 2))
-            # cummulative cash flow
-            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(currentTime), 2))
+        # Refactored to be reused when setting actual values, ensuring that the bottom 3 columns are always filled
+        self._setBottomThree(self._getModelLagTime(), self.lifeOfFund + 1)
 
     # Sets actual values for the model
     def setActualValues(self, fund):
@@ -91,9 +86,7 @@ class FundModel(object):
         extractor = Extractor.Extractor()
         fundStart = FundStartDate.FundStartDate()
         fundLast = FundLastDate.FundLastDate()
-        #print "FIRST AND LAST DATES"
-        #print fundStart(fund)
-        #print fundLast(fund)
+
         extractor.extractActuals(
             fund, fundStart(fund), self.lifeOfFund / self.segments, self.segments, fundLast(fund))
         firstLength = len(extractor.getContributionList())
@@ -105,13 +98,10 @@ class FundModel(object):
         self._setDistributionList(extractor.getDistributionList())
         self._setNavList(extractor.getNavList())
 
-        for segment in range(0, self._getModelTime()):
-            # commitment remaining
-            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(segment), 2))
-            # net cash flow
-            self._netCashFlowList.append(round(self.predictNetCashFlow(segment), 2))
-            # cummulative cash flow
-            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(segment), 2))
+
+        self._setBottomThree(0, self._getModelTime())
+        self._setDates(0, self._getModelTime())
+
 
     # Exports Values to a csv
     def exportToCsv(self, fileName):
@@ -155,6 +145,15 @@ class FundModel(object):
             rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
         #standard = self.calculate.distribution(
         #    rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+
+    def _setBottomThree(self, start, stop):
+        for segment in range(start, stop):
+            # commitment remaining
+            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(segment), 2))
+            # net cash flow
+            self._netCashFlowList.append(round(self.predictNetCashFlow(segment), 2))
+            # cummulative cash flow
+            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(segment), 2))
 
 
     # Predicts the net cash flow for a given time period based on that year's distribution and contributions.
@@ -201,7 +200,6 @@ class FundModel(object):
     def _predictDate(self, currentTime, lifeOfFund):
         return self.calculate.correctDate(currentTime, self.startDate, self.segments, lifeOfFund)
 
-
     # Returns the proper number of segments based on a given ModelPeriod.
     # Not yet used
     def _convertModelPeriod(self, modelPeriod):
@@ -211,10 +209,14 @@ class FundModel(object):
     def _getModelTime(self):
         return len(self._distributionList)
 
+    # Returns the time of the model to start at to "catch up" to fill in the remaining values.
+    def _getModelLagTime(self):
+        return len(self._commitmentRemainingList)
+
     # Sets the dates for the fund
-    def _setDates(self):
+    def _setDates(self, start, stop):
         #todo change to using ModelPeriod object or whatever is used for extracting actual data in caluclator class
-        for currentTime in range(self.lifeOfFund + 1):
+        for currentTime in range(start, stop):
             self._dateList.append(self._predictDate(currentTime, self.lifeOfFund))
 
     # Formats the data into a dataframe to be exported

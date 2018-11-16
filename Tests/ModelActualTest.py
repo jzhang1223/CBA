@@ -23,9 +23,10 @@ startDate1 = datetime.date(2016, 5, 1)
 
 fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
-fundModel1.setActualValues('CSPE032015MS')
-#fundModel1.forecastValues()
+#fundModel1.setActualValues('CSPE032015MS')
+fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
+print "RESULT"
 print result1
 
 exportFileName = "../../cbaDBdata/standardPE.csv"
