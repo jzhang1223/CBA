@@ -69,8 +69,7 @@ class Extractor(object):
 
             #last date + additional timedifference object
             print result
-            lastDate = result[-1]
-            nextDate = lastDate+relativedelta(months=monthDifference)
+            nextDate = startDate+relativedelta(months=monthDifference * period)
             #if next date is less than 1 unit of monthDifference between itself and endDate
             if nextDate < endDate or nextDate <= endDate+relativedelta(months=monthDifference):
                 result.append(nextDate)

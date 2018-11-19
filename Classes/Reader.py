@@ -37,6 +37,8 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Skips the first row of the given csv.
     def _skipHeader(self, sheet):
+        print sheet
+        next(sheet)
         next(sheet)
 
     def _processRow(self, row):
@@ -101,7 +103,9 @@ class Reader(ReaderAPI.ReaderAPI):
     # Assumes that initial commitment is the first value of any fund.
     def _makeInitialCommitment(self, row):
         fundID = row[0]
+        print row
         date = datetime.strptime(row[1], '%m/%d/%y')
+
         value = row[10]
         typeID = self._findNamedType('Balance', 'Initial Commitment')
         notes = row[12]

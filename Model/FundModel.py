@@ -59,8 +59,8 @@ class FundModel(object):
             # contributions
             self._contributionList.append(round(self.predictContribution(currentTime), 2))
 
-        if (self.segments != 1):
-            self._swapContributionOrder()
+        #if (self.segments != 1):
+        #    self._swapContributionOrder()
 
         # Calculates values based on the "current time" of the model, i.e. how much data is already there.
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
@@ -87,6 +87,9 @@ class FundModel(object):
         fundStart = FundStartDate.FundStartDate()
         fundLast = FundLastDate.FundLastDate()
 
+        print "FUND START AND END DATES"
+        print fundStart(fund)
+        print fundLast(fund)
         extractor.extractActuals(
             fund, fundStart(fund), self.lifeOfFund / self.segments, self.segments, fundLast(fund))
         firstLength = len(extractor.getContributionList())
