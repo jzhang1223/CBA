@@ -113,6 +113,7 @@ class FundModel(object):
 
         # 'a' for append
         with open(fileName, 'a') as file:
+            print "TRYING TO MOVE TO CSV"
             modelData.to_csv(file, header=True)
 
     # Returns the predicted contribution values based on its own fields.

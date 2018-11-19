@@ -9,6 +9,7 @@ class Application(tk.Frame):
 
     def createWidgets(self):
         # Title of window
+        self.fundModel = None
         self.winfo_toplevel().title("INSERT TITLE HERE")
 
         # Quit buttons
@@ -27,7 +28,7 @@ class Application(tk.Frame):
         self.SUBMIT = tk.Button(self, text = "Create Model", command = self._createModel)
         self.SUBMIT.grid(row = 0, column = 4)
 
-        self.EXPORT = tk.Button(self, text = "Export Model", command = self._exportModel)
+        self.EXPORT = tk.Button(self, text = "Export Model", command = self._exportPopup)
         self.EXPORT.grid(row = 0, column = 5)
 
         self.STATUS = tk.Label(self)
@@ -122,9 +123,11 @@ class Application(tk.Frame):
         self._createOutput(self.fundModel._formatModelToDataframe())
 
     # Fill in the inputs based on the fundId given
-    #todo
     def _fillInputs(self):
         #commitment, segments
+        if (self.fundNameTEXT.get() == ""):
+            self.setStatus("No fund name given")
+            return
         import Query
         CashflowDB = Query.Query()
         query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
@@ -134,8 +137,6 @@ class Application(tk.Frame):
         commitmentResult = CashflowDB.queryDB(commitmentQuery).fetchone()[0]
         print commitmentResult
         self.capitalCommitmentTEXT.insert(0, str(commitmentResult))
-
-
         self.contributionRatesTEXT.insert(0, result[0])
         self.bowTEXT.insert(0, result[1])
         self.growthRateTEXT.insert(0, result[2])
@@ -192,9 +193,28 @@ class Application(tk.Frame):
             output.grid_forget()
         self.setStatus("Outputs Cleared")
 
+    # Opens a popup for exporting the model
+    def _exportPopup(self):
+        if self.fundModel is None:
+            self.setStatus("Model has not yet been created")
+        else:
+            #todo
+            top = tk.Toplevel()
+            top.title("Export Menu")
+            text = tk.Message(top, text = "Export File As (.csv extension is already included):")
+            text.pack()
+            fileEntry = tk.Entry(top)
+            fileEntry.pack()
+            confirmButton = tk.Button(top, text = "Confirm Export", command = lambda: self._exportModel(top, fileEntry.get()))
+            confirmButton.pack()
+            cancelButton = tk.Button(top, text = "Cancel", command = top.destroy)
+            cancelButton.pack()
+
     # Exports the model to a csv file
-    def _exportModel(self):
-        pass
+    def _exportModel(self, widget, fileName):
+        self.fundModel.exportToCsv("{}.csv".format(fileName))
+        widget.destroy()
+        self.setStatus("Saved {}.csv".format(fileName))
 
     # Sets the status of the GUI to the STATUS label
     def setStatus(self, status):
