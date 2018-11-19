@@ -14,7 +14,6 @@ class Extractor(object):
 
     # Looks up the actual values and sets its own fields to be them
     def extractActuals(self, fundID, startDate, years, segments, endDate):
-        #todo find datelist
         dateList = self._makeDateList(startDate, years, segments, endDate)
         print "PRINTING DATELIST"
         print dateList
