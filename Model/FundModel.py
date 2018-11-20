@@ -257,16 +257,11 @@ class FundModel(object):
 
     # Divides the annual distribution into even amounts for each segments.
     def _splitDistributions(self):
-
         for time in range(0, self.lifeOfFund + 1):
             if self._typeList[time] == EntryType.projection:
                 differenceToLastSegment = self._findLastSegmentIndex(time)
                 self._distributionList[time] = self._distributionList[time + differenceToLastSegment] / 4
-                if differenceToLastSegment > 0:
-                    self._navList[time] -= self._distributionList[time]
-                else:
-                    self._navList[time] += 3.0 * self._distributionList[time]
-
+                # Re-adjust the nav after adjusting the distributions. Compounds slightly differently
                 self._navList[time] = self.predictNav(time)
 
     # Determines how many segments away a given time period is.

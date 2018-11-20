@@ -30,5 +30,5 @@ print "RESULT"
 print result1
 print fundModel1._typeList
 
-exportFileName = "../../cbaDBdata/Clearspring6Invest10LifeNavSlightAdjust.csv"
-#fundModel1.exportToCsv(exportFileName)
+exportFileName = "../../cbaDBdata/Clearspring7Invest12Lifev2.csv"
+fundModel1.exportToCsv(exportFileName)
