@@ -21,13 +21,16 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def _read(self):
         #todo
-
-        for row in pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1).head(10).iterrows():
-            self._processRow(row[1])
+        # Reads the Raw_Data sheet, deletes rows where fund is na, and iterates over the rows
+        raw_data = pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1)
+        raw_data = raw_data[raw_data["Fund Code"].notna()]
+        for row in raw_data.iterrows():
+            #self._processRow(row[1])
+            print row[1][2]
 
     def _processRow(self, row):
         # Empty Rows
-        if self._uselessRow(row):
+        if self._isUselessRow(row):
             return
         elif not self._fundExists(row.get("Fund Code")):
             raise ValueError("No valid fund. Try checking the Sponsor Data Table sheet")
@@ -42,6 +45,17 @@ class Reader(ReaderAPI.ReaderAPI):
         else:
             # ignore the base cash flow value and make multiple inputs
             self._makeComplexRow(row)
+
+
+    def _isUselessRow(self, row):
+        #todo
+        return
+
+    def _isSimpleRow(self, row):
+        # if there is a cash flow but no other values(Expenses, ROC, Dist. Sub. To Recall, Income)
+        return (row.get("Cash Flow") != 0.0 and row.get("Expenses") == 0.0 and row.get("ROC") == 0.0 and
+                row.get("Dist. Sub. To Recall") == 0.0 and row.get("Income") == 0.0)
+
 
 
 a = Reader("temp")
