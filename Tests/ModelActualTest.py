@@ -10,24 +10,24 @@ def formatModel(fundModel):
 
 pd.set_option('display.expand_frame_repr', False)
 
-commitment1 = 1000000
-contributionRates1 = [.4, .5, 1]
-bow1 = 1.5
-growthRate1 = .11
-fundYield1 = .06
-lastInvestmentYear1 = 3
-lifeOfFund1 = 6
+commitment1 = 4704970
+contributionRates1 = [.25, .5, .5, .25]
+bow1 = 2.5
+growthRate1 = .16
+fundYield1 = .0
+lastInvestmentYear1 = 7
+lifeOfFund1 = 12
 segments1 = 4
-startDate1 = datetime.date(2019, 3, 31)
+startDate1 = datetime.date(2014, 12, 31)
 
 
 fundModel1 = FundModel(commitment1, contributionRates1, bow1, growthRate1,
                                 fundYield1, lastInvestmentYear1, lifeOfFund1, segments1, startDate1)
-#fundModel1.setActualValues('CSPE032015F*')
+fundModel1.setActualValues('CSPE032015F*')
 fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
 print "RESULT"
 print result1
 
-exportFileName = "../../cbaDBdata/StandardRealEstate.csv"
-fundModel1.exportToCsv(exportFileName)
+exportFileName = "../../cbaDBdata/Clearspring7Invest12Life.csv"
+#fundModel1.exportToCsv(exportFileName)

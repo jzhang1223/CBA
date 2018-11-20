@@ -14,7 +14,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def getFileName(self):
         #return self.fileName
-        return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v2.16.xlsx"
+        return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v2.17 Clearspring Analysis.xlsx"
 
     def getLimit(self):
         raise NotImplementedError("Not necessary to implement")
@@ -23,7 +23,25 @@ class Reader(ReaderAPI.ReaderAPI):
         #todo
 
         for row in pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1).head(10).iterrows():
-            print row[1]
+            self._processRow(row[1])
+
+    def _processRow(self, row):
+        # Empty Rows
+        if self._uselessRow(row):
+            return
+        elif not self._fundExists(row.get("Fund Code")):
+            raise ValueError("No valid fund. Try checking the Sponsor Data Table sheet")
+        elif self._isCommitment(row):
+            self._makeInitialCommitment(row)
+        elif self._isQtr(row):
+            self._makeQtr(row)
+        elif self._isSimpleRow(row):
+            self._makeSimpleRow(row)
+        elif self._isInferredRow(row):
+            self._makeInferredRow(row)
+        else:
+            # ignore the base cash flow value and make multiple inputs
+            self._makeComplexRow(row)
 
 
 a = Reader("temp")
