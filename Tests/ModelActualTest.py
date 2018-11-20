@@ -15,8 +15,8 @@ contributionRates1 = [.25, .5, .5, .25]
 bow1 = 2.5
 growthRate1 = .16
 fundYield1 = .0
-lastInvestmentYear1 = 7
-lifeOfFund1 = 12
+lastInvestmentYear1 = 6
+lifeOfFund1 = 10
 segments1 = 4
 startDate1 = datetime.date(2014, 12, 31)
 
@@ -28,6 +28,7 @@ fundModel1.forecastValues()
 result1 = formatModel(fundModel1)
 print "RESULT"
 print result1
+print fundModel1._typeList
 
-exportFileName = "../../cbaDBdata/Clearspring7Invest12Life.csv"
+exportFileName = "../../cbaDBdata/Clearspring6Invest10LifeNavSlightAdjust.csv"
 #fundModel1.exportToCsv(exportFileName)

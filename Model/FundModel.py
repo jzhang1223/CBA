@@ -5,6 +5,7 @@ from Classes import Extractor
 from Calculations import FundStartDate
 from Calculations import FundLastDate
 from Calculations import ConvertDate
+from enum import Enum
 
 
 # Able to output projected values for a fund based on given information.
@@ -49,6 +50,7 @@ class FundModel(object):
         self._netCashFlowList = []
         self._cummulativeCashFlowList = []
         self._dateList = []
+        self._typeList = []
 
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
@@ -71,10 +73,20 @@ class FundModel(object):
             self._distributionList.append(round(self.predictDistribution(currentTime), 2))
             # nav
             self._navList.append(round(self.predictNav(currentTime), 2))
+            self._typeList.append(EntryType.projection)
 
         if (self.segments != 1):
             print self._distributionList
             self._splitDistributions()
+
+        print "HALFWAY PRINT"
+        print self._contributionList
+        print self._distributionList
+        print self._navList
+        print self._commitmentRemainingList
+        print self._cummulativeCashFlowList
+        print self._netCashFlowList
+        #todo recalculate the nav after splitting the distribution values...
 
         # Separated in case of partially given data. These values will always be calculated from t = 0.
         # Refactored to be reused when setting actual values, ensuring that the bottom 3 columns are always filled
@@ -101,7 +113,7 @@ class FundModel(object):
         self._setDistributionList(extractor.getDistributionList())
         self._setNavList(extractor.getNavList())
 
-
+        self._setTypeList(0, self._getModelTime(), EntryType.actual)
         self._setBottomThree(0, self._getModelTime())
         self._setDates(0, self._getModelTime())
 
@@ -245,10 +257,17 @@ class FundModel(object):
 
     # Divides the annual distribution into even amounts for each segments.
     def _splitDistributions(self):
-        for time in range(1, self.lifeOfFund + 1):
-            differenceToLastSegment = self._findLastSegmentIndex(time)
-            print self._distributionList[time]
-            self._distributionList[time] = self._distributionList[time + differenceToLastSegment] / 4
+
+        for time in range(0, self.lifeOfFund + 1):
+            if self._typeList[time] == EntryType.projection:
+                differenceToLastSegment = self._findLastSegmentIndex(time)
+                self._distributionList[time] = self._distributionList[time + differenceToLastSegment] / 4
+                if differenceToLastSegment > 0:
+                    self._navList[time] -= self._distributionList[time]
+                else:
+                    self._navList[time] += 3.0 * self._distributionList[time]
+
+                self._navList[time] = self.predictNav(time)
 
     # Determines how many segments away a given time period is.
     def _findLastSegmentIndex(self, time):
@@ -256,6 +275,11 @@ class FundModel(object):
             return 0
         else:
             return self.segments - (time % self.segments)
+
+    # Sets the corresponding values to actuals or projection types
+    def _setTypeList(self, start, stop, type):
+        for time in range(start, stop):
+            self._typeList.append(type)
     '''
     def getContributionList(self):
         return self._contributionList
@@ -278,5 +302,8 @@ class FundModel(object):
     def _setNavList(self, newList):
         self._navList = newList
 
+class EntryType(Enum):
+    projection = 0
+    actual = 1
 
 
