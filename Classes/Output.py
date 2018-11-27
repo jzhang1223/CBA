@@ -11,6 +11,7 @@ import TotalValue
 import Tvcc
 import Tvpi
 import Xirr
+from Classes import Query
 
 class Output(object):
 
@@ -27,10 +28,16 @@ class Output(object):
             self.fundList = fundList
 
         self.fundDF = pd.DataFrame(columns = self.columnNames)
+        self.cashFlowDB = Query.Query()
+
         for i in range(len(self.fundList)):
-            self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
+            # checks only for funds with existing cash flow transactions
+            cashFlowCount = self.cashFlowDB.queryDB("SELECT COUNT(*) FROM CashFlow WHERE fundID = '{}'".format(self.fundList[i])).fetchone()[0]
+            print cashFlowCount
+            if cashFlowCount > 0:
+                self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
         print self.fundDF
-        self.fundDF.to_csv(fileName, index=False)
+        #self.fundDF.to_csv(fileName, index=False)
 
     def _getCalledPercentage(self, fundID, date):
         func = CalledPercentage.CalledPercentage()
