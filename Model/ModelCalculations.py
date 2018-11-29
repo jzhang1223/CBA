@@ -1,5 +1,7 @@
 import datetime
 from dateutil.relativedelta import relativedelta
+import math
+
 
 # Certain formulas used in the model
 class ModelCalculations(object):
@@ -15,13 +17,12 @@ class ModelCalculations(object):
 
     # RD = Max[Y, (t / L) ^ B]
     # For non-annual analysis, tries to only use bow factor in last quarter, which will be split up.
-    def rateOfDistribution(self, fundYield, year, lifeOfFund, bow, segments):
+    def rateOfDistribution(self, fundYield, year, lifeOfFund, bow):
         print 'Year: ' + str(year)
         print 'Yield: ' + str(fundYield)
         print 'Bow Factor: ' + str(((.00 + year) / lifeOfFund) ** bow)
-        if (year % segments != 0 and segments != 1):
-            return 0
-        return max(fundYield, (((.00 + year) / lifeOfFund) ** bow))
+
+        return max(fundYield, ((.00 + year) / lifeOfFund) ** bow)
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
     def nav(self, previousNAV, growthRate, contributions, distributions):
@@ -35,8 +36,9 @@ class ModelCalculations(object):
         self._checkValidSegments(segments)
         if (segments == 1):
             return annualPercentage
-        equation = self._buildEquation(segments)
-        return self._binarySolve(equation, annualPercentage)
+        else:
+            equation = self._buildEquation(segments)
+            return self._binarySolve(equation, annualPercentage)
 
     # Builds the equation that should be solved based on the number of segments and the initial percentage.
     # Equation is always set equal to 0 to be solved.
@@ -119,6 +121,11 @@ class ModelCalculations(object):
     # **could potentially have issues with ending 0s
     def makeDates(self, firstDate, segments, years):
         pass #todo
+
+    #todo possibly remove
+    def _quarterAdjustment(self, period):
+        return 1
+        #return max(math.log(period, math.e) + 1, .1)
 
 #a = ModelCalculations()
 

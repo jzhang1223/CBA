@@ -12,6 +12,7 @@ import Tvcc
 import Tvpi
 import Xirr
 from Classes import Query
+pd.set_option("display.max_columns", 10000)
 
 class Output(object):
 
