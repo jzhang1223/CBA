@@ -32,6 +32,7 @@ class ModelCalculations(object):
     # initialPercentage + (initialValue * newPercentage) ^ 2 = 1.
     # newPercentage is the variable being solved for.
     # Rounds the percentage to 4 decimal places.
+    # NOT CURRENTLY USED, REPLACED WITH expandRates()
     def segmentCommitment(self, segments, annualPercentage):
         self._checkValidSegments(segments)
         if (segments == 1):
@@ -134,11 +135,6 @@ class ModelCalculations(object):
     # **could potentially have issues with ending 0s
     def makeDates(self, firstDate, segments, years):
         pass #todo
-
-    #todo possibly remove
-    def _quarterAdjustment(self, period):
-        return 1
-        #return max(math.log(period, math.e) + 1, .1)
 
 #a = ModelCalculations()
 
