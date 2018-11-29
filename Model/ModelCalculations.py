@@ -117,6 +117,19 @@ class ModelCalculations(object):
         growth = principal * (1 + growthRate)
         return (growth * percentageNeeded) / (growth + contribution)
 
+    # Accepts original rates that excludes the 0.0 at the beginning
+    def expandRates(self, originalRates, segments, prependZero):
+        adjustedRates = []
+        if prependZero:
+            adjustedRates.append(0.0)
+        for rate in originalRates:
+            for segment in range(0, segments):
+                partialRate = rate / 4
+                adjustedRates.append(partialRate / (1.0 - (segment * partialRate)))
+
+        print "GENERIC EXPANDED RATES: {}".format(adjustedRates)
+        return adjustedRates
+
     # Given the first date of the fund, number of segments, and years, makes the list of dates for extracting data.
     # **could potentially have issues with ending 0s
     def makeDates(self, firstDate, segments, years):

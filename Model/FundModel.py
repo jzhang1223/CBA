@@ -35,8 +35,9 @@ class FundModel(object):
         self.lastInvestmentYear = int(lastInvestmentYear) * self.segments
         self.lifeOfFund = int(lifeOfFund) * self.segments
         self.capitalCommitment = int(capitalCommitment)
-        # need to convert string of contribution rates into a list
-        self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
+        # old code below (before abstraction of rate expansion)
+        #self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
+        self.contributionRates = self.calculate.expandRates(contributionRates, self.segments, False)
         #self._validateContributionRates(self.contributionRates)
         self.bow = float(bow)
         self.growthRate = self.calculate.segmentInterest(self.segments, float(growthRate))#growthRate / self.segments
@@ -51,6 +52,9 @@ class FundModel(object):
         self._cummulativeCashFlowList = []
         self._dateList = []
         self._typeList = []
+        self._distributionRates = []
+
+        self._distributionRates = self.calculate.expandRates(self._getBaseDistributionRates(), self.segments, True)
 
 
     # Sets the lists of contributions, distributions, nav, commitment remaining, net cash flow, and cummulative cash flow.
@@ -75,18 +79,10 @@ class FundModel(object):
             self._navList.append(round(self.predictNav(currentTime), 2))
             self._typeList.append(EntryType.projection)
 
-        if (self.segments != 1):
-            print self._distributionList
-            self._splitDistributions()
+        #if (self.segments != 1):
+        #    print self._distributionList
+        #    self._splitDistributions()
 
-        print "HALFWAY PRINT"
-        print self._contributionList
-        print self._distributionList
-        print self._navList
-        print self._commitmentRemainingList
-        print self._cummulativeCashFlowList
-        print self._netCashFlowList
-        #todo recalculate the nav after splitting the distribution values...
 
         # Separated in case of partially given data. These values will always be calculated from t = 0.
         # Refactored to be reused when setting actual values, ensuring that the bottom 3 columns are always filled
@@ -132,12 +128,10 @@ class FundModel(object):
     def predictContribution(self, currentTime):
         if currentTime > self.lastInvestmentYear or currentTime == 0:
             return 0
-
         elif currentTime >= len(self.contributionRates):
             contributionRate = self.contributionRates[-1]
         else:
             contributionRate = self.contributionRates[currentTime - 1]
-
 
         return self.calculate.contribution(
             contributionRate,
@@ -153,8 +147,9 @@ class FundModel(object):
     def predictDistribution(self, currentTime):
         if currentTime == 0:
             return 0
-        rateOfDistribution = self.calculate.rateOfDistribution(
-            self.fundYield, currentTime, self.lifeOfFund, self.bow, self.segments)
+        #rateOfDistribution = self.calculate.rateOfDistribution(
+        #    self.fundYield, currentTime, self.lifeOfFund, self.bow)
+        rateOfDistribution = self._distributionRates[currentTime]
         print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
         print "..."
         return self.calculate.distribution(
@@ -192,12 +187,12 @@ class FundModel(object):
                                   self._distributionList[currentTime])
 
     # Expands the contribution rates based on the number of segments and calculating a backtracked rate
-    def _expandContributionRates(self, segments, contributionRates):
-        result = []
-        for originalRate in contributionRates:
-            newRate = self.calculate.segmentCommitment(segments, originalRate)
-            result.extend([newRate] * segments)
-        return result
+    #def _expandContributionRates(self, segments, contributionRates):
+    #    result = []
+    #    for originalRate in contributionRates:
+    #        newRate = self.calculate.segmentCommitment(segments, originalRate)
+    #        result.extend([newRate] * segments)
+    #    return result
 
     # Performs validations on inputted contribution rates.
     def _validateContributionRates(self, contributionRates):
@@ -252,7 +247,6 @@ class FundModel(object):
                 holder.reverse()
                 for i in range((time - self.segments) + 1, time + 1):
                     self._contributionList[i] = holder[(i % self.segments) - 1]
-                print holder
                 holder = []
 
     # Divides the annual distribution into even amounts for each segments.
@@ -275,6 +269,23 @@ class FundModel(object):
     def _setTypeList(self, start, stop, type):
         for time in range(start, stop):
             self._typeList.append(type)
+
+    def _getBaseDistributionRates(self):
+
+        #for segment in range(0, self.lifeOfFund + 1):
+        #    self._distributionRates.append()
+        originalRates = []
+        for year in range(1, self.lifeOfFund / self.segments + 1):
+            originalRates.append(
+                self.calculate.rateOfDistribution(self.fundYield, year, self.lifeOfFund / self.segments, self.bow))
+
+        return originalRates
+
+
+
+
+
+
     '''
     def getContributionList(self):
         return self._contributionList
