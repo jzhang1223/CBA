@@ -1,19 +1,34 @@
 import datetime
 from dateutil.relativedelta import relativedelta
+import ModelPeriod
 import math
 
 
 # Certain formulas used in the model
 class ModelCalculations(object):
 
+    def __init__(self, segments):
+        self.modelType = ModelPeriod.ModelPeriod(segments)
+
     # C(t) = RC(t) (CC - PIC(t))
     def contribution(self, rateOfContribution, capitalCommited, paidInCapital):
         return rateOfContribution * (.00 + capitalCommited - paidInCapital)
 
     # D(t) = RD * [NAV(t-1) * (1 + G)]
-    def distribution(self, rateOfDistribution, previousNAV, growthRate):
-        print "giving distribution with: RoD={} PrevNav={} GrowthRate={}".format(rateOfDistribution, previousNAV, growthRate)
-        return rateOfDistribution * (previousNAV * (1.0 + growthRate))
+    # Also rewritten as RD * [NAV(t-1) + Growth]
+    def distribution(self, rateOfDistribution, previousNAV, growthRate, contribution):
+        print "giving distribution with: RoD={} PrevNav={} GrowthRate={} Contribution={}".format(rateOfDistribution, previousNAV, growthRate, contribution)
+
+        growth = self.growth(previousNAV, growthRate, contribution)
+        print "growth={}".format(growth)
+        if self.modelType == ModelPeriod.ModelPeriod.annually:
+            return rateOfDistribution * (previousNAV + growth)
+        # includes 50% of contributions into growth rate
+        elif self.modelType == ModelPeriod.ModelPeriod.quarterly:
+            return rateOfDistribution * (previousNAV + growth + contribution)
+        else:
+            raise NotImplementedError("Models that are not annual or quarterly are currently not supported.")
+
 
     # RD = Max[Y, (t / L) ^ B]
     # For non-annual analysis, tries to only use bow factor in last quarter, which will be split up.
@@ -25,8 +40,24 @@ class ModelCalculations(object):
         return max(fundYield, ((.00 + year) / lifeOfFund) ** bow)
 
     # NAV(t) = [NAV(t-1) * (1 + G)] + C(t) - D(t)
+    # Also rewritten as ... NAV(t) = [NAV(t-1) + Growth] + C(t) - D(t)
     def nav(self, previousNAV, growthRate, contributions, distributions):
-        return (previousNAV * (1.0 + growthRate)) + contributions - distributions
+        #return (previousNAV * (1.0 + growthRate)) + contributions - distributions
+        # includes 50% of contributions of year t into growth
+        growth = self.growth(previousNAV, growthRate, contributions)
+        print "NAV: prevNav={} growth={} contributions={} distributions={}".format(previousNAV, growth, contributions, distributions)
+        return previousNAV + growth + contributions - distributions
+
+    # Growth(t) = [NAV(t-1)] * GrowthRate    ....  for annual model
+    # Growth(t) = [NAV(t-1) + .25 * C(t)] * GrowthRate    .... for quarterly model
+    def growth(self, previousNAV, growthRate, contributions):
+        if self.modelType == ModelPeriod.ModelPeriod.annually:
+            return previousNAV * growthRate
+        elif self.modelType == ModelPeriod.ModelPeriod.quarterly:
+            #return (growthRate * (previousNAV + (contributions * .25)))
+            return (previousNAV + (contributions * .25)) * growthRate
+        else:
+            raise NotImplementedError("Models that are not annual or quarterly are currently not supported.")
 
     # Solves the following equation to convert an annual contribution percentage into a segmented contribution percentage.
     # initialPercentage + (initialValue * newPercentage) ^ 2 = 1.
@@ -68,7 +99,7 @@ class ModelCalculations(object):
         guess = (max - min) / 2.0 + min
         computed = eval(equation.format(guess), None, None)
         if abs(computed - annualRate) < .00001:
-            return round(guess, 5)
+            return guess
         elif computed > annualRate:
             return self._binarySolve(equation, annualRate, min, guess)
         else:
@@ -80,7 +111,7 @@ class ModelCalculations(object):
     # Does not multiply by segments b/c looking for the actual rate to be used in each month in order to still compound annually.
     def segmentInterest(self, segments, annualPercentage):
         self._checkValidSegments(segments)
-        return round((1.0+annualPercentage) ** (1.0/segments) - 1.0, 4)
+        return (1.0+annualPercentage) ** (1.0/segments) - 1.0
 
     # Makes sure that there are a valid number of segments given.
     def _checkValidSegments(self, segments):
@@ -125,10 +156,8 @@ class ModelCalculations(object):
             adjustedRates.append(0.0)
         for rate in originalRates:
             for segment in range(0, segments):
-                partialRate = rate / 4
+                partialRate = rate / segments
                 adjustedRates.append(partialRate / (1.0 - (segment * partialRate)))
-
-        print "GENERIC EXPANDED RATES: {}".format(adjustedRates)
         return adjustedRates
 
     # Given the first date of the fund, number of segments, and years, makes the list of dates for extracting data.

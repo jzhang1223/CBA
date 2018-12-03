@@ -10,7 +10,7 @@ class Application(tk.Frame):
     def createWidgets(self):
         # Title of window
         self.fundModel = None
-        self.winfo_toplevel().title("INSERT TITLE HERE")
+        self.winfo_toplevel().title("Cash Flow Model")
 
         # Quit buttons
         self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)

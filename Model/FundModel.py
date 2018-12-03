@@ -25,7 +25,7 @@ class FundModel(object):
         :param startDate: datetime object which marks the first date of the model.
         """
         self.segments = int(segments)
-        self.calculate = ModelCalculations()
+        self.calculate = ModelCalculations(segments)
         if isinstance(startDate, datetime.date):
             self.startDate = startDate
         else:
@@ -37,6 +37,7 @@ class FundModel(object):
         self.capitalCommitment = int(capitalCommitment)
         # old code below (before abstraction of rate expansion)
         #self.contributionRates = self._expandContributionRates(self.segments, contributionRates)
+        contributionRates = self._appendExtraRates(contributionRates, self.lastInvestmentYear / self.segments)
         self.contributionRates = self.calculate.expandRates(contributionRates, self.segments, False)
         #self._validateContributionRates(self.contributionRates)
         self.bow = float(bow)
@@ -63,7 +64,7 @@ class FundModel(object):
         # trying new loop and setting the order of contributions
         for currentTime in range(self._getModelTime(), self.lifeOfFund + 1):
             # contributions
-            self._contributionList.append(round(self.predictContribution(currentTime), 2))
+            self._contributionList.append(self.predictContribution(currentTime))
 
         #if (self.segments != 1):
         #    self._swapContributionOrder()
@@ -74,9 +75,9 @@ class FundModel(object):
             # contributions
             #self._contributionList.append(round(self.predictContribution(currentTime), 2))
             # distributions
-            self._distributionList.append(round(self.predictDistribution(currentTime), 2))
+            self._distributionList.append(self.predictDistribution(currentTime))
             # nav
-            self._navList.append(round(self.predictNav(currentTime), 2))
+            self._navList.append(self.predictNav(currentTime))
             self._typeList.append(EntryType.projection)
 
         #if (self.segments != 1):
@@ -153,18 +154,18 @@ class FundModel(object):
         print "Distribution Parameters: {} {} {}".format(rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
         print "..."
         return self.calculate.distribution(
-            rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
+            rateOfDistribution, self._navList[currentTime - 1], self.growthRate, self._contributionList[currentTime])
         #standard = self.calculate.distribution(
         #    rateOfDistribution, self._navList[currentTime - 1], self.growthRate)
 
     def _setBottomThree(self, start, stop):
         for segment in range(start, stop):
             # commitment remaining
-            self._commitmentRemainingList.append(round(self.predictCommitmentRemaining(segment), 2))
+            self._commitmentRemainingList.append(self.predictCommitmentRemaining(segment))
             # net cash flow
-            self._netCashFlowList.append(round(self.predictNetCashFlow(segment), 2))
+            self._netCashFlowList.append(self.predictNetCashFlow(segment))
             # cummulative cash flow
-            self._cummulativeCashFlowList.append(round(self.predictCummulativeCashFlow(segment), 2))
+            self._cummulativeCashFlowList.append(self.predictCummulativeCashFlow(segment))
 
 
     # Predicts the net cash flow for a given time period based on that year's distribution and contributions.
@@ -281,7 +282,14 @@ class FundModel(object):
 
         return originalRates
 
-
+    # Makes sure that the new contribution rates will be used due to pre-listing contribution rates instead of on the fly calculating
+    def _appendExtraRates(self, contributionRates, lastInvestmentYear):
+        while len(contributionRates) < lastInvestmentYear:
+            print "TESTING"
+            print len(contributionRates)
+            print lastInvestmentYear
+            contributionRates.append(contributionRates[-1])
+        return contributionRates
 
 
 
