@@ -8,7 +8,7 @@ import math
 class ModelCalculations(object):
 
     def __init__(self, segments):
-        self.modelType = ModelPeriod.ModelPeriod(segments)
+        self.modelType = ModelPeriod.ModelPeriod(int(segments))
 
     # C(t) = RC(t) (CC - PIC(t))
     def contribution(self, rateOfContribution, capitalCommited, paidInCapital):

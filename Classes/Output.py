@@ -20,7 +20,7 @@ class Output(object):
     fundList = None
     fundDF = None
 
-    def __init__(self, fileName, date, fundList = None):
+    def __init__(self, fundList = None):
         if fundList is None:
             query = Query.Query()
             fundTuples = query.queryDB("SELECT fundID FROM Fund ORDER BY fundID ASC").fetchall()
@@ -31,6 +31,8 @@ class Output(object):
         self.fundDF = pd.DataFrame(columns = self.columnNames)
         self.cashFlowDB = Query.Query()
 
+    # Creates and exports the dataframe, overwrites the info in the file completely.
+    def exportOutput(self, fileName, date):
         for i in range(len(self.fundList)):
             # checks only for funds with existing cash flow transactions
             cashFlowCount = self.cashFlowDB.queryDB("SELECT COUNT(*) FROM CashFlow WHERE fundID = '{}'".format(self.fundList[i])).fetchone()[0]
@@ -38,7 +40,7 @@ class Output(object):
             if cashFlowCount > 0:
                 self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
         print self.fundDF
-        #self.fundDF.to_csv(fileName, index=False)
+        self.fundDF.to_csv(fileName, index=False)
 
     def _getCalledPercentage(self, fundID, date):
         func = CalledPercentage.CalledPercentage()
@@ -95,9 +97,9 @@ class Output(object):
 
 
 tempDate = '18/8/9'
-#Output("testOutputAverages.csv", tempDate)
-
-Output("../testOutput.csv", tempDate)
+#a = Output("testOutputAverages.csv", tempDate)
+#a.exportOutput()
+#Output("../testOutput.csv", tempDate)
 
 # Final Output
 #Output("RawDataOutput.csv", tempDate)

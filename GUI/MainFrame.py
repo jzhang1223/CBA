@@ -2,6 +2,9 @@ import Tkinter as tk
 import FundModel as fm
 import inspect
 import pandas as pd
+from Classes import Output
+import datetime
+from os.path import expanduser as ospath
 pd.set_option("display.max_rows", 10000)
 
 class Application(tk.Frame):
@@ -16,24 +19,31 @@ class Application(tk.Frame):
         self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
         self.QUIT.grid(row = 0, column = 0)
 
+        # Resets the model and clears the GUI output.
         self.RESET = tk.Button(self, text = "Reset Model", command = self._resetAll)
         self.RESET.grid(row = 0, column = 1)
 
+        # Clears only the input values, excluding the fundID.
         self.CLEARINPUTS = tk.Button(self, text = "Clear Inputs", command = self._clearInputs)
         self.CLEARINPUTS.grid(row = 0, column = 2)
 
+        # Fills in parameters based on the given fundID.
         self.FILLINPUTS = tk.Button(self, text = "Fill Inputs", command = self._fillInputs)
         self.FILLINPUTS.grid(row = 0, column = 3)
 
+        # Button to create model base on filled in parameters, will overwrite any existing model.
         self.SUBMIT = tk.Button(self, text = "Create Model", command = self._createModel)
         self.SUBMIT.grid(row = 0, column = 4)
 
+        # Button to export current model.
         self.EXPORT = tk.Button(self, text = "Export Model", command = self._exportPopup)
         self.EXPORT.grid(row = 0, column = 5)
 
+        # Label for most recent status.
         self.STATUS = tk.Label(self)
         self.STATUS.grid(row = 0, column = 6)
 
+        # Radio buttons for choosing the type of model.
         self.MODELTYPE = tk.IntVar()
         self.PROJECTIONBUTTON = tk.Radiobutton(self, text="Projection Only", variable=self.MODELTYPE, value=0)
         self.ACTUALBUTTON = tk.Radiobutton(self, text="Actuals Only", variable=self.MODELTYPE, value=1)
@@ -41,6 +51,14 @@ class Application(tk.Frame):
         self.PROJECTIONBUTTON.grid(row = 0, column = 7)
         self.ACTUALBUTTON.grid(row = 0, column = 8)
         self.ACTUALANDPROJECTIONBUTTON.grid(row = 0, column = 9)
+
+        # Button for exporting fund stats, exports as fundStats.csv
+        self.FUNDSTATS = tk.Button(self, text = "Fund Stats", command = self._exportFundStats)
+        self.FUNDSTATS.grid(row = 0, column = 11)
+
+        # Button for exporting the Base Model, Actuals, and Actuals + Projections from reading an excel sheet.
+        self.MASSEXPORT = tk.Button(self, text = "Mass Export", command = self._massExportPopup)
+        self.MASSEXPORT.grid(row = 0, column = 12)
 
         self._setupEntryWidgets()
 
@@ -198,7 +216,8 @@ class Application(tk.Frame):
         if self.fundModel is None:
             self.setStatus("Model has not yet been created")
         else:
-            #todo
+            self._popupWindow("Export Menu", "Export File As (.csv extension is already included):", "Confirm Export", self._exportModel)
+            '''
             top = tk.Toplevel()
             top.title("Export Menu")
             text = tk.Message(top, text = "Export File As (.csv extension is already included):")
@@ -209,12 +228,71 @@ class Application(tk.Frame):
             confirmButton.pack()
             cancelButton = tk.Button(top, text = "Cancel", command = top.destroy)
             cancelButton.pack()
+            '''
 
     # Exports the model to a csv file
     def _exportModel(self, widget, fileName):
         self.fundModel.exportToCsv("{}.csv".format(fileName))
         widget.destroy()
         self.setStatus("Saved {}.csv".format(fileName))
+
+    # Exports all fund stats to a csv file called fundStats.csv
+    def _exportFundStats(self):
+        today = datetime.date.today()
+        dateAsString = today.strftime("%y/%m/%d")
+        fundStats = Output.Output()
+        fundStats.exportOutput("fundStats.csv", dateAsString)
+        self.setStatus("Fund stats exported to fundStats.csv")
+
+    # Brings up a pop-up to prompt user for a file to read for export.
+    # The file should be an excel sheet with fund codes listed all in the first column.
+    def _massExportPopup(self):
+        self._popupWindow("Mass Export Menu", "Read from (.xlsx extention is already included): ", "Confirm Mass Export", self._massExport)
+        '''
+        top = tk.Toplevel()
+        top.title("Mass Export Menu")
+        text = tk.Message(top, text="Read from: ")
+        text.pack()
+        fileEntry = tk.Entry(top)
+        fileEntry.pack()
+        confirmButton = tk.Button(top, text="Confirm Mass Export", command=lambda: self._massExport(top, fileEntry.get()))
+        confirmButton.pack()
+        cancelButton = tk.Button(top, text="Cancel", command=top.destroy)
+        cancelButton.pack()
+        '''
+
+    # Creates a simple popup window with a text box, entry box, execute box, and cancel box.
+    # Reads the argument from the entry box when executing the command.
+    def _popupWindow(self, title, message, executeButtonLabel, executeButtonCommand):
+        top = tk.Toplevel()
+        top.title(title)
+        text = tk.Message(top, text=message)
+        text.pack()
+        fileEntry = tk.Entry(top)
+        fileEntry.pack()
+        confirmButton = tk.Button(top, text=executeButtonLabel, command=lambda: executeButtonCommand(top, fileEntry.get()))
+        confirmButton.pack()
+        cancelButton = tk.Button(top, text="Cancel", command=top.destroy)
+        cancelButton.pack()
+
+    # Executes the export of the funds in the given file, exporting in the order of Base, Actuals, Base+Actuals
+    def _massExport(self, widget, fileName):
+        try:
+            fundCodeDf = pd.read_excel(ospath("{}.xlsx".format(fileName)), header=None)
+        except IOError:
+            widget.destroy()
+            self.setStatus("Invalid Fund Code")
+
+        fundCount = 0
+        for row in fundCodeDf.iterrows():
+            print row[1][0]
+            fundCount += 1
+            # todo process the rows
+            pass
+
+        widget.destroy()
+        self.setStatus("{} fund files exported".format(fundCount))
+
 
     # Sets the status of the GUI to the STATUS label
     def setStatus(self, status):

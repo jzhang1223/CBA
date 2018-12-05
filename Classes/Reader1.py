@@ -1,6 +1,5 @@
 from APIs import ReaderAPI
 from Classes import CashFlow
-from datetime import datetime
 from Classes import Query
 import pandas as pd
 from os.path import expanduser as ospath
@@ -22,16 +21,21 @@ class Reader(ReaderAPI.ReaderAPI):
     def _read(self):
         #todo
         # Reads the Raw_Data sheet, deletes rows where fund is na, and iterates over the rows
-        raw_data = pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1)
+        raw_data = pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1, keep_default_na=False)
 
         raw_data = self._cleanData(raw_data)
 
         for row in raw_data.iterrows():
             print "{} : {}".format(row[1][0], row[1]['Notes'])
+
             #self._processRow(row[1])
             #print self._isSimpleRow(row[1])
+
         print raw_data.columns
-        print raw_data
+        print type(raw_data["Notes"])
+        print raw_data["Notes"]
+        print raw_data["Type"]
+
 
 
     # Cleans the dataframe before it is to be processed
