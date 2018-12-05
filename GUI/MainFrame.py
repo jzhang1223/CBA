@@ -5,6 +5,7 @@ import pandas as pd
 from Classes import Output
 import datetime
 from os.path import expanduser as ospath
+import ModelPeriod
 pd.set_option("display.max_rows", 10000)
 
 class Application(tk.Frame):
@@ -12,8 +13,11 @@ class Application(tk.Frame):
 
     def createWidgets(self):
         # Title of window
+
+
         self.fundModel = None
         self.winfo_toplevel().title("Cash Flow Model")
+
 
         # Quit buttons
         self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
@@ -143,9 +147,6 @@ class Application(tk.Frame):
     # Fill in the inputs based on the fundId given
     def _fillInputs(self):
         #commitment, segments
-        if (self.fundNameTEXT.get() == ""):
-            self.setStatus("No fund name given")
-            return
         import Query
         CashflowDB = Query.Query()
         query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
@@ -153,7 +154,21 @@ class Application(tk.Frame):
         result = CashflowDB.queryDB(query).fetchone()
         commitmentQuery = "SELECT capitalCommited(\'{}\')".format(self.fundNameTEXT.get())
         commitmentResult = CashflowDB.queryDB(commitmentQuery).fetchone()[0]
+        if (result is None):
+            self.setStatus("Invalid fund name!")
+            return True
         print commitmentResult
+        self.setEntryText(self.capitalCommitmentTEXT, str(commitmentResult))
+        self.setEntryText(self.contributionRatesTEXT, result[0])
+        self.setEntryText(self.bowTEXT, result[1])
+        self.setEntryText(self.growthRateTEXT, result[2])
+        self.setEntryText(self.fundYieldTEXT, result[3])
+        self.setEntryText(self.lastInvestmentYearTEXT, result[4])
+        self.setEntryText(self.lifeOfFundTEXT, result[5])
+        startDate = result[6].date()
+        self.setEntryText(self.startDateTEXT, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
+
+        '''
         self.capitalCommitmentTEXT.insert(0, str(commitmentResult))
         self.contributionRatesTEXT.insert(0, result[0])
         self.bowTEXT.insert(0, result[1])
@@ -163,6 +178,7 @@ class Application(tk.Frame):
         self.lifeOfFundTEXT.insert(0, result[5])
         startDate = result[6].date()
         self.startDateTEXT.insert(0, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
+        '''
 
         # Get inputs if exists
         # Fill into correct spots
@@ -233,7 +249,8 @@ class Application(tk.Frame):
     # Exports the model to a csv file
     def _exportModel(self, widget, fileName):
         self.fundModel.exportToCsv("{}.csv".format(fileName))
-        widget.destroy()
+        if widget is not None:
+            widget.destroy()
         self.setStatus("Saved {}.csv".format(fileName))
 
     # Exports all fund stats to a csv file called fundStats.csv
@@ -281,29 +298,61 @@ class Application(tk.Frame):
             fundCodeDf = pd.read_excel(ospath("{}.xlsx".format(fileName)), header=None)
         except IOError:
             widget.destroy()
-            self.setStatus("Invalid Fund Code")
+            self.setStatus("Unable to find excel file!")
+            return
 
         fundCount = 0
         for row in fundCodeDf.iterrows():
-            print row[1][0]
+
+            fundCode = row[1][0]
+            print fundCode
+            #todo fully clear and replace the info
+            self.setEntryText(self.fundNameTEXT, fundCode)
+
+            fillInputError = self._fillInputs()
+            if fillInputError is True:
+                continue
+            # todo process the rows and check if correct
+            for periodLength in ModelPeriod.ModelPeriod:
+
+                self.setEntryText(self.segmentsTEXT, periodLength.value)
+                for type in range(0, 3):
+                    self.MODELTYPE.set(type)
+                    print self.MODELTYPE.get()
+
+
+                    self._createModel()
+                    self._exportModel(None, fundCode)
+                    #self._exportPopup()
+
             fundCount += 1
-            # todo process the rows
+            print self.fundNameTEXT["text"]
+
             pass
 
         widget.destroy()
         self.setStatus("{} fund files exported".format(fundCount))
 
-
-    # Sets the status of the GUI to the STATUS label
+    # Sets the status of the GUI to the STATUS label.
     def setStatus(self, status):
         self.STATUS["text"] = status
+
+    # Replaces any text in a given entry with the given text.
+    def setEntryText(self, entry, text):
+        entry.delete(0, tk.END)
+        entry.insert(0, text)
 
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
 
+
 root = tk.Tk()
+# Trying scrollbar
+#scrollbar = tk.Scrollbar(root)
+#scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+
 app = Application(master=root)
 app.mainloop()
 root.destroy()
