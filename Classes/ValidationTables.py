@@ -72,13 +72,3 @@ class Family(ValidationTable):
             self.getSponsorId() == other.getSponsorId()
 
 
-a = Family(1, 2)
-b = Family(1, 2)
-c = Family(1, 4)
-d = FundStyle(1, 2)
-testItems = [b, c, d]
-
-for item in testItems:
-    print a.sameItem(item)
-
-#T, F, F

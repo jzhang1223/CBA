@@ -5,10 +5,11 @@ import ValidationTables
 
 class ValidationReader(object):
 
-    def __init__(self, fileVersion="2.14"):
+    #"CBA Cash Flow Model - v2.14 - Far Hills.xlsx" ... initial test file
+    def __init__(self, fileName):
         self.CashFlowDB = Query.Query()
-        self.fileVersion = fileVersion
-        self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v{} - Far Hills.xlsx'.format(fileVersion)
+        self.fileName = fileName
+        self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)
         self.validationDf = pd.read_excel(ospath(self.filePath), sheet_name='Validation', header=1)
         self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)[
             ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
@@ -27,23 +28,25 @@ class ValidationReader(object):
         self.initializeSponsors()
         self.initializeMergedDf()
 
-        #self.processSponsors()
-
+    # Cleans the sponsor info.
     def initializeSponsors(self):
         self.sponsorDf = self.validationDf[['Sponsor_List', 'Sponsor_Code']]
         self.sponsorDf = self.sponsorDf.dropna()
         self.sponsorDf['Sponsor_List'] = self.sponsorDf['Sponsor_List'].str.strip()
 
+    # Cleans the fund style info.
     def initializeFundStyleDf(self):
         self.fundStyleDf = self.validationDf[['Fund_Style', 'Fund_Code']]
         self.fundStyleDf = self.fundStyleDf.dropna()
         self.fundStyleDf['Fund_Style'] = self.fundStyleDf['Fund_Style'].str.strip()
 
+    # Cleans the client info.
     def initializeClientDf(self):
         self.clientDf = self.validationDf[["Client_List", "Client_Code"]]
         self.clientDf = self.clientDf.dropna()
         self.clientDf['Client_List'] = self.clientDf['Client_List'].str.strip()
 
+    # Cleans the merged info of sponsors and families.
     def initializeMergedDf(self):
         self.familyDf = self.sponsorDataTableDf[["Sponsor", "Fund Family"]]
         self.familyDf = self.familyDf.dropna()
@@ -54,6 +57,7 @@ class ValidationReader(object):
             ['Sponsor_Code', 'Fund Family']]
         self.mergedDf = self.mergedDf.drop_duplicates()
 
+    # Processes and inserts sponsor info.
     def processSponsors(self):
         for row in self.sponsorDf.iterrows():
             rowItem = ValidationTables.Sponsor(row[1].get("Sponsor_Code"), row[1].get("Sponsor_List"))
@@ -64,6 +68,7 @@ class ValidationReader(object):
                     rowItem.getSponsorId().encode('utf-8'), rowItem.getSponsorName().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
 
+    # Processes and inserts fund style info.
     def processFundStyleDf(self):
         for row in self.fundStyleDf.iterrows():
             rowItem = ValidationTables.FundStyle(row[1].get("Fund_Code"), row[1].get("Fund_Style"))
@@ -74,7 +79,7 @@ class ValidationReader(object):
                     rowItem.getFundStyleId().encode('utf-8'), rowItem.getfundStyleName().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
 
-
+    # Processes and inserts client info.
     def processClientDf(self):
         for row in self.clientDf.iterrows():
             rowItem = ValidationTables.FundClient(row[1].get("Client_Code"), row[1].get("Client_List"))
@@ -85,7 +90,7 @@ class ValidationReader(object):
                     rowItem.getClientId().encode('utf-8'), rowItem.getClientName().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
 
-    #Inserts data into the Family table
+    # Processes and inserts family info.
     def processMergedDf(self):
         for row in self.mergedDf.iterrows():
             rowItem = ValidationTables.Family(row[1].get("Fund Family"), row[1].get("Sponsor_Code"))
@@ -96,6 +101,7 @@ class ValidationReader(object):
                     rowItem.getFamilyName().encode('utf-8'), rowItem.getSponsorId().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
 
+    # Processes and inserts fund info.
     def processFundInfo(self):
         fundDataDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         for row in fundDataDf.iterrows():
@@ -134,28 +140,29 @@ class ValidationReader(object):
         self.CashFlowDB.queryDB(query)
 
 
-    # Creates a new fund and adds statistics to it
+    # Creates a new fund and adds statistics to it.
     def _addFund(self, row):
         fundId = row[1].get("ID Code")
         query = ("INSERT INTO Fund (fundId) VALUES (\'{}\')".format(fundId))
         self.CashFlowDB.queryDB(query)
 
-    # Checks to see if the given query returns any results in cbaDB
+    # Checks to see if the given query returns any results in cbaDB.
     def _rowDoesntExist(self, query):
         cursor = self.CashFlowDB.queryDB(query)
         rowHolder = cursor.fetchone()
         return rowHolder is None
 
-    # Searches a table for a given field to find the correct Id value
+    # Searches a table for a given field to find the correct Id value.
     def _findId(self, table, key, field, criteria):
         query = "SELECT {} FROM {} WHERE {} = \'{}\'".format(key, table, field, criteria)
         cursor = self.CashFlowDB.queryDB(query)
         return cursor.fetchone()[0]
 
-a = ValidationReader()
-print a.sponsorDataTableDf["Commitment"]
-a.processSponsors()
-a.processFundStyleDf()
-a.processClientDf()
-a.processMergedDf()
-a.processFundInfo()
+    # Processes and inserts all info.
+    def processAll(self):
+        self.processSponsors()
+        self.processFundStyleDf()
+        self.processClientDf()
+        self.processMergedDf()
+        self.processFundInfo()
+

@@ -3,8 +3,10 @@ import FundModel as fm
 import inspect
 import pandas as pd
 from Classes import Output
+from Classes import ValidationReader
 import datetime
 from os.path import expanduser as ospath
+import os.path
 import ModelPeriod
 pd.set_option("display.max_rows", 10000)
 
@@ -17,7 +19,6 @@ class Application(tk.Frame):
 
         self.fundModel = None
         self.winfo_toplevel().title("Cash Flow Model")
-
 
         # Quit buttons
         self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
@@ -64,20 +65,22 @@ class Application(tk.Frame):
         self.MASSEXPORT = tk.Button(self, text = "Mass Export", command = self._massExportPopup)
         self.MASSEXPORT.grid(row = 0, column = 12)
 
+        # Button to import new data that is added to the excel sheets.
+        self.IMPORTDATA = tk.Button(self, text = "Import Data", command = self._importDataPopup)
+        self.IMPORTDATA.grid(row = 0, column = 13)
+
+        # Testing window size
+        def get_size():
+            w = root.winfo_width()
+            h = root.winfo_height()
+            print "Width: {} ... Height: {}".format(w, h)
+            print "REQUESTING ... Width: {} ... Height: {}".format(
+                self.winfo_reqwidth(), root.winfo_reqwidth())
+        self.btn = tk.Button(self, text="Window Size", command=get_size)
+        self.btn.grid(row=0, column=14)
+
         self._setupEntryWidgets()
-
-    '''
-        self.FORECAST = tk.Button(self)
-        self.FORECAST["text"] = "Forecast Model"
-        self.FORECAST["command"] = self._forecastModel
-        self.FORECAST.grid(row = 0, column = 3)
-
-    
-        self.FUNDNAME = tk.Entry(self)
-
-        self.FUNDNAME.pack({"side": "left"})
-    '''
-
+        #self.master.maxsize(self.winfo_reqwidth(), self.winfo_reqheight())
 
     # Sets up the components for entering Fund Model Data
     def _setupEntryWidgets(self):
@@ -168,18 +171,6 @@ class Application(tk.Frame):
         startDate = result[6].date()
         self.setEntryText(self.startDateTEXT, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
 
-        '''
-        self.capitalCommitmentTEXT.insert(0, str(commitmentResult))
-        self.contributionRatesTEXT.insert(0, result[0])
-        self.bowTEXT.insert(0, result[1])
-        self.growthRateTEXT.insert(0, result[2])
-        self.fundYieldTEXT.insert(0, result[3])
-        self.lastInvestmentYearTEXT.insert(0, result[4])
-        self.lifeOfFundTEXT.insert(0, result[5])
-        startDate = result[6].date()
-        self.startDateTEXT.insert(0, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
-        '''
-
         # Get inputs if exists
         # Fill into correct spots
         # Give status
@@ -233,18 +224,6 @@ class Application(tk.Frame):
             self.setStatus("Model has not yet been created")
         else:
             self._popupWindow("Export Menu", "Export File As (.csv extension is already included):", "Confirm Export", self._exportModel)
-            '''
-            top = tk.Toplevel()
-            top.title("Export Menu")
-            text = tk.Message(top, text = "Export File As (.csv extension is already included):")
-            text.pack()
-            fileEntry = tk.Entry(top)
-            fileEntry.pack()
-            confirmButton = tk.Button(top, text = "Confirm Export", command = lambda: self._exportModel(top, fileEntry.get()))
-            confirmButton.pack()
-            cancelButton = tk.Button(top, text = "Cancel", command = top.destroy)
-            cancelButton.pack()
-            '''
 
     # Exports the model to a csv file
     def _exportModel(self, widget, fileName):
@@ -265,18 +244,6 @@ class Application(tk.Frame):
     # The file should be an excel sheet with fund codes listed all in the first column.
     def _massExportPopup(self):
         self._popupWindow("Mass Export Menu", "Read from (.xlsx extention is already included): ", "Confirm Mass Export", self._massExport)
-        '''
-        top = tk.Toplevel()
-        top.title("Mass Export Menu")
-        text = tk.Message(top, text="Read from: ")
-        text.pack()
-        fileEntry = tk.Entry(top)
-        fileEntry.pack()
-        confirmButton = tk.Button(top, text="Confirm Mass Export", command=lambda: self._massExport(top, fileEntry.get()))
-        confirmButton.pack()
-        cancelButton = tk.Button(top, text="Cancel", command=top.destroy)
-        cancelButton.pack()
-        '''
 
     # Creates a simple popup window with a text box, entry box, execute box, and cancel box.
     # Reads the argument from the entry box when executing the command.
@@ -303,39 +270,57 @@ class Application(tk.Frame):
 
         fundCount = 0
         for row in fundCodeDf.iterrows():
-
             fundCode = row[1][0]
-            print fundCode
-            #todo fully clear and replace the info
             self.setEntryText(self.fundNameTEXT, fundCode)
-
             fillInputError = self._fillInputs()
             if fillInputError is True:
                 continue
-            # todo process the rows and check if correct
             for periodLength in ModelPeriod.ModelPeriod:
-
                 self.setEntryText(self.segmentsTEXT, periodLength.value)
                 for type in range(0, 3):
                     self.MODELTYPE.set(type)
-                    print self.MODELTYPE.get()
-
-
                     self._createModel()
                     self._exportModel(None, fundCode)
-                    #self._exportPopup()
 
             fundCount += 1
-            print self.fundNameTEXT["text"]
-
-            pass
 
         widget.destroy()
         self.setStatus("{} fund files exported".format(fundCount))
 
+    # Creates a popup window to prompt user for where to read data from.
+    def _importDataPopup(self):
+        self._popupWindow("Import Data Menu", "Read from (.xlsx extention is already included): ",
+                            "Confirm Data Import", self._importData)
+
+    # Imports (client, sponsor, fund, raw) data from the given file name.
+    def _importData(self, widget, fileName):
+        # ~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v2.17 Clearspring Analysis.xlsx
+        if not os.path.exists('/Users/Whit/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)):
+            widget.destroy()
+            self.setStatus("Unable to find excel file!")
+            return
+
+        validationReader = ValidationReader.ValidationReader(fileName)
+        validationReader.processAll()
+        # todo import raw data info
+        widget.destroy()
+        self.setStatus("Data imported")
+
+    # Deletes all data from the database
+    def _resetData(self):
+        # todo
+        pass
+
+
+
+
+
     # Sets the status of the GUI to the STATUS label.
+    # Also adjusts the GUI to the requested size.
     def setStatus(self, status):
         self.STATUS["text"] = status
+        print "WIDTH : {}".format(self.master.winfo_reqwidth())
+        self.master.maxsize(self.winfo_reqwidth(), self.winfo_reqheight())
 
     # Replaces any text in a given entry with the given text.
     def setEntryText(self, entry, text):
@@ -350,9 +335,15 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 # Trying scrollbar
+
+
+# inherits tk.Frame
+app = Application(master=root)
+
 #scrollbar = tk.Scrollbar(root)
 #scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+#scrollbar.config(command=app.yview)
 
-app = Application(master=root)
+
 app.mainloop()
 root.destroy()
