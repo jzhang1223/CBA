@@ -67,6 +67,10 @@ class Application(tk.Frame):
         self.IMPORTDATA = tk.Button(self, text = "Import Data", command = self._importDataPopup)
         self.IMPORTDATA.grid(row = 0, column = 13)
 
+        # Button to erase all data in the database.
+        self.CLEARDATABASE = tk.Button(self, text = "CLEAR DATABASE", command = self._clearDatabasePopup)
+        self.CLEARDATABASE.grid(row = 0, column = 14)
+
         '''
         # Testing window size
         def get_size():
@@ -309,10 +313,21 @@ class Application(tk.Frame):
         widget.destroy()
         self.setStatus("Data imported")
 
+    def _clearDatabasePopup(self):
+        top = tk.Toplevel()
+        top.title("Clearing Database Menu")
+        text = tk.Message(top, text="Are you sure you want to clear the database?")
+        text.pack()
+        confirmButton = tk.Button(top, text="Confirm clearing database", command=lambda : self._clearDatabase(top))
+        confirmButton.pack()
+        cancelButton = tk.Button(top, text="Cancel", command=top.destroy)
+        cancelButton.pack()
+
     # Deletes all data from the database
-    def _resetData(self):
-        # todo
-        pass
+    def _clearDatabase(self, widget):
+        #todo clear database with query
+        self.setStatus("DATABASE CLEARED")
+        widget.destroy()
 
     # Sets the status of the GUI to the STATUS label.
     # Also adjusts the GUI to the requested size.
@@ -320,10 +335,8 @@ class Application(tk.Frame):
         self.STATUS["text"] = status
 
         root.update_idletasks()
-        print "ROOT WIDTH 1 : {}".format(root.winfo_reqwidth())
         root.maxsize(width=root.winfo_reqwidth(), height=root.winfo_reqheight())
         root.geometry("{}x{}".format(root.winfo_reqwidth(), root.winfo_reqheight()))
-        print "ROOT WIDTH 2 : {}".format(root.winfo_reqwidth())
 
     # Replaces any text in a given entry with the given text.
     def setEntryText(self, entry, text):

@@ -25,11 +25,11 @@ class ValidationReader(object):
         # Should probably be abstracted given more time
         self.initializeClientDf()
         self.initializeFundStyleDf()
-        self.initializeSponsors()
+        self.initializeSponsorDf()
         self.initializeMergedDf()
 
     # Cleans the sponsor info.
-    def initializeSponsors(self):
+    def initializeSponsorDf(self):
         self.sponsorDf = self.validationDf[['Sponsor_List', 'Sponsor_Code']]
         self.sponsorDf = self.sponsorDf.dropna()
         self.sponsorDf['Sponsor_List'] = self.sponsorDf['Sponsor_List'].str.strip()
