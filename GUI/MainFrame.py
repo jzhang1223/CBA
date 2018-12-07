@@ -14,10 +14,8 @@ class Application(tk.Frame):
 
 
     def createWidgets(self):
-        # Title of window
-
-
         self.fundModel = None
+        # Title of window
         self.winfo_toplevel().title("Cash Flow Model")
 
         # Quit buttons
@@ -69,18 +67,22 @@ class Application(tk.Frame):
         self.IMPORTDATA = tk.Button(self, text = "Import Data", command = self._importDataPopup)
         self.IMPORTDATA.grid(row = 0, column = 13)
 
+        '''
         # Testing window size
         def get_size():
             w = root.winfo_width()
             h = root.winfo_height()
-            print "Width: {} ... Height: {}".format(w, h)
+            print "CURRENTLY ... Width: {} ... Height: {}".format(w, h)
             print "REQUESTING ... Width: {} ... Height: {}".format(
-                self.winfo_reqwidth(), root.winfo_reqwidth())
+                root.winfo_reqwidth(), root.winfo_reqheight())
+            print "MAXIMUMS: {}".format(root.maxsize())
+
         self.btn = tk.Button(self, text="Window Size", command=get_size)
         self.btn.grid(row=0, column=14)
+        '''
 
         self._setupEntryWidgets()
-        #self.master.maxsize(self.winfo_reqwidth(), self.winfo_reqheight())
+        self.setStatus("Welcome")
 
     # Sets up the components for entering Fund Model Data
     def _setupEntryWidgets(self):
@@ -205,6 +207,7 @@ class Application(tk.Frame):
     #todo
     def _saveData(self):
         print "saving data..."
+        pass
 
     # Clears the inputs to the entry boxes.
     def _clearInputs(self):
@@ -311,16 +314,16 @@ class Application(tk.Frame):
         # todo
         pass
 
-
-
-
-
     # Sets the status of the GUI to the STATUS label.
     # Also adjusts the GUI to the requested size.
     def setStatus(self, status):
         self.STATUS["text"] = status
-        print "WIDTH : {}".format(self.master.winfo_reqwidth())
-        self.master.maxsize(self.winfo_reqwidth(), self.winfo_reqheight())
+
+        root.update_idletasks()
+        print "ROOT WIDTH 1 : {}".format(root.winfo_reqwidth())
+        root.maxsize(width=root.winfo_reqwidth(), height=root.winfo_reqheight())
+        root.geometry("{}x{}".format(root.winfo_reqwidth(), root.winfo_reqheight()))
+        print "ROOT WIDTH 2 : {}".format(root.winfo_reqwidth())
 
     # Replaces any text in a given entry with the given text.
     def setEntryText(self, entry, text):
@@ -334,16 +337,9 @@ class Application(tk.Frame):
 
 
 root = tk.Tk()
-# Trying scrollbar
-
 
 # inherits tk.Frame
 app = Application(master=root)
-
-#scrollbar = tk.Scrollbar(root)
-#scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-#scrollbar.config(command=app.yview)
-
 
 app.mainloop()
 root.destroy()
