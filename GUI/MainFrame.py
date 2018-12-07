@@ -8,10 +8,9 @@ import datetime
 from os.path import expanduser as ospath
 import os.path
 import ModelPeriod
-pd.set_option("display.max_rows", 10000)
+#pd.set_option("display.max_rows", 10000)
 
 class Application(tk.Frame):
-
 
     def createWidgets(self):
         self.fundModel = None
@@ -19,57 +18,57 @@ class Application(tk.Frame):
         self.winfo_toplevel().title("Cash Flow Model")
 
         # Quit buttons
-        self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
-        self.QUIT.grid(row = 0, column = 0)
+        #self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
+        #self.QUIT.grid(row = 0, column = 0)
 
         # Resets the model and clears the GUI output.
         self.RESET = tk.Button(self, text = "Reset Model", command = self._resetAll)
-        self.RESET.grid(row = 0, column = 1)
+        self.RESET.grid(row = 0, column = 0)
 
         # Clears only the input values, excluding the fundID.
         self.CLEARINPUTS = tk.Button(self, text = "Clear Inputs", command = self._clearInputs)
-        self.CLEARINPUTS.grid(row = 0, column = 2)
+        self.CLEARINPUTS.grid(row = 0, column = 1)
 
         # Fills in parameters based on the given fundID.
         self.FILLINPUTS = tk.Button(self, text = "Fill Inputs", command = self._fillInputs)
-        self.FILLINPUTS.grid(row = 0, column = 3)
+        self.FILLINPUTS.grid(row = 0, column = 2)
 
         # Button to create model base on filled in parameters, will overwrite any existing model.
         self.SUBMIT = tk.Button(self, text = "Create Model", command = self._createModel)
-        self.SUBMIT.grid(row = 0, column = 4)
+        self.SUBMIT.grid(row = 0, column = 3)
 
         # Button to export current model.
         self.EXPORT = tk.Button(self, text = "Export Model", command = self._exportPopup)
-        self.EXPORT.grid(row = 0, column = 5)
+        self.EXPORT.grid(row = 0, column = 4)
 
         # Label for most recent status.
         self.STATUS = tk.Label(self)
-        self.STATUS.grid(row = 0, column = 6)
+        self.STATUS.grid(row = 0, column = 5)
 
         # Radio buttons for choosing the type of model.
         self.MODELTYPE = tk.IntVar()
         self.PROJECTIONBUTTON = tk.Radiobutton(self, text="Projection Only", variable=self.MODELTYPE, value=0)
         self.ACTUALBUTTON = tk.Radiobutton(self, text="Actuals Only", variable=self.MODELTYPE, value=1)
         self.ACTUALANDPROJECTIONBUTTON = tk.Radiobutton(self, text="Actuals + Projection", variable=self.MODELTYPE, value=2)
-        self.PROJECTIONBUTTON.grid(row = 0, column = 7)
-        self.ACTUALBUTTON.grid(row = 0, column = 8)
-        self.ACTUALANDPROJECTIONBUTTON.grid(row = 0, column = 9)
+        self.PROJECTIONBUTTON.grid(row = 0, column = 6)
+        self.ACTUALBUTTON.grid(row = 0, column = 7)
+        self.ACTUALANDPROJECTIONBUTTON.grid(row = 0, column = 8)
 
         # Button for exporting fund stats, exports as fundStats.csv
         self.FUNDSTATS = tk.Button(self, text = "Fund Stats", command = self._exportFundStats)
-        self.FUNDSTATS.grid(row = 0, column = 11)
+        self.FUNDSTATS.grid(row = 0, column = 10)
 
         # Button for exporting the Base Model, Actuals, and Actuals + Projections from reading an excel sheet.
         self.MASSEXPORT = tk.Button(self, text = "Mass Export", command = self._massExportPopup)
-        self.MASSEXPORT.grid(row = 0, column = 12)
+        self.MASSEXPORT.grid(row = 0, column = 11)
 
         # Button to import new data that is added to the excel sheets.
         self.IMPORTDATA = tk.Button(self, text = "Import Data", command = self._importDataPopup)
-        self.IMPORTDATA.grid(row = 0, column = 13)
+        self.IMPORTDATA.grid(row = 0, column = 12)
 
         # Button to erase all data in the database.
         self.CLEARDATABASE = tk.Button(self, text = "CLEAR DATABASE", command = self._clearDatabasePopup)
-        self.CLEARDATABASE.grid(row = 0, column = 14)
+        self.CLEARDATABASE.grid(row = 0, column = 13)
 
         '''
         # Testing window size
@@ -355,4 +354,6 @@ root = tk.Tk()
 app = Application(master=root)
 
 app.mainloop()
-root.destroy()
+# root.quit() completely stops the TCL interpreter, so others running on it will stop too.#
+#root.quit()
+# root.destroy() only terminates the mainloop and deletes all widgets, so is slightly safer.

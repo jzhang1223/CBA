@@ -268,4 +268,4 @@ class Reader(ReaderAPI.ReaderAPI):
                 result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
                 self._processCashFlow(result)
 
-a = Reader("temp")
+#a = Reader("temp")
