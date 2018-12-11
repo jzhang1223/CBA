@@ -5,22 +5,28 @@ import ValidationTables
 
 class ValidationReader(object):
 
-    #"CBA Cash Flow Model - v2.14 - Far Hills.xlsx" ... initial test file
+    #"CBA Cash Flow Model - v2.17 Clearspring Analysis.xlsx" ... initial test file
     def __init__(self, fileName):
         self.CashFlowDB = Query.Query()
         self.fileName = fileName
         self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)
         self.validationDf = pd.read_excel(ospath(self.filePath), sheet_name='Validation', header=1)
-        self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)[
-            ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
-             "Invest Start Date", "Commitment ($M)","Contribution (% of Rem. Commit)", "Unnamed: 14", "Unnamed: 15", "Unnamed: 16", "Unnamed: 17",
-             "Model Metrics", "Unnamed: 19", "Unnamed: 20", "Model Years to", "Unnamed: 23"]]
+        #print self.validationDf.columns
+        self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)[["ID Code",
+            "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
+            "Invest Start Date", "Fund Size ($M)", "Commitment ($M)","Contribution (% of Rem. Commit)", "Unnamed: 14",
+            "Unnamed: 15", "Unnamed: 16", "Unnamed: 17", "Model Metrics", "Unnamed: 19", "Unnamed: 20", "Model Years to",
+            "Unnamed: 23", "Projected Metrics", "Unnamed: 27", "Unnamed: 28", "Projected Years to", "Unnamed: 30", "Currency"]]
         # Renamming the columns to be readable
-        self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
-             "Invest Start Date", "Commitment", "Contribution 1", "Contribution 2", "Contribution 3", "Contribution 4", "Contribution 5",
-             "Bow", "Growth Rate", "Yield", "Invest Years", "Life"]
+        self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year",
+            "Close Date", "Invest Start Date", "Fund Size$M", "Commitment$M", "Contribution 1", "Contribution 2", "Contribution 3",
+            "Contribution 4", "Contribution 5", "Bow", "Growth Rate", "Yield", "Invest Years", "Life", "Projected Bow",
+            "Projected Growth", "Projected Yield", "Projected Invest Years", "Projected Life", "Currency"]
+
         self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         self.sponsorDataTableDf["Fund Family"] = self.sponsorDataTableDf["Fund Family"].str.strip()
+        self.sponsorDataTableDf["Fund Size$M"] = self.sponsorDataTableDf["Fund Size$M"].fillna(value='null')
+        print self.sponsorDataTableDf.head(3)
 
         # Should probably be abstracted given more time
         self.initializeClientDf()
@@ -118,25 +124,32 @@ class ValidationReader(object):
 
     # Adds all statistics to an existing fund that needs more info
     def _appendFund(self, row):
+        row = row[1]
         # FamilyID PK is just the family name so its OK
-        fundStyleId = self._findId("FundStyle", "fundStyleId", "fundStyleName", row[1].get("Fund Style"))
-        if pd.isnull(row[1].get("Client")):
+        fundStyleId = self._findId("FundStyle", "fundStyleId", "fundStyleName", row.get("Fund Style"))
+        if pd.isnull(row.get("Client")):
             fundClientId = "null"
         else:
-            fundClientId = "\'{}\'".format(self._findId("FundClient", "clientId", "clientName", row[1].get("Client")))
+            fundClientId = "\'{}\'".format(self._findId("FundClient", "clientId", "clientName", row.get("Client")))
 
-        contributionRates = ", ".join([str(row[1].get("Contribution 1")), str(row[1].get("Contribution 2")), str(row[1].get("Contribution 3")),
-                                       str(row[1].get("Contribution 4")), str(row[1].get("Contribution 5"))])
+        contributionRates = ", ".join([str(row.get("Contribution 1")), str(row.get("Contribution 2")), str(row.get("Contribution 3")),
+                                       str(row.get("Contribution 4")), str(row.get("Contribution 5"))])
 
         statement = ("UPDATE Fund SET familyId = \'{}\', fundStyleId = \'{}\', clientId = {}, designation = \'{}\', "
-                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
-                 "closeDate = \'{}\', investStartDate = \'{}\', commitment = {}, contributionRates = \'{}\' WHERE fundId = \'{}\'")
-        query = statement.format(row[1].get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row[1].get("Designation"),
-                                 row[1].get("Growth Rate"), row[1].get("Yield"),row[1].get("Bow"),
-                                 row[1].get("Invest Years"),row[1].get("Life"), row[1].get("Vintage Year"),
-                                 row[1].get("Close Date"), row[1].get("Invest Start Date"), row[1].get("Commitment") * 1000000,
-                                 contributionRates, row[1].get("ID Code"))
+                "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
+                "closeDate = \'{}\', investStartDate = \'{}\', fundSize$M = {}, currency = \'{}\', commitment$M = {}, "
+                "contributionRates = \'{}\', projectedGrowth = {}, projectedYield = {}, projectedBow = {}, projectedInvestYears = {}, "
+                     "projectedLife = {} WHERE fundId = \'{}\'")
 
+        query = statement.format(row.get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row.get("Designation"),
+                                 row.get("Growth Rate"), row.get("Yield"),row.get("Bow"),
+                                 row.get("Invest Years"),row.get("Life"), row.get("Vintage Year"),
+                                 row.get("Close Date"), row.get("Invest Start Date"), row.get("Fund Size$M"),
+                                 row.get("Currency"), row.get("Commitment$M"), contributionRates,
+                                 row.get("Projected Growth"), row.get("Projected Yield"), row.get("Projected Bow"),
+                                 row.get("Projected Invest Years"), row.get("Projected Life"), row.get("ID Code"))
+
+        #print query
         self.CashFlowDB.queryDB(query)
 
 
@@ -166,3 +179,5 @@ class ValidationReader(object):
         self.processMergedDf()
         self.processFundInfo()
 
+a = ValidationReader("CBA Cash Flow Model - v2.17 Clearspring Analysis")
+a.processAll()

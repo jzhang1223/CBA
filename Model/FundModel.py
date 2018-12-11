@@ -7,7 +7,6 @@ from Calculations import FundLastDate
 from Calculations import ConvertDate
 from enum import Enum
 
-
 # Able to output projected values for a fund based on given information.
 # Casts items to their desired types
 class FundModel(object):

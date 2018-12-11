@@ -8,6 +8,7 @@ import datetime
 from os.path import expanduser as ospath
 import os.path
 import ModelPeriod
+from Classes import Query
 #pd.set_option("display.max_rows", 10000)
 
 class Application(tk.Frame):
@@ -155,7 +156,6 @@ class Application(tk.Frame):
     # Fill in the inputs based on the fundId given
     def _fillInputs(self):
         #commitment, segments
-        import Query
         CashflowDB = Query.Query()
         query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
                  "FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))

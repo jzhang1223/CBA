@@ -10,7 +10,6 @@ class Query(QueryAPI.QueryAPI):
                                  password='cba71118',
                                  db='cbaDB')
 
-
     def getFundTransactions(self, fundID):
         try:
             #with self.connection.cursor() as cursor:
@@ -20,8 +19,6 @@ class Query(QueryAPI.QueryAPI):
             self.queryDB(query)
         except Exception as e:
             print e
-
-
 
     def remainingCommitment(self, fundID, endDate):
         return NotImplementedError("Todo")
