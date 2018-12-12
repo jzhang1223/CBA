@@ -6,6 +6,7 @@ from Calculations import FundStartDate
 from Calculations import FundLastDate
 from Calculations import ConvertDate
 from enum import Enum
+import ModelPeriod
 
 # Able to output projected values for a fund based on given information.
 # Casts items to their desired types
@@ -115,14 +116,18 @@ class FundModel(object):
 
 
     # Exports Values to a csv
-    def exportToCsv(self, fileName):
+    def exportToCsv(self, fileName, fundId):
         # self._formatModelToDataframe().to_csv("../" + fileName, index=False)
+        #todo prepend info before exporting
         modelData = self._formatModelToDataframe()
-
+        modelData.insert(loc=0, column="Fund Code", value=[fundId] * 7)
+        modelData.insert(loc=1, column="Model Type", value=[self._getModelType().name] * 7)
+        modelData.insert(loc=2, column="Model Frequency", value=[self._convertModelPeriod(self.segments)] * 7)
         # 'a' for append
         with open(fileName, 'a') as file:
             print "TRYING TO MOVE TO CSV"
             modelData.to_csv(file, header=True)
+            print modelData
 
     # Returns the predicted contribution values based on its own fields.
     def predictContribution(self, currentTime):
@@ -211,10 +216,9 @@ class FundModel(object):
     def _predictDate(self, currentTime, lifeOfFund):
         return self.calculate.correctDate(currentTime, self.startDate, self.segments, lifeOfFund)
 
-    # Returns the proper number of segments based on a given ModelPeriod.
-    # Not yet used
-    def _convertModelPeriod(self, modelPeriod):
-        return modelPeriod.value
+    # Returns the proper ModelPeriod name based on the given number of segments.
+    def _convertModelPeriod(self, segments):
+        return ModelPeriod.ModelPeriod(segments).name
 
     # Returns the time of the model based on the number of elements in the list of contributions.
     def _getModelTime(self):
@@ -290,6 +294,16 @@ class FundModel(object):
             contributionRates.append(contributionRates[-1])
         return contributionRates
 
+    # Determines whether this is a Model, Actual, or Projection
+    def _getModelType(self):
+        if EntryType.actual not in self._typeList:
+            return ModelType.model
+        elif EntryType.projection not in self._typeList:
+            return ModelType.actual
+        else:
+            return ModelType.projection
+
+
 
 
 
@@ -303,7 +317,6 @@ class FundModel(object):
     def getNavList(self):
         return self._navList
         
-    
         '''
 
     def _setContributionList(self, newList):
@@ -319,4 +332,7 @@ class EntryType(Enum):
     projection = 0
     actual = 1
 
-
+class ModelType(Enum):
+    model = 0
+    actual = 1
+    projection = 2

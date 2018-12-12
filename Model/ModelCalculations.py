@@ -21,7 +21,7 @@ class ModelCalculations(object):
 
         growth = self.growth(previousNAV, growthRate, contribution)
         print "growth={}".format(growth)
-        if self.modelType == ModelPeriod.ModelPeriod.annually:
+        if self.modelType == ModelPeriod.ModelPeriod.annual:
             return rateOfDistribution * (previousNAV + growth)
         # includes 50% of contributions into growth rate
         elif self.modelType == ModelPeriod.ModelPeriod.quarterly:
@@ -51,7 +51,7 @@ class ModelCalculations(object):
     # Growth(t) = [NAV(t-1)] * GrowthRate    ....  for annual model
     # Growth(t) = [NAV(t-1) + .25 * C(t)] * GrowthRate    .... for quarterly model
     def growth(self, previousNAV, growthRate, contributions):
-        if self.modelType == ModelPeriod.ModelPeriod.annually:
+        if self.modelType == ModelPeriod.ModelPeriod.annual:
             return previousNAV * growthRate
         elif self.modelType == ModelPeriod.ModelPeriod.quarterly:
             #return (growthRate * (previousNAV + (contributions * .25)))

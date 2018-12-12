@@ -231,9 +231,11 @@ class Application(tk.Frame):
         else:
             self._popupWindow("Export Menu", "Export File As (.csv extension is already included):", "Confirm Export", self._exportModel)
 
-    # Exports the model to a csv file
+    # Exports the model to a csv file, with the fund name in the entry box
     def _exportModel(self, widget, fileName):
-        self.fundModel.exportToCsv("{}.csv".format(fileName))
+        #todo get fund name
+
+        self.fundModel.exportToCsv("{}.csv".format(fileName), self.fundNameTEXT.get())
         if widget is not None:
             widget.destroy()
         self.setStatus("Saved {}.csv".format(fileName))
@@ -274,6 +276,7 @@ class Application(tk.Frame):
             self.setStatus("Unable to find excel file!")
             return
 
+        exportName = "MassExport {}".format(datetime.datetime.now().strftime("%Y:%m:%d %H-%M-%S"))
         fundCount = 0
         for row in fundCodeDf.iterrows():
             fundCode = row[1][0]
@@ -286,12 +289,12 @@ class Application(tk.Frame):
                 for type in range(0, 3):
                     self.MODELTYPE.set(type)
                     self._createModel()
-                    self._exportModel(None, fundCode)
+                    self._exportModel(None, exportName)
 
             fundCount += 1
 
         widget.destroy()
-        self.setStatus("{} fund files exported".format(fundCount))
+        self.setStatus("{} funds exported to {}.xlsx".format(fundCount, exportName))
 
     # Creates a popup window to prompt user for where to read data from.
     def _importDataPopup(self):

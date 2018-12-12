@@ -107,7 +107,7 @@ class ValidationReader(object):
                     rowItem.getFamilyName().encode('utf-8'), rowItem.getSponsorId().encode('utf-8')))
                 self.CashFlowDB.queryDB(query)
 
-    # Processes and inserts fund info.
+    # Processes and inserts fund info. Will update data if parameters are changed.
     def processFundInfo(self):
         fundDataDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         for row in fundDataDf.iterrows():
@@ -122,7 +122,7 @@ class ValidationReader(object):
                 print "Appending to existing row"
 
 
-    # Adds all statistics to an existing fund that needs more info
+    # Adds all statistics to an existing fund that needs more info.
     def _appendFund(self, row):
         row = row[1]
         # FamilyID PK is just the family name so its OK
@@ -179,5 +179,5 @@ class ValidationReader(object):
         self.processMergedDf()
         self.processFundInfo()
 
-a = ValidationReader("CBA Cash Flow Model - v2.17 Clearspring Analysis")
-a.processAll()
+#a = ValidationReader("CBA Cash Flow Model - v2.17 Clearspring Analysis")
+#a.processAll()

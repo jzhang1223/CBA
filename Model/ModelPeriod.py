@@ -1,7 +1,7 @@
 from enum import Enum
 
 class ModelPeriod(Enum):
-    annually = 1
+    annual = 1
     quarterly = 4
 
 
