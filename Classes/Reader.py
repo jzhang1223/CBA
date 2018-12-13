@@ -4,7 +4,7 @@ from datetime import datetime
 from Classes import Query
 import csv
 
-
+# DEPRECATED *** reads from csv file, Reader1.py is now reading straight from excel file
 class Reader(ReaderAPI.ReaderAPI):
     #fileName = None
     #limit = None

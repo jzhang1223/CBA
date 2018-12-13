@@ -4,6 +4,7 @@ import inspect
 import pandas as pd
 from Classes import Output
 from Classes import ValidationReader
+from Classes import Reader1
 import datetime
 from os.path import expanduser as ospath
 import os.path
@@ -325,9 +326,14 @@ class Application(tk.Frame):
         cancelButton = tk.Button(top, text="Cancel", command=top.destroy)
         cancelButton.pack()
 
-    # Deletes all data from the database
+    # Deletes all data from the database (Except for cashflowtype)
     def _clearDatabase(self, widget):
-        #todo clear database with query
+        # Ordered for foreign key dependancies.
+        tableToBeCleared = ["CashFlow", "Fund", "FundStyle", "FundClient", "Family", "Sponsor"]
+        CashflowDB = Query.Query()
+        for table in tableToBeCleared:
+            CashflowDB.queryDB("DELETE FROM {}".format(table))
+
         self.setStatus("DATABASE CLEARED")
         widget.destroy()
 
