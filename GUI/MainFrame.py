@@ -156,10 +156,19 @@ class Application(tk.Frame):
 
     # Fill in the inputs based on the fundId given
     def _fillInputs(self):
+
+
         #commitment, segments
         CashflowDB = Query.Query()
+
         query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
                  "FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
+        # UI signals to not use the base values for filling inputs and should use projected parameters instead.
+        # Check the radiobutton variable to adjust the query
+        if (self.MODELTYPE.get() == 2):
+            query = ("SELECT contributionRates, projectedBow, projectedGrowth, projectedYield, projectedInvestYears,"
+                     " projectedLife, investStartDate FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
+
         result = CashflowDB.queryDB(query).fetchone()
         commitmentQuery = "SELECT capitalCommited(\'{}\')".format(self.fundNameTEXT.get())
         commitmentResult = CashflowDB.queryDB(commitmentQuery).fetchone()[0]
@@ -289,6 +298,7 @@ class Application(tk.Frame):
                 self.setEntryText(self.segmentsTEXT, periodLength.value)
                 for type in range(0, 3):
                     self.MODELTYPE.set(type)
+                    self._fillInputs()
                     self._createModel()
                     self._exportModel(None, exportName)
 

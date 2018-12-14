@@ -26,14 +26,7 @@ class Reader(ReaderAPI.ReaderAPI):
         raw_data = self._cleanData(raw_data)
 
         for row in raw_data.iterrows():
-
             self._processRow(row[1])
-
-        print raw_data.columns
-        print type(raw_data["Notes"])
-        print raw_data["Notes"]
-        print raw_data["Type"]
-
 
 
     # Cleans the dataframe before it is to be processed
@@ -272,4 +265,4 @@ class Reader(ReaderAPI.ReaderAPI):
                 result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
                 self._processCashFlow(result)
 
-a = Reader("CBA Cash Flow Model - v2.17 Clearspring Analysis")
+#a = Reader("CBA Cash Flow Model - v2.17 Clearspring Analysis")
