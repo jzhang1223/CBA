@@ -13,7 +13,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
     def getFileName(self):
         #return self.fileName
-        return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v2.17 Clearspring Analysis.xlsx"
+        return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx".format(self.fileName)
 
     def getLimit(self):
         raise NotImplementedError("Not necessary to implement")
@@ -21,15 +21,13 @@ class Reader(ReaderAPI.ReaderAPI):
     def _read(self):
         #todo
         # Reads the Raw_Data sheet, deletes rows where fund is na, and iterates over the rows
-        raw_data = pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1, keep_default_na=False)
+        raw_data = pd.read_excel(ospath(self.getFileName()), sheet_name="Raw_Data", header=1)
 
         raw_data = self._cleanData(raw_data)
 
         for row in raw_data.iterrows():
-            print "{} : {}".format(row[1][0], row[1]['Notes'])
 
-            #self._processRow(row[1])
-            #print self._isSimpleRow(row[1])
+            self._processRow(row[1])
 
         print raw_data.columns
         print type(raw_data["Notes"])
@@ -50,6 +48,7 @@ class Reader(ReaderAPI.ReaderAPI):
         raw_data = raw_data[raw_data["Fund Code"].notna()]
 
         # Creates empty string for the type and notes if they are na
+
         raw_data['Notes'] = raw_data['Notes'].fillna('')
         raw_data['Type'] = raw_data['Type'].fillna('')
         # Encode into utf-8 to avoid unusual symbols
@@ -70,15 +69,20 @@ class Reader(ReaderAPI.ReaderAPI):
             raise ValueError("No valid fund. Try checking the Sponsor Data Table sheet")
         elif self._isCommitment(row):
             self._makeInitialCommitment(row)
+            print "MADE INITIAL COMMITMENT"
         elif self._isQtr(row):
             self._makeQtr(row)
+            print "MADE QTR"
         elif self._isSimpleRow(row):
             self._makeSimpleRow(row)
+            print "MADE SIMPLE ROW"
         elif self._isInferredRow(row):
             self._makeInferredRow(row)
+            print "MADE INFERRED ROW"
         else:
             # ignore the base cash flow value and make multiple inputs
             self._makeComplexRow(row)
+            print "MADE COMPLEX ROW"
 
 
     # From old code before the data was cleaned... may not be needed.
@@ -98,7 +102,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Determines if a given row is an initial commitment value.
     def _isCommitment(self, row):
-        noCashFlow = (pd.isna(row['Cash Flow']))
+        noCashFlow = (pd.isna(row['Cash Flow'])) or row['Cash Flow'] == 0
         hasCommitment = (pd.notna(row['Commitment']))
         noQtr = (pd.isna(row['Qtr Valuation']))
         return noCashFlow and hasCommitment and noQtr
@@ -122,13 +126,13 @@ class Reader(ReaderAPI.ReaderAPI):
 
     # Tries to add a CashFlow object into the CashFlow table in the DB.
     def _processCashFlow(self, cashflow):
-        check = ("SELECT * FROM CashFlow WHERE fundID=\'{}\' AND cfDate=\'{}\' AND cashValue=\'{}\' AND typeID=\'{}\'"
+        check = ("SELECT * FROM CashFlow WHERE fundID=\'{}\' AND cfDate=\'{}\' AND cashValue={} AND typeID={}"
                  " AND notes=\'{}\'".format(cashflow.getFundID(), cashflow.getDate(), cashflow.getValue(),
                                             cashflow.getTypeID(), cashflow.getNotes()))
         cursor = self.CashFlowDB.queryDB(check)
         rowHolder = cursor.fetchone()
         if rowHolder is None:
-            query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\'".format(
+            query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) VALUES (\'{}\', \'{}\', {}, {}, \'{}\'".format(
                 cashflow.getFundID(), cashflow.getDate(), cashflow.getValue(), cashflow.getTypeID(), cashflow.getNotes()))
             #self.CashFlowDB.queryDB(query)
             print query
@@ -241,7 +245,7 @@ class Reader(ReaderAPI.ReaderAPI):
     # Determines whether the element in row[column] should be a contribution or distribution
     def _findResult(self, row, column):
         excelType = row['Type'].lower()
-        notes = row['Notes'].lower()
+        notes = str(row['Notes']).lower()
         if 'contribution' in excelType or 'contribution' in notes:
             return 'Contribution'
         elif 'distribution' in excelType or 'distribution' in notes:
@@ -268,4 +272,4 @@ class Reader(ReaderAPI.ReaderAPI):
                 result = CashFlow.CashFlow(fundID, date, value, typeID, notes)
                 self._processCashFlow(result)
 
-#a = Reader("temp")
+a = Reader("CBA Cash Flow Model - v2.17 Clearspring Analysis")
