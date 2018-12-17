@@ -118,7 +118,10 @@ class FundModel(object):
     # Exports Values to a csv
     def exportToCsv(self, fileName, fundId):
         # self._formatModelToDataframe().to_csv("../" + fileName, index=False)
+
         #todo prepend info before exporting
+
+
         modelData = self._formatModelToDataframe()
         modelData.insert(loc=0, column="Fund Code", value=[fundId] * 7)
         modelData.insert(loc=1, column="Model Type", value=[self._getModelType().name] * 7)

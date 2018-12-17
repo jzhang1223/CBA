@@ -16,6 +16,7 @@ class Application(tk.Frame):
 
     def createWidgets(self):
         self.fundModel = None
+        self._CashflowDB = Query.Query()
         # Title of window
         self.winfo_toplevel().title("Cash Flow Model")
 
@@ -159,7 +160,6 @@ class Application(tk.Frame):
 
 
         #commitment, segments
-        CashflowDB = Query.Query()
 
         query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
                  "FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
@@ -169,12 +169,13 @@ class Application(tk.Frame):
             query = ("SELECT contributionRates, projectedBow, projectedGrowth, projectedYield, projectedInvestYears,"
                      " projectedLife, investStartDate FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
 
-        result = CashflowDB.queryDB(query).fetchone()
-        commitmentQuery = "SELECT capitalCommited(\'{}\')".format(self.fundNameTEXT.get())
-        commitmentResult = CashflowDB.queryDB(commitmentQuery).fetchone()[0]
-        if (result is None):
+        result = self._CashflowDB.queryDB(query).fetchone()
+        if result is None:
             self.setStatus("Invalid fund name!")
             return True
+        commitmentQuery = "SELECT capitalCommited(\'{}\')".format(self.fundNameTEXT.get())
+        commitmentResult = self._CashflowDB.queryDB(commitmentQuery).fetchone()[0]
+
         print commitmentResult
         self.setEntryText(self.capitalCommitmentTEXT, str(commitmentResult))
         self.setEntryText(self.contributionRatesTEXT, result[0])
@@ -340,9 +341,8 @@ class Application(tk.Frame):
     def _clearDatabase(self, widget):
         # Ordered for foreign key dependancies.
         tableToBeCleared = ["CashFlow", "Fund", "FundStyle", "FundClient", "Family", "Sponsor"]
-        CashflowDB = Query.Query()
         for table in tableToBeCleared:
-            CashflowDB.queryDB("DELETE FROM {}".format(table))
+            self._CashflowDB.queryDB("DELETE FROM {}".format(table))
 
         self.setStatus("DATABASE CLEARED")
         widget.destroy()
