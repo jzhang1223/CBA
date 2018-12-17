@@ -1,7 +1,7 @@
 import datetime
 from dateutil.relativedelta import relativedelta
-import ModelPeriod
-import math
+from Model import ModelPeriod
+
 
 
 # Certain formulas used in the model

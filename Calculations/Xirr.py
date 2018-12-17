@@ -1,5 +1,5 @@
 # https://github.com/peliot/XIRR-and-XNPV/blob/master/financial.py
-import CalculationAPI
+from Calculations import CalculationAPI
 from scipy import optimize
 import numpy as np
 

@@ -1,16 +1,13 @@
 import pandas as pd
-import numpy as np
-import Query
-import CalledPercentage
-import CapitalCalled
-import CapitalCommited
-import Dpi
-import Nav
-import TotalDistributions
-import TotalValue
-import Tvcc
-import Tvpi
-import Xirr
+from Calculations import CalledPercentage
+from Calculations import CapitalCalled
+from Calculations import CapitalCommited
+from Calculations import Dpi
+from Calculations import Nav
+from Calculations import TotalDistributions
+from Calculations import TotalValue
+from Calculations import Tvpi
+from Calculations import Xirr
 from Classes import Query
 pd.set_option("display.max_columns", 10000)
 

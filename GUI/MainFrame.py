@@ -1,14 +1,16 @@
 import Tkinter as tk
-import FundModel as fm
 import inspect
 import pandas as pd
+import datetime
+import os.path
+
+from os.path import expanduser as ospath
 from Classes import Output
 from Classes import ValidationReader
 from Classes import Reader1
-import datetime
-from os.path import expanduser as ospath
-import os.path
-import ModelPeriod
+from Model import FundModel as fm
+from Model import ModelPeriod
+
 from Classes import Query
 #pd.set_option("display.max_rows", 10000)
 

@@ -1,4 +1,4 @@
-import CalculationAPI
+from Calculations import CalculationAPI
 from CapitalCommited import CapitalCommited
 from CapitalCalled import CapitalCalled
 

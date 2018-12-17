@@ -6,7 +6,7 @@ from Calculations import FundStartDate
 from Calculations import FundLastDate
 from Calculations import ConvertDate
 from enum import Enum
-import ModelPeriod
+from Model import ModelPeriod
 
 # Able to output projected values for a fund based on given information.
 # Casts items to their desired types

@@ -1,4 +1,4 @@
-import CalculationAPI
+from Calculations import CalculationAPI
 import datetime
 
 # Converts datetime.date to and string date, and vice versa. Throws error if None or a different data type is given.

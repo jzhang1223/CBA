@@ -1,9 +1,8 @@
-import CapitalCalled
-import TotalDistributions
-import Nav
-import datetime
+from Calculations import CapitalCalled
+from Calculations import TotalDistributions
+from Calculations import Nav
 from dateutil.relativedelta import relativedelta
-import ConvertDate
+from Calculations import ConvertDate
 
 
 # Takes the data from the database to use in the model.

@@ -1,4 +1,3 @@
-
 from Calculations import CalculationAPI
 
 class Nav(CalculationAPI.CalculationAPI):

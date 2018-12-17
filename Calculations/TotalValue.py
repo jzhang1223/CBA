@@ -1,4 +1,4 @@
-import CalculationAPI
+from Calculations import CalculationAPI
 from TotalDistributions import TotalDistributions
 from Nav import Nav
 

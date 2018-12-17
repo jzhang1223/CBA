@@ -1,7 +1,7 @@
 import pandas as pd
 from os.path import expanduser as ospath
-import Query
-import ValidationTables
+from Classes import Query
+from Classes import ValidationTables
 
 class ValidationReader(object):
 

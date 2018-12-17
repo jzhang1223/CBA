@@ -1,4 +1,4 @@
-import CalculationAPI
+from Calculations import CalculationAPI
 
 class TotalDistributions(CalculationAPI.CalculationAPI):
 
