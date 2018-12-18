@@ -3,6 +3,8 @@ import inspect
 import pandas as pd
 import datetime
 import os.path
+import sys
+sys.path.append("/Users/Whit/Documents/Justin/cbaDB")
 
 from os.path import expanduser as ospath
 from Classes import Output
@@ -112,7 +114,6 @@ class Application(tk.Frame):
                 # Add to master list of widgets for easy clearing.
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
                 count += 2
-                print argument
         self.fundNameLABEL = tk.Label(self, text = "fundName")
         self.fundNameTEXT = tk.Entry(self, width = 7)
         self.fundNameLABEL.grid(row = 1, column = count)
