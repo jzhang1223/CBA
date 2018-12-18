@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import Tkinter as tk
 import inspect
 import pandas as pd
@@ -99,7 +101,6 @@ class Application(tk.Frame):
         self.textBoxList = []
         self.outputList = []
         count = 0
-        print "SETTING UP ENTRY WIDGETS"
         for argument in inspect.getargspec(fm.FundModel.__init__)[0]:
             if argument != 'self':
 
