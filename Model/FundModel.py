@@ -127,7 +127,8 @@ class FundModel(object):
         modelData.insert(loc=1, column="Model Type", value=[self._getModelType().name] * 7)
         modelData.insert(loc=2, column="Model Frequency", value=[self._convertModelPeriod(self.segments)] * 7)
         # 'a' for append
-        with open(fileName, 'a') as file:
+        #todo modify output file
+        with open("/Users/Whit/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/cbaDBOutputs/" + fileName, 'a') as file:
             print "TRYING TO MOVE TO CSV"
             modelData.to_csv(file, header=True)
             print modelData
