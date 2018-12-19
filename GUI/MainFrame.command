@@ -7,7 +7,12 @@ import pandas as pd
 import datetime
 import os.path
 import sys
-sys.path.append("/Users/Whit/Documents/Justin/cbaDB")
+sys.path.append(os.path.join(os.path.dirname( __file__ ), os.pardir))
+#sys.path.append("/Users/Whit/Documents/Justin/CBA")
+
+#print os.path.dirname(os.path.abspath(__file__))
+#print os.path.join(os.path.dirname( __file__ ), os.pardir)
+#print "done"
 
 from os.path import expanduser as ospath
 from Classes import Output
