@@ -19,13 +19,13 @@ class ValidationReader(object):
             "Unnamed: 23", "Projected Metrics", "Unnamed: 27", "Unnamed: 28", "Projected Years to", "Unnamed: 30", "Currency"]]
         # Renamming the columns to be readable
         self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year",
-            "Close Date", "Invest Start Date", "Fund Size$M", "Commitment$M", "Contribution 1", "Contribution 2", "Contribution 3",
+            "Close Date", "Invest Start Date", "Fund Size", "Commitment", "Contribution 1", "Contribution 2", "Contribution 3",
             "Contribution 4", "Contribution 5", "Bow", "Growth Rate", "Yield", "Invest Years", "Life", "Projected Bow",
             "Projected Growth", "Projected Yield", "Projected Invest Years", "Projected Life", "Currency"]
 
         self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         self.sponsorDataTableDf["Fund Family"] = self.sponsorDataTableDf["Fund Family"].str.strip()
-        self.sponsorDataTableDf["Fund Size$M"] = self.sponsorDataTableDf["Fund Size$M"].fillna(value='null')
+        self.sponsorDataTableDf["Fund Size"] = self.sponsorDataTableDf["Fund Size"].fillna(value='null')
         print self.sponsorDataTableDf.head(3)
 
         # Should probably be abstracted given more time
@@ -134,18 +134,24 @@ class ValidationReader(object):
 
         contributionRates = ", ".join([str(row.get("Contribution 1")), str(row.get("Contribution 2")), str(row.get("Contribution 3")),
                                        str(row.get("Contribution 4")), str(row.get("Contribution 5"))])
+        fundSize = row.get("Fund Size")
+        print "type of fundSize : {}".format(type(fundSize))
+        if type(fundSize) != float:
+            fundSize = "null"
+        else:
+            fundSize *= 1000000
 
         statement = ("UPDATE Fund SET familyId = \'{}\', fundStyleId = \'{}\', clientId = {}, designation = \'{}\', "
                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
-                "closeDate = \'{}\', investStartDate = \'{}\', fundSize$M = {}, currency = \'{}\', commitment$M = {}, "
+                "closeDate = \'{}\', investStartDate = \'{}\', fundSize = {}, currency = \'{}\', commitment = {}, "
                 "contributionRates = \'{}\', projectedGrowth = {}, projectedYield = {}, projectedBow = {}, projectedInvestYears = {}, "
                      "projectedLife = {} WHERE fundId = \'{}\'")
 
         query = statement.format(row.get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row.get("Designation"),
                                  row.get("Growth Rate"), row.get("Yield"),row.get("Bow"),
                                  row.get("Invest Years"),row.get("Life"), row.get("Vintage Year"),
-                                 row.get("Close Date"), row.get("Invest Start Date"), row.get("Fund Size$M"),
-                                 row.get("Currency"), row.get("Commitment$M"), contributionRates,
+                                 row.get("Close Date"), row.get("Invest Start Date"), fundSize,
+                                 row.get("Currency"), row.get("Commitment") * 1000000, contributionRates,
                                  row.get("Projected Growth"), row.get("Projected Yield"), row.get("Projected Bow"),
                                  row.get("Projected Invest Years"), row.get("Projected Life"), row.get("ID Code"))
 

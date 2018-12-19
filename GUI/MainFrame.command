@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import Tkinter as tk
+import tkFileDialog
 import inspect
 import pandas as pd
 import datetime
@@ -244,29 +245,42 @@ class Application(tk.Frame):
         if self.fundModel is None:
             self.setStatus("Model has not yet been created")
         else:
-            self._popupWindow("Export Menu", "Export File As (.csv extension is already included):", "Confirm Export", self._exportModel)
+            self.fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Created Model")
+            if self.fileName == "":
+                self.setStatus("Export cancelled!")
+                return
+            self._exportModel(self.fileName)
+            #self._popupWindow("Export Menu", "Export File As (.csv extension is already included):", "Confirm Export", self._exportModel)
 
     # Exports the model to a csv file, with the fund name in the entry box
-    def _exportModel(self, widget, fileName):
+    def _exportModel(self, fileName):
         #todo get fund name
 
-        self.fundModel.exportToCsv("{}.csv".format(fileName), self.fundNameTEXT.get())
-        if widget is not None:
-            widget.destroy()
-        self.setStatus("Saved {}.csv".format(fileName))
+        self.fundModel.exportToCsv(fileName, self.fundNameTEXT.get())
+        self.setStatus("Model Exported".format(fileName))
 
-    # Exports all fund stats to a csv file called fundStats.csv
+    # Exports all fund stats to a csv file
     def _exportFundStats(self):
         today = datetime.date.today()
         dateAsString = today.strftime("%y/%m/%d")
         fundStats = Output.Output()
-        fundStats.exportOutput("fundStats.csv", dateAsString)
-        self.setStatus("Fund stats exported to fundStats.csv")
+        self.fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Fund Stats")
+        if self.fileName == "":
+            self.setStatus("Export cancelled!")
+            return
+        fundStats.exportOutput(self.fileName, dateAsString)
+        self.setStatus("Fund stats exported")
 
     # Brings up a pop-up to prompt user for a file to read for export.
     # The file should be an excel sheet with fund codes listed all in the first column.
     def _massExportPopup(self):
-        self._popupWindow("Mass Export Menu", "Read from (.xlsx extention is already included): ", "Confirm Mass Export", self._massExport)
+        #self._popupWindow("Mass Export Menu", "Read from (.xlsx extention is already included): ", "Confirm Mass Export", self._massExport)
+        self.fileName = tkFileDialog.askopenfilename(title="Select an excel(.xlsx) file")
+        if self.fileName[-5:] != ".xlsx":
+            print self.fileName
+            self.setStatus("Invalid excel file!")
+            return
+        self._massExport(self.fileName)
 
     # Creates a simple popup window with a text box, entry box, execute box, and cancel box.
     # Reads the argument from the entry box when executing the command.
@@ -283,14 +297,11 @@ class Application(tk.Frame):
         cancelButton.pack()
 
     # Executes the export of the funds in the given file, exporting in the order of Base, Actuals, Base+Actuals
-    def _massExport(self, widget, fileName):
-        try:
-            fundCodeDf = pd.read_excel(ospath("{}.xlsx".format(fileName)), header=None)
-        except IOError:
-            widget.destroy()
-            self.setStatus("Unable to find excel file!")
-            return
+    def _massExport(self, fileName):
 
+        fundCodeDf = pd.read_excel(ospath("{}".format(fileName)), header=None)
+
+        #todo potentially give name for mass export file
         exportName = "MassExport {}".format(datetime.datetime.now().strftime("%Y:%m:%d %H-%M-%S"))
         fundCount = 0
         for row in fundCodeDf.iterrows():
@@ -309,26 +320,33 @@ class Application(tk.Frame):
 
             fundCount += 1
 
-        widget.destroy()
         self.setStatus("{} funds exported to {}.xlsx".format(fundCount, exportName))
 
     # Creates a popup window to prompt user for where to read data from.
     def _importDataPopup(self):
-        self._popupWindow("Import Data Menu", "Read from (.xlsx extention is already included): ",
-                            "Confirm Data Import", self._importData)
+        #self._popupWindow("Import Data Menu", "Read from (.xlsx extention is already included): ",
+        #                    "Confirm Data Import", self._importData)
+        self.fileName = tkFileDialog.askopenfilename(title="Select an excel(.xlsx) file")
+        if self.fileName[-5:] != ".xlsx":
+            print self.fileName
+            self.setStatus("Invalid excel file!")
+            return
+        self._importData(self.fileName)
 
     # Imports (client, sponsor, fund, raw) data from the given file name.
-    def _importData(self, widget, fileName):
+    def _importData(self, fileName):
         # ~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/CBA Cash Flow Model - v2.17 Clearspring Analysis.xlsx
+        '''
         if not os.path.exists('/Users/Whit/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)):
-            widget.destroy()
+            #widget.destroy()
             self.setStatus("Unable to find excel file!")
             return
+        '''
 
         validationReader = ValidationReader.ValidationReader(fileName)
         validationReader.processAll()
         # todo import raw data info
-        widget.destroy()
+        #widget.destroy()
         self.setStatus("Data imported")
 
     def _clearDatabasePopup(self):
