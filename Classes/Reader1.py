@@ -12,8 +12,8 @@ class Reader(ReaderAPI.ReaderAPI):
         self._read()
 
     def getFileName(self):
-        #return self.fileName
-        return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx".format(self.fileName)
+        return self.fileName
+        #return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx".format(self.fileName)
 
     def getLimit(self):
         raise NotImplementedError("Not necessary to implement")

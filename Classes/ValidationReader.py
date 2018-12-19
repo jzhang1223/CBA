@@ -9,10 +9,10 @@ class ValidationReader(object):
     def __init__(self, fileName):
         self.CashFlowDB = Query.Query()
         self.fileName = fileName
-        self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)
-        self.validationDf = pd.read_excel(ospath(self.filePath), sheet_name='Validation', header=1)
+        #self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)
+        self.validationDf = pd.read_excel(ospath(self.fileName), sheet_name='Validation', header=1)
         #print self.validationDf.columns
-        self.sponsorDataTableDf = pd.read_excel(ospath(self.filePath), sheet_name='Sponsor Data Table', header=1)[["ID Code",
+        self.sponsorDataTableDf = pd.read_excel(ospath(self.fileName), sheet_name='Sponsor Data Table', header=1)[["ID Code",
             "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
             "Invest Start Date", "Fund Size ($M)", "Commitment ($M)","Contribution (% of Rem. Commit)", "Unnamed: 14",
             "Unnamed: 15", "Unnamed: 16", "Unnamed: 17", "Model Metrics", "Unnamed: 19", "Unnamed: 20", "Model Years to",
