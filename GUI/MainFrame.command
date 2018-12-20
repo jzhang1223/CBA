@@ -85,20 +85,6 @@ class Application(tk.Frame):
         self.CLEARDATABASE = tk.Button(self, text = "CLEAR DATABASE", command = self._clearDatabasePopup)
         self.CLEARDATABASE.grid(row = 0, column = 13)
 
-        '''
-        # Testing window size
-        def get_size():
-            w = root.winfo_width()
-            h = root.winfo_height()
-            print "CURRENTLY ... Width: {} ... Height: {}".format(w, h)
-            print "REQUESTING ... Width: {} ... Height: {}".format(
-                root.winfo_reqwidth(), root.winfo_reqheight())
-            print "MAXIMUMS: {}".format(root.maxsize())
-
-        self.btn = tk.Button(self, text="Window Size", command=get_size)
-        self.btn.grid(row=0, column=14)
-        '''
-
         self._setupEntryWidgets()
         self.setStatus("Welcome")
 
@@ -168,9 +154,6 @@ class Application(tk.Frame):
     # Fill in the inputs based on the fundId given
     def _fillInputs(self):
 
-
-        #commitment, segments
-
         query = ("SELECT contributionRates, bow, growth, yield, investYears, life, investStartDate "
                  "FROM Fund WHERE fundID = \'{}\'".format(self.fundNameTEXT.get()))
         # UI signals to not use the base values for filling inputs and should use projected parameters instead.
@@ -186,7 +169,6 @@ class Application(tk.Frame):
         commitmentQuery = "SELECT capitalCommited(\'{}\')".format(self.fundNameTEXT.get())
         commitmentResult = self._CashflowDB.queryDB(commitmentQuery).fetchone()[0]
 
-        print commitmentResult
         self.setEntryText(self.capitalCommitmentTEXT, str(commitmentResult))
         self.setEntryText(self.contributionRatesTEXT, result[0])
         self.setEntryText(self.bowTEXT, result[1])
@@ -260,8 +242,23 @@ class Application(tk.Frame):
     # Exports the model to a csv file, with the fund name in the entry box
     def _exportModel(self, fileName):
         #todo get fund name
+        fundName = self.fundNameTEXT.get()
+        columnNames = self._CashflowDB.queryDB("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS`"
+                                               " WHERE `TABLE_SCHEMA`='cbadb' AND `TABLE_NAME`=\'fund\' "
+                                               "ORDER BY `ORDINAL_POSITION`").fetchall()
+        fundStats = self._CashflowDB.queryDB("SELECT * FROM Fund WHERE fundID = \'{}\'".format(fundName)).fetchone()
 
-        self.fundModel.exportToCsv(fileName, self.fundNameTEXT.get())
+        # can be written in 1 line but expanded for readability
+        print fundStats
+        if fundStats is not None:
+            flattenedColumnNames = []
+            for sublist in columnNames:
+                for item in sublist:
+                    flattenedColumnNames.append(item)
+            result = pd.DataFrame([fundStats], columns = flattenedColumnNames)
+            result.to_csv(fileName, index=False)
+
+        self.fundModel.exportToCsv(fileName, fundName)
         self.setStatus("Model Exported".format(fileName))
 
     # Exports all fund stats to a csv file
@@ -321,7 +318,7 @@ class Application(tk.Frame):
                     self.MODELTYPE.set(type)
                     self._fillInputs()
                     self._createModel()
-                    self._exportModel(None, exportName)
+                    self._exportModel(exportName)
 
             fundCount += 1
 
