@@ -177,9 +177,10 @@ class Application(tk.Frame):
         self.setEntryText(self.lastInvestmentYearTEXT, result[4])
         self.setEntryText(self.lifeOfFundTEXT, result[5])
         startDate = result[6].date()
-        self.setEntryText(self.startDateTEXT, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
+        self.setEntryText(self.startDateTEXT, "{}-{}-{}".format(startDate.year, startDate.month, startDate.day))
         #default 4 for segments
-        self.setEntryText(self.segmentsTEXT, 4)
+        if self.segmentsTEXT.get() != "1":
+            self.setEntryText(self.segmentsTEXT, 4)
 
 
         # Get inputs if exists
@@ -268,7 +269,7 @@ class Application(tk.Frame):
     # Exports all fund stats to a csv file
     def _exportFundStats(self):
         today = datetime.date.today()
-        dateAsString = today.strftime("%y/%m/%d")
+        dateAsString = today.strftime("%Y/%m/%d")
         fundStats = Output.Output()
         self.fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Fund Stats")
         if self.fileName == "":
@@ -307,9 +308,6 @@ class Application(tk.Frame):
     def _massExport(self, fileName, exportName):
 
         fundCodeDf = pd.read_excel(ospath("{}".format(fileName)), header=None)
-
-        #todo potentially give name for mass export file
-        #exportName = "MassExport {}.csv".format(datetime.datetime.now().strftime("%Y:%m:%d %H-%M-%S"))
         fundCount = 0
         skippedCount = 0
         for row in fundCodeDf.iterrows():
