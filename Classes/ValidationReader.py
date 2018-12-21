@@ -11,17 +11,21 @@ class ValidationReader(object):
         self.fileName = fileName
         #self.filePath = '~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx'.format(fileName)
         self.validationDf = pd.read_excel(ospath(self.fileName), sheet_name='Validation', header=1)
-        #print self.validationDf.columns
+
         self.sponsorDataTableDf = pd.read_excel(ospath(self.fileName), sheet_name='Sponsor Data Table', header=1)[["ID Code",
             "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year", "Close Date",
             "Invest Start Date", "Fund Size ($M)", "Commitment ($M)","Contribution (% of Rem. Commit)", "Unnamed: 14",
             "Unnamed: 15", "Unnamed: 16", "Unnamed: 17", "Model Metrics", "Unnamed: 19", "Unnamed: 20", "Model Years to",
-            "Unnamed: 23", "Projected Metrics", "Unnamed: 27", "Unnamed: 28", "Projected Years to", "Unnamed: 30", "Currency"]]
+            "Unnamed: 22", "Projected Metrics", "Unnamed: 29", "Unnamed: 30", "Projected Years to", "Unnamed: 32", "Currency",
+            "Projected Contribution (% of Rem. Commit)", "Unnamed: 24", "Unnamed: 25", "Unnamed: 26","Unnamed: 27"]]
+        print pd.read_excel(ospath(fileName), sheet_name='Sponsor Data Table', header=1).columns
+
         # Renamming the columns to be readable
         self.sponsorDataTableDf.columns = ["ID Code", "Client", "Sponsor", "Fund Family", "Designation", "Fund Style", "Vintage Year",
             "Close Date", "Invest Start Date", "Fund Size", "Commitment", "Contribution 1", "Contribution 2", "Contribution 3",
             "Contribution 4", "Contribution 5", "Bow", "Growth Rate", "Yield", "Invest Years", "Life", "Projected Bow",
-            "Projected Growth", "Projected Yield", "Projected Invest Years", "Projected Life", "Currency"]
+            "Projected Growth", "Projected Yield", "Projected Invest Years", "Projected Life", "Currency", "Projected Contribution 1",
+            "Projected Contribution 2", "Projected Contribution 3", "Projected Contribution 4", "Projected Contribution 5"]
 
         self.sponsorDataTableDf = self.sponsorDataTableDf[self.sponsorDataTableDf["ID Code"].notna()]
         self.sponsorDataTableDf["Fund Family"] = self.sponsorDataTableDf["Fund Family"].str.strip()
@@ -134,6 +138,9 @@ class ValidationReader(object):
 
         contributionRates = ", ".join([str(row.get("Contribution 1")), str(row.get("Contribution 2")), str(row.get("Contribution 3")),
                                        str(row.get("Contribution 4")), str(row.get("Contribution 5"))])
+        projectedContributionRates = ", ".join([str(row.get("Projected Contribution 1")), str(row.get("Projected Contribution 2")),
+                                                str(row.get("Projected Contribution 3")), str(row.get("Projected Contribution 4")),
+                                                str(row.get("Projected Contribution 5"))])
         fundSize = row.get("Fund Size")
         print "type of fundSize : {}".format(type(fundSize))
         if type(fundSize) != float:
@@ -145,15 +152,15 @@ class ValidationReader(object):
                 "growth = {}, yield = {}, bow = {}, investYears = {}, life = {}, vintageYear = \'{}\', "
                 "closeDate = \'{}\', investStartDate = \'{}\', fundSize = {}, currency = \'{}\', commitment = {}, "
                 "contributionRates = \'{}\', projectedGrowth = {}, projectedYield = {}, projectedBow = {}, projectedInvestYears = {}, "
-                     "projectedLife = {} WHERE fundId = \'{}\'")
+                     "projectedLife = {}, projectedContributionRates = \'{}\' WHERE fundId = \'{}\'")
 
         query = statement.format(row.get("Fund Family").encode('utf-8'), fundStyleId, fundClientId, row.get("Designation"),
-                                 row.get("Growth Rate"), row.get("Yield"),row.get("Bow"),
-                                 row.get("Invest Years"),row.get("Life"), row.get("Vintage Year"),
-                                 row.get("Close Date"), row.get("Invest Start Date"), fundSize,
-                                 row.get("Currency"), row.get("Commitment") * 1000000, contributionRates,
-                                 row.get("Projected Growth"), row.get("Projected Yield"), row.get("Projected Bow"),
-                                 row.get("Projected Invest Years"), row.get("Projected Life"), row.get("ID Code"))
+                                 row.get("Growth Rate"), row.get("Yield"),row.get("Bow"), row.get("Invest Years"),
+                                 row.get("Life"), row.get("Vintage Year"),row.get("Close Date"),
+                                 row.get("Invest Start Date"), fundSize, row.get("Currency"),
+                                 row.get("Commitment") * 1000000, contributionRates, row.get("Projected Growth"),
+                                 row.get("Projected Yield"), row.get("Projected Bow"), row.get("Projected Invest Years"),
+                                 row.get("Projected Life"), projectedContributionRates, row.get("ID Code"))
 
         #print query
         self.CashFlowDB.queryDB(query)

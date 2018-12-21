@@ -4,6 +4,7 @@ from Classes import Query
 import pandas as pd
 from os.path import expanduser as ospath
 
+# The actual reader for reading in raw_data sheet.
 class Reader(ReaderAPI.ReaderAPI):
     CashFlowDB = Query.Query()
 
@@ -11,13 +12,16 @@ class Reader(ReaderAPI.ReaderAPI):
         self.fileName = fileName
         self._read()
 
+    # Returns the file name for the reader
     def getFileName(self):
         return self.fileName
         #return "~/Box Sync/Shared/Lock-up Fund Client Holdings & Performance Tracker/Cash Flow Model/{}.xlsx".format(self.fileName)
 
+    # Previously used to only do a certain amount of imports for testing.
     def getLimit(self):
         raise NotImplementedError("Not necessary to implement")
 
+    # Reads the data, processes it, and imports it to the mysql server.
     def _read(self):
         #todo
         # Reads the Raw_Data sheet, deletes rows where fund is na, and iterates over the rows
@@ -53,6 +57,7 @@ class Reader(ReaderAPI.ReaderAPI):
 
         return raw_data
 
+    # Processes how a row in the file should be stored.
     def _processRow(self, row):
         # Empty Rows
         if self._isUselessRow(row):
@@ -125,9 +130,9 @@ class Reader(ReaderAPI.ReaderAPI):
         cursor = self.CashFlowDB.queryDB(check)
         rowHolder = cursor.fetchone()
         if rowHolder is None:
-            query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) VALUES (\'{}\', \'{}\', {}, {}, \'{}\'".format(
+            query = ("INSERT INTO CashFlow (fundID, cfDate, cashValue, typeID, notes) VALUES (\'{}\', \'{}\', {}, {}, \'{}\')".format(
                 cashflow.getFundID(), cashflow.getDate(), cashflow.getValue(), cashflow.getTypeID(), cashflow.getNotes()))
-            #self.CashFlowDB.queryDB(query)
+            self.CashFlowDB.queryDB(query)
             print query
 
     # Determines if a given row is a Quarter Valuation.

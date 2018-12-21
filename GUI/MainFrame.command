@@ -361,6 +361,8 @@ class Application(tk.Frame):
         validationReader = ValidationReader.ValidationReader(fileName)
         validationReader.processAll()
         # todo import raw data info
+        rawDataReader = Reader1.Reader(fileName)
+        rawDataReader._read()
         #widget.destroy()
         self.setStatus("Data imported")
 
