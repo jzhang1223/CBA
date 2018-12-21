@@ -107,7 +107,7 @@ class Application(tk.Frame):
                 # Add to master list of widgets for easy clearing.
                 self.textBoxList.append(getattr(self, argument + "TEXT"))
                 count += 2
-        self.fundNameLABEL = tk.Label(self, text = "fundName")
+        self.fundNameLABEL = tk.Label(self, text = "fundCode")
         self.fundNameTEXT = tk.Entry(self, width = 7)
         self.fundNameLABEL.grid(row = 1, column = count)
         self.fundNameTEXT.grid(row= 1, column= count + 1)
@@ -306,11 +306,13 @@ class Application(tk.Frame):
         #todo potentially give name for mass export file
         exportName = "MassExport {}".format(datetime.datetime.now().strftime("%Y:%m:%d %H-%M-%S"))
         fundCount = 0
+        skippedCount = 0
         for row in fundCodeDf.iterrows():
             fundCode = row[1][0]
             self.setEntryText(self.fundNameTEXT, fundCode)
             fillInputError = self._fillInputs()
             if fillInputError is True:
+                skippedCount += 1
                 continue
             for periodLength in ModelPeriod.ModelPeriod:
                 self.setEntryText(self.segmentsTEXT, periodLength.value)
@@ -319,10 +321,9 @@ class Application(tk.Frame):
                     self._fillInputs()
                     self._createModel()
                     self._exportModel(exportName)
-
             fundCount += 1
 
-        self.setStatus("{} funds exported to {}.xlsx".format(fundCount, exportName))
+        self.setStatus("{} exported, {} skipped".format(fundCount, skippedCount))
 
     # Creates a popup window to prompt user for where to read data from.
     def _importDataPopup(self):
