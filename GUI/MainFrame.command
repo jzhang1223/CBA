@@ -8,21 +8,14 @@ import datetime
 import os.path
 import sys
 sys.path.append(os.path.join(os.path.dirname( __file__ ), os.pardir))
-#sys.path.append("/Users/Whit/Documents/Justin/CBA")
-
-#print os.path.dirname(os.path.abspath(__file__))
-#print os.path.join(os.path.dirname( __file__ ), os.pardir)
-#print "done"
 
 from os.path import expanduser as ospath
 from Classes import Output
 from Classes import ValidationReader
 from Classes import Reader1
 from Model import FundModel as fm
-from Model import ModelPeriod
-
 from Classes import Query
-#pd.set_option("display.max_rows", 10000)
+
 
 class Application(tk.Frame):
 
@@ -31,10 +24,6 @@ class Application(tk.Frame):
         self._CashflowDB = Query.Query()
         # Title of window
         self.winfo_toplevel().title("Cash Flow Model")
-
-        # Quit buttons
-        #self.QUIT = tk.Button(self, text = "QUIT", command = self.quit)
-        #self.QUIT.grid(row = 0, column = 0)
 
         # Resets the model and clears the GUI output.
         self.RESET = tk.Button(self, text = "Reset Model", command = self._resetAll)
@@ -138,7 +127,6 @@ class Application(tk.Frame):
         print self.fundModel.lifeOfFund
         print self.fundModel.segments
         print self.fundModel.startDate
-            #raise ValueError("Check your data again")
         self._forecastModel()
 
     # Forecasts the model based on the selected radiobutton.
@@ -236,16 +224,15 @@ class Application(tk.Frame):
         if self.fundModel is None:
             self.setStatus("Model has not yet been created")
         else:
-            self.fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Created Model")
-            if self.fileName == "":
+            fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Created Model")
+            if fileName == "":
                 self.setStatus("Export cancelled!")
                 return
-            self._exportModel(self.fileName)
+            self._exportModel(fileName)
             #self._popupWindow("Export Menu", "Export File As (.csv extension is already included):", "Confirm Export", self._exportModel)
 
     # Exports the model to a csv file, with the fund name in the entry box
     def _exportModel(self, fileName):
-        #todo get fund name
         fundName = self.fundNameTEXT.get()
         columnNames = self._CashflowDB.queryDB("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS`"
                                                " WHERE `TABLE_SCHEMA`='cbadb' AND `TABLE_NAME`=\'fund\' "
@@ -253,7 +240,6 @@ class Application(tk.Frame):
         fundStats = self._CashflowDB.queryDB("SELECT * FROM Fund WHERE fundID = \'{}\'".format(fundName)).fetchone()
 
         # can be written in 1 line but expanded for readability
-        print fundStats
         if fundStats is not None:
             flattenedColumnNames = []
             for sublist in columnNames:
@@ -263,7 +249,13 @@ class Application(tk.Frame):
             with open(fileName, 'a') as file:
                 result.to_csv(file, index=False)
 
+
+        today = datetime.date.today()
+        dateAsString = today.strftime("%Y/%m/%d")
+        fundStats = Output.Output([fundName])
+        fundStats.exportOutput(fileName, dateAsString)
         self.fundModel.exportToCsv(fileName, fundName)
+
         self.setStatus("Model Exported".format(fileName))
 
     # Exports all fund stats to a csv file
@@ -271,11 +263,11 @@ class Application(tk.Frame):
         today = datetime.date.today()
         dateAsString = today.strftime("%Y/%m/%d")
         fundStats = Output.Output()
-        self.fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Fund Stats")
-        if self.fileName == "":
+        fileName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save Fund Stats")
+        if fileName == "":
             self.setStatus("Export cancelled!")
             return
-        fundStats.exportOutput(self.fileName, dateAsString)
+        fundStats.exportOutput(fileName, dateAsString)
         self.setStatus("Fund stats exported")
 
     # Brings up a pop-up to prompt user for a file to read for export.
@@ -318,15 +310,6 @@ class Application(tk.Frame):
                 skippedCount += 1
                 continue
             else:
-                '''
-            for periodLength in ModelPeriod.ModelPeriod:
-                self.setEntryText(self.segmentsTEXT, periodLength.value)
-                for type in range(0, 3):
-                    self.MODELTYPE.set(type)
-                    self._fillInputs()
-                    self._createModel()
-                    self._exportModel(exportName)
-                    '''
                 self._fillInputs()
                 self._createModel()
                 self._exportModel(exportName)
@@ -339,12 +322,11 @@ class Application(tk.Frame):
     def _importDataPopup(self):
         #self._popupWindow("Import Data Menu", "Read from (.xlsx extention is already included): ",
         #                    "Confirm Data Import", self._importData)
-        self.fileName = tkFileDialog.askopenfilename(title="Select an excel(.xlsx) file")
-        if self.fileName[-5:] != ".xlsx":
-            print self.fileName
+        fileName = tkFileDialog.askopenfilename(title="Select an excel(.xlsx) file")
+        if fileName[-5:] != ".xlsx":
             self.setStatus("Invalid excel file!")
             return
-        self._importData(self.fileName)
+        self._importData(fileName)
 
     # Imports (client, sponsor, fund, raw) data from the given file name.
     def _importData(self, fileName):

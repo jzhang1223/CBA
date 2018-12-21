@@ -37,7 +37,8 @@ class Output(object):
             if cashFlowCount > 0:
                 self.fundDF.loc[i] = self.getRow(self.fundList[i], date)
         print self.fundDF
-        self.fundDF.to_csv(fileName, index=False)
+        with open(fileName, 'a') as file:
+            self.fundDF.to_csv(file, index=False)
 
     def _getCalledPercentage(self, fundID, date):
         func = CalledPercentage.CalledPercentage()
