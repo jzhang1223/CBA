@@ -178,6 +178,9 @@ class Application(tk.Frame):
         self.setEntryText(self.lifeOfFundTEXT, result[5])
         startDate = result[6].date()
         self.setEntryText(self.startDateTEXT, "{}-{}-{}".format(str(startDate.year)[2:], startDate.month, startDate.day))
+        #default 4 for segments
+        self.setEntryText(self.segmentsTEXT, 4)
+
 
         # Get inputs if exists
         # Fill into correct spots
@@ -256,7 +259,8 @@ class Application(tk.Frame):
                 for item in sublist:
                     flattenedColumnNames.append(item)
             result = pd.DataFrame([fundStats], columns = flattenedColumnNames)
-            result.to_csv(fileName, index=False)
+            with open(fileName, 'a') as file:
+                result.to_csv(file, index=False)
 
         self.fundModel.exportToCsv(fileName, fundName)
         self.setStatus("Model Exported".format(fileName))
@@ -277,12 +281,13 @@ class Application(tk.Frame):
     # The file should be an excel sheet with fund codes listed all in the first column.
     def _massExportPopup(self):
         #self._popupWindow("Mass Export Menu", "Read from (.xlsx extention is already included): ", "Confirm Mass Export", self._massExport)
-        self.fileName = tkFileDialog.askopenfilename(title="Select an excel(.xlsx) file")
-        if self.fileName[-5:] != ".xlsx":
-            print self.fileName
+        fileName = tkFileDialog.askopenfilename(title="Select an excel(.xlsx) file")
+        if fileName[-5:] != ".xlsx":
+            print fileName
             self.setStatus("Invalid excel file!")
             return
-        self._massExport(self.fileName)
+        exportName = tkFileDialog.asksaveasfilename(defaultextension = ".csv", title="Save export to")
+        self._massExport(fileName, exportName)
 
     # Creates a simple popup window with a text box, entry box, execute box, and cancel box.
     # Reads the argument from the entry box when executing the command.
@@ -299,12 +304,12 @@ class Application(tk.Frame):
         cancelButton.pack()
 
     # Executes the export of the funds in the given file, exporting in the order of Base, Actuals, Base+Actuals
-    def _massExport(self, fileName):
+    def _massExport(self, fileName, exportName):
 
         fundCodeDf = pd.read_excel(ospath("{}".format(fileName)), header=None)
 
         #todo potentially give name for mass export file
-        exportName = "MassExport {}".format(datetime.datetime.now().strftime("%Y:%m:%d %H-%M-%S"))
+        #exportName = "MassExport {}.csv".format(datetime.datetime.now().strftime("%Y:%m:%d %H-%M-%S"))
         fundCount = 0
         skippedCount = 0
         for row in fundCodeDf.iterrows():
@@ -314,6 +319,8 @@ class Application(tk.Frame):
             if fillInputError is True:
                 skippedCount += 1
                 continue
+            else:
+                '''
             for periodLength in ModelPeriod.ModelPeriod:
                 self.setEntryText(self.segmentsTEXT, periodLength.value)
                 for type in range(0, 3):
@@ -321,6 +328,11 @@ class Application(tk.Frame):
                     self._fillInputs()
                     self._createModel()
                     self._exportModel(exportName)
+                    '''
+                self._fillInputs()
+                self._createModel()
+                self._exportModel(exportName)
+                print "exporting {}".format(self.fundNameTEXT)
             fundCount += 1
 
         self.setStatus("{} exported, {} skipped".format(fundCount, skippedCount))

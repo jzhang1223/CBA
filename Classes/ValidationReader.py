@@ -3,9 +3,9 @@ from os.path import expanduser as ospath
 from Classes import Query
 from Classes import ValidationTables
 
+
 class ValidationReader(object):
 
-    #"CBA Cash Flow Model - v2.17 Clearspring Analysis.xlsx" ... initial test file
     def __init__(self, fileName):
         self.CashFlowDB = Query.Query()
         self.fileName = fileName
